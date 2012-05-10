@@ -8,7 +8,6 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>net.java.webresource</groupId>
 	<artifactId>webresource-generator</artifactId>
 	<name>Webresource Annotation Processor</name>
 

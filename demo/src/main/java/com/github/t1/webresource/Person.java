@@ -1,4 +1,4 @@
-package net.java.webresource;
+package com.github.t1.webresource;
 
 import java.io.Serializable;
 
@@ -6,7 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import javax.xml.bind.annotation.*;
 
-import net.java.webresource.WebResource;
+import com.github.t1.webresource.WebResource;
 
 @Entity
 @XmlRootElement

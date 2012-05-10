@@ -1,4 +1,4 @@
-package net.java.webresource;
+package com.github.t1.webresource;
 
 import java.util.*;
 

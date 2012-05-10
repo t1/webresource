@@ -1,6 +1,8 @@
-package net.java.webresource;
+package com.github.t1.webresource;
 
 import java.io.*;
+
+import javax.ws.rs.*;
 
 import org.apache.http.*;
 import org.apache.http.client.*;
@@ -12,7 +14,17 @@ import org.apache.http.message.BasicHeader;
 public class PersonWebClient {
     private static final String BASE_URL = "http://localhost:8080/webresource-demo/";
 
+    public interface PersonService {
+        @GET
+        @Path("persons")
+        @Produces("text/xml")
+        String getPersons();
+    }
+
     public static void main(String[] args) throws IOException {
+        // RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
+        // SimpleClient client = ProxyFactory.create(SimpleClient.class, "http://localhost:8081");
+        // client.putBasic("hello world");
         new PersonWebClient().run();
     }
 

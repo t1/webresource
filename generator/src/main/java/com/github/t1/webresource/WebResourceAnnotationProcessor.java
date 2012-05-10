@@ -1,4 +1,4 @@
-package net.java.webresource;
+package com.github.t1.webresource;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,11 +25,10 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     private WebResourceGenerator generator;
 
     @Override
-    public synchronized void init(@SuppressWarnings("hiding") ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
+    public synchronized void init(ProcessingEnvironment env) {
+        super.init(env);
         Messager messager = getMessager();
-        Filer filer = processingEnv.getFiler();
-        this.generator = new WebResourceGenerator(messager, filer);
+        this.generator = new WebResourceGenerator(messager, env);
     }
 
     @Override
