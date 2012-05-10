@@ -1,0 +1,70 @@
+package ${pkg};
+
+import java.util.List;
+import javax.ejb.Stateless;
+import javax.persistence.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+
+@Path("/")
+@Stateless public class ${simple}WebResource {
+    @PersistenceContext
+    private EntityManager em;
+
+    @GET
+    @Path("${lower}s")
+    public List<${simple}> get${simple}s() {
+        return em.createQuery("select m from ${simple} m order by m.id").getResultList();
+    }
+
+    @GET
+    @Path("${lower}/{id}")
+    public Response get${simple}(@PathParam("id") long id) {
+        ${simple} result = em.find(${simple}.class, id);
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @POST
+    @Path("${lower}s")
+    public Response create${simple}(${simple} ${lower}, @Context UriInfo uriInfo) {
+        em.persist(${lower});
+        em.flush();
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder();
+        builder.path("${lower}").path(Long.toString(${lower}.getId()));
+        return Response.created(builder.build()).build();
+    }
+
+    @PUT
+    @Path("${lower}/{id}")
+    public Response update${simple}(@PathParam("id") long id, ${simple} ${lower}) {
+        if (${lower}.getId() == null) {
+            ${lower}.setId(id);
+        } else if (id != ${lower}.getId()) {
+            return Response.serverError().build();
+        }
+        ${simple} result = em.merge(${lower});
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @DELETE
+    @Path("${lower}/{id}")
+    public Response delete${simple}(@PathParam("id") long id) {
+        ${simple} result = em.find(${simple}.class, id);
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        em.remove(result);
+        return Response.ok(result).build();
+    }
+
+    // TODO HEAD
+    // TODO OPTIONS
+}
