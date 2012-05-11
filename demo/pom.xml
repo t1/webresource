@@ -53,20 +53,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<scope>test</scope>
-<!-- 			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-			</exclusions>
- -->		</dependency>
-		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-client</artifactId>
-			<version>1.0-beta-8</version>
+			<artifactId>resteasy-jaxrs</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -1,17 +1,14 @@
 package com.github.t1.webresource;
 
-import java.io.*;
-
 import javax.ws.rs.*;
 
-import org.apache.http.*;
-import org.apache.http.client.*;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.*;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
+import org.jboss.resteasy.client.*;
+import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
+// TODO turn this into an automated integration test
 public class PersonWebClient {
+    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
     private static final String BASE_URL = "http://localhost:8080/webresource-demo/";
 
     public interface PersonService {
@@ -19,111 +16,72 @@ public class PersonWebClient {
         @Path("persons")
         @Produces("text/xml")
         String getPersons();
+
+        @GET
+        @Path("person/{id}")
+        @Produces("text/xml")
+        String getPerson(@PathParam("id") long id);
+
+        @POST
+        @Path("persons")
+        @Consumes("text/xml")
+        public ClientResponse<String> createPerson(String person);
+
+        @PUT
+        @Path("person/{id}")
+        @Consumes("text/xml")
+        @Produces("text/xml")
+        public String updatePerson(@PathParam("id") long id, String person);
+
+        @DELETE
+        @Path("person/{id}")
+        @Produces("text/xml")
+        public String deletePerson(@PathParam("id") long id);
     }
 
-    public static void main(String[] args) throws IOException {
-        // RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
-        // SimpleClient client = ProxyFactory.create(SimpleClient.class, "http://localhost:8081");
-        // client.putBasic("hello world");
+    static {
+        RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
+    }
+
+    public static void main(String[] args) {
         new PersonWebClient().run();
     }
 
-    private final HttpClient httpClient = new DefaultHttpClient();
-    private final boolean verbose = false;
+    private final PersonService client = ProxyFactory.create(PersonService.class, BASE_URL);
 
-    public void run() throws IOException {
-        get("persons");
-        String created = create();
-        get("persons");
-        update(created);
-        get(created);
-        delete(created);
-        get("persons");
+    public void run() {
+        println("GET persons", client.getPersons());
+        long id = create();
+        println("GET persons", client.getPersons());
+        println("PUT " + id, client.updatePerson(id, "" //
+                + "<person>" //
+                + "  <first>Jim</first>" //
+                + "  <last>Doe</last>" //
+                + "</person>"));
+        println("GET person", client.getPerson(id));
+        println("DELETE " + id, client.deletePerson(id));
+        println("GET persons", client.getPersons());
     }
 
-    private void get(String relativePath) throws IOException, ClientProtocolException {
-        System.out.println("GET " + relativePath);
-        HttpGet request = new HttpGet(BASE_URL + relativePath);
-        setAcceptHeader(request);
-
-        printResponse(httpClient.execute(request));
+    private void println(String prefix, String xml) {
+        if (xml.startsWith(XML_HEADER))
+            xml = xml.substring(XML_HEADER.length());
+        System.out.println(prefix + ": " + xml);
     }
 
-    private void setAcceptHeader(HttpMessage request) {
-        request.setHeader(new BasicHeader("Accept", "text/xml"));
-    }
-
-    private String create() throws IOException, ClientProtocolException {
-        System.out.println("POST");
-        HttpPost request = new HttpPost(BASE_URL + "persons");
-        setEntity(request, "" //
+    private long create() {
+        ClientResponse<String> result = client.createPerson("" //
                 + "<person>" //
                 + "  <first>Joe</first>" //
                 + "  <last>Doe</last>" //
                 + "</person>");
-
-        HttpResponse response = httpClient.execute(request);
-        response.getEntity().getContent().close(); // ignore
-
-        String location = response.getFirstHeader("Location").getValue();
+        result.getEntity();
+        String location = result.getHeaders().getFirst("Location");
         assert location.startsWith(BASE_URL);
-        System.out.println("created: " + location + "\n");
-        return location.substring(BASE_URL.length());
-    }
-
-    protected void setEntity(HttpEntityEnclosingRequest request, final String body) {
-        request.setHeader(new BasicHeader("Content-Type", "text/xml"));
-        ContentProducer cp = new ContentProducer() {
-            @Override
-            public void writeTo(OutputStream outstream) throws IOException {
-                Writer writer = new OutputStreamWriter(outstream, "UTF-8");
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                writer.write(body);
-                writer.flush();
-            }
-        };
-        HttpEntity entity = new EntityTemplate(cp);
-        request.setEntity(entity);
-    }
-
-    private void update(String relativePath) throws IOException {
-        System.out.println("PUT " + relativePath);
-        HttpPut request = new HttpPut(BASE_URL + relativePath);
-        setEntity(request, "" //
-                + "<person>" //
-                + "  <first>Jim</first>" //
-                + "  <last>Doe</last>" //
-                + "</person>");
-        setAcceptHeader(request);
-
-        printResponse(httpClient.execute(request));
-    }
-
-    private void delete(String relativePath) throws IOException {
-        System.out.println("DELETE " + relativePath);
-        HttpDelete request = new HttpDelete(BASE_URL + relativePath);
-        setAcceptHeader(request);
-
-        printResponse(httpClient.execute(request));
-    }
-
-    private void printResponse(HttpResponse response) throws IOException {
-        if (verbose) {
-            System.out.println(response.getStatusLine());
-            for (Header header : response.getAllHeaders()) {
-                System.out.println(header);
-            }
-        }
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-            while (true) {
-                String line = reader.readLine();
-                if (line == null)
-                    break;
-                System.out.println(line);
-            }
-        }
-        System.out.println();
+        location = location.substring(BASE_URL.length());
+        assert location.startsWith("person/");
+        location = location.substring(7);
+        println("POST: created", location);
+        return Long.valueOf(location);
     }
 }
