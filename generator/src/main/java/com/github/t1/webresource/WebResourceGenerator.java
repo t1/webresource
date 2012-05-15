@@ -19,14 +19,13 @@ public class WebResourceGenerator extends TemplateGenerator {
 
     @Override
     protected String replaceVariable(String variable) {
-        switch (variable) {
-        case "simple":
+        if ("simple".equals(variable)) {
             return getSimple();
-        case "lower":
+        } else if ("lower".equals(variable)) {
             return getSimple().toLowerCase();
-        case "pkg":
+        } else if ("pkg".equals(variable)) {
             return getPackage();
-        default:
+        } else {
             throw new RuntimeException("invalid variable name " + variable);
         }
     }

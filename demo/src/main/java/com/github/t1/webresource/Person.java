@@ -1,12 +1,11 @@
 package com.github.t1.webresource;
 
 import java.io.Serializable;
+import java.util.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import javax.xml.bind.annotation.*;
-
-import com.github.t1.webresource.WebResource;
 
 @Entity
 @XmlRootElement
@@ -27,6 +26,9 @@ public class Person implements Serializable {
     @Size(min = 1, max = 50)
     @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
     private String last;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Tag> tags;
 
     /** required by JAXB */
     Person() {
@@ -62,39 +64,29 @@ public class Person implements Serializable {
         this.last = last;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((first == null) ? 0 : first.hashCode());
-        result = prime * result + ((last == null) ? 0 : last.hashCode());
-        return result;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public void addTag(Tag tag) {
+        if (tags == null)
+            tags = new ArrayList<>();
+        tags.add(tag);
+    }
+
+    public boolean removeTag(Tag tag) {
+        if (tags == null)
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Person other = (Person) obj;
-        if (first == null) {
-            if (other.first != null)
-                return false;
-        } else if (!first.equals(other.first))
-            return false;
-        if (last == null) {
-            if (other.last != null)
-                return false;
-        } else if (!last.equals(other.last))
-            return false;
-        return true;
+        return tags.remove(tag);
     }
 
     @Override
     public String toString() {
-        return "Person [first=" + first + ", last=" + last + "]";
+        return "Person [" + (id != null ? "id=" + id + ", " : "") + (first != null ? "first=" + first + ", " : "")
+                + (last != null ? "last=" + last + ", " : "") + (tags != null ? "tags=" + tags : "") + "]";
     }
 }

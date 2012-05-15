@@ -18,7 +18,7 @@ import net.java.messageapi.processor.SupportedAnnotationClasses;
  * 
  * TODO generalize this
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationClasses(WebResource.class)
 public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
 
