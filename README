@@ -1,0 +1,1 @@
+Add @WebResource to your @Entity to generate a standard REST binding.
