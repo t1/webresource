@@ -9,7 +9,7 @@ import net.java.messageapi.processor.TemplateGenerator;
 public class WebResourceGenerator extends TemplateGenerator {
 
     public WebResourceGenerator(Messager messager, ProcessingEnvironment env) {
-        super(messager, env, "WebResource.template");
+        super(messager, env, "/WebResource.template");
     }
 
     @Override

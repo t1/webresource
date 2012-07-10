@@ -13,6 +13,11 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.junit.Test;
 
 public class PersonWebResourceTest {
+
+    // MessageBodyReader/Writer
+
+    // Arquillian!
+
     static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
     static final String BASE_URL = "http://localhost:8080/webresource-demo/";
     private static final Pattern PERSON = Pattern.compile("<person id=\"(?<id>[0-9]+)\"><first>(?<first>\\w*)</first><last>(?<last>\\w*)</last></person>(?<overflow>.*)");

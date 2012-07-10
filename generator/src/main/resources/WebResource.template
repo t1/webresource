@@ -17,6 +17,7 @@ public class ${simple}WebResource /*implements WebClientType*/ {
 
     @GET
     @Path("${lower}s")
+    @SuppressWarnings("unchecked")
     public List<${simple}> get${simple}s() {
         return em.createQuery("select m from ${simple} m order by m.id").getResultList();
     }
