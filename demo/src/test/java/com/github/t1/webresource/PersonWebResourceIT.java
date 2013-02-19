@@ -7,16 +7,27 @@ import java.util.regex.*;
 
 import javax.ws.rs.*;
 
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.resteasy.client.*;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class PersonWebResourceTest {
+@RunWith(Arquillian.class)
+public class PersonWebResourceIT {
 
-    // MessageBodyReader/Writer
+    // TODO use MessageBodyReader/Writer instead of parsing xml
 
-    // Arquillian!
+    @Deployment
+    public static WebArchive createDeployment() {
+        return ShrinkWrap.create(WebArchive.class, PersonWebResourceIT.class.getName() + ".war") //
+        .addClasses(Person.class, Tag.class).addClass(Person.class.getName() + "WebResource") //
+        ;
+    }
 
     static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
     static final String BASE_URL = "http://localhost:8080/webresource-demo/";
@@ -27,6 +38,11 @@ public class PersonWebResourceTest {
         @Path("persons")
         @Produces("text/xml")
         String getPersons();
+
+        @GET
+        @Path("person-extension")
+        @Produces("text/xml")
+        String getExtension();
 
         @GET
         @Path("person/{id}")
@@ -55,22 +71,27 @@ public class PersonWebResourceTest {
     }
 
     public static void main(String[] args) {
-        new PersonWebResourceTest().run();
+        new PersonWebResourceIT().run();
     }
 
     private final PersonService client = ProxyFactory.create(PersonService.class, BASE_URL);
 
     @Test
     public void run() {
+        System.out.println("------------------------------------ getAll");
         List<Long> before = getAll();
 
+        System.out.println("------------------------------------ create");
         long id = create();
+
+        System.out.println("------------------------------------ getAll");
         List<Long> created = getAll();
         assertEquals(before.size() + 1, created.size());
         assertTrue(created.contains(id));
 
         match(client.getPerson(id), id, "Joe");
 
+        System.out.println("------------------------------------ update");
         String updated = client.updatePerson(id, "" //
                 + "<person>" //
                 + "  <first>Jim</first>" //
@@ -78,11 +99,17 @@ public class PersonWebResourceTest {
                 + "</person>");
         match(updated, id, "Jim");
 
+        System.out.println("------------------------------------ get");
         match(client.getPerson(id), id, "Jim");
 
+        System.out.println("------------------------------------ extension");
+        assertEquals("hello extension", client.getExtension());
+
+        System.out.println("------------------------------------ delete");
         match(client.deletePerson(id), id, "Jim");
 
         assertEquals(before, getAll());
+        System.out.println("------------------------------------ done");
     }
 
     private void match(String xml, long id, String first) {
@@ -94,8 +121,12 @@ public class PersonWebResourceTest {
     }
 
     private List<Long> getAll() {
+        System.out.println("-------- getPersons");
         String xml = client.getPersons();
+        System.out.println(xml);
+        System.out.println("-------- stripHeader");
         xml = stripHeader(xml);
+        System.out.println(xml);
         if ("<collection/>".equals(xml))
             return Collections.emptyList();
         assertTrue(xml.startsWith("<collection>"));
