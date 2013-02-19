@@ -1,15 +1,16 @@
 package com.github.t1.webresource;
 
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.util.Elements;
 
 import net.java.messageapi.processor.TemplateGenerator;
 
 public class WebResourceGenerator extends TemplateGenerator {
 
-    public WebResourceGenerator(Messager messager, ProcessingEnvironment env) {
-        super(messager, env, "/WebResource.template");
+    public WebResourceGenerator(Messager messager, Filer filer, Elements utils) {
+        super(messager, filer, utils, "/WebResource.template");
     }
 
     @Override

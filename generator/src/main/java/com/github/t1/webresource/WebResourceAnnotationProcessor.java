@@ -28,7 +28,7 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
         Messager messager = getMessager();
-        this.generator = new WebResourceGenerator(messager, env);
+        this.generator = new WebResourceGenerator(messager, env.getFiler(), env.getElementUtils());
     }
 
     @Override
