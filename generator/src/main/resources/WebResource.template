@@ -18,7 +18,7 @@ public class ${simple}WebResource /*implements WebClientType*/ {
     @GET
     @Path("${lower}s")
     public List<${simple}> get${simple}s() {
-        return em.createQuery("select m from ${simple} m order by m.id", ${simple}.class).getResultList();
+        return em.createQuery("FROM ${simple} ORDER BY id", ${simple}.class).getResultList();
     }
 
     @GET
@@ -48,7 +48,9 @@ public class ${simple}WebResource /*implements WebClientType*/ {
         if (${lower}.getId() == null) {
             ${lower}.setId(id);
         } else if (id != ${lower}.getId()) {
-            return Response.serverError().build();
+            String message = "id conflict! path=" + id + ", body=" + ${lower}.getId() + ".\n"
+                + "either leave the id in the body null or set it to the same id";
+            return Response.status(Status.BAD_REQUEST).entity(message).build();
         }
         ${simple} result = em.merge(${lower});
         if (result == null) {
@@ -67,7 +69,4 @@ public class ${simple}WebResource /*implements WebClientType*/ {
         em.remove(result);
         return Response.ok(result).build();
     }
-
-    // TODO HEAD
-    // TODO OPTIONS
 }
