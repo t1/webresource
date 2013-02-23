@@ -6,6 +6,8 @@ TODO:
 Dynamic generation at runtime.
 Provide @Version as ETag.
 Provide Timestamp as lastModified.
-Support other that Long ids.
-Support HEAD
-Support OPTIONS, TRACE, others?
+Support pagination.
+Support other that Long ids (String, int, any?).
+Support HEAD.
+Support OPTIONS.
+Support TRACE (if it's necessary; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html).
