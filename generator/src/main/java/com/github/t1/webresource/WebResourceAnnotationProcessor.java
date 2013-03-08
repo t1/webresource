@@ -10,13 +10,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
-import net.java.messageapi.processor.AbstractProcessor2;
-import net.java.messageapi.processor.SupportedAnnotationClasses;
-
 /**
  * The annotation processor that generates the REST bindings
- * 
- * TODO generalize this
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedAnnotationClasses(WebResource.class)

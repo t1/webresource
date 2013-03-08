@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
+@Ignore("just an experiment")
 public class WebresourceIT {
     private static final Client CLIENT = null; // ClientFactory.newClient();
     private static final String WAR = "webresource-it";
@@ -30,7 +31,6 @@ public class WebresourceIT {
     }
 
     @Test
-    @Ignore("just an experiment")
     public void shouldHttpGet() throws Exception {
         WebTarget target = CLIENT.target("http://example.com/shop");
         Form form = new Form().param("customer", "Bill").param("product", "IPhone 5").param("CC", "4444 4444 4444 4444");
@@ -40,7 +40,6 @@ public class WebresourceIT {
     }
 
     @Test
-    @Ignore("just an experiment")
     public void shouldConvertXmlSuffixToMediaType() throws Exception {
         WebTarget target = CLIENT.target("http://example.com/" + WAR + "/testentity.xml");
         Response response = target.request().get();
