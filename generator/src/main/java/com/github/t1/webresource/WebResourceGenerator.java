@@ -1,9 +1,7 @@
 package com.github.t1.webresource;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.IOException;
+import java.io.Writer;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -12,38 +10,10 @@ import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
 
 class WebResourceGenerator extends AbstractGenerator {
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
-    private static final Pattern VAR = Pattern.compile("\\$\\{([^}]+)\\}");
-
     private TypeElement type;
 
     public WebResourceGenerator(Messager messager, Filer filer, Elements utils) {
         super(messager, filer, utils);
-    }
-
-    private String replaceVariable(String variable) {
-        if ("simple".equals(variable)) {
-            return getSimple();
-        } else if ("lower".equals(variable)) {
-            return getSimple().toLowerCase();
-        } else if ("pkg".equals(variable)) {
-            return getPackage();
-        } else {
-            throw new RuntimeException("invalid variable name " + variable);
-        }
-    }
-
-    private String getSimple() {
-        return type.getSimpleName().toString();
-    }
-
-    private String getPackage() {
-        for (Element e = type; e != null; e = e.getEnclosingElement()) {
-            if (e.getKind() == ElementKind.PACKAGE) {
-                return ((PackageElement) e).getQualifiedName().toString();
-            }
-        }
-        throw new IllegalStateException("no package for " + type);
     }
 
     @Override
@@ -89,43 +59,19 @@ class WebResourceGenerator extends AbstractGenerator {
     }
 
     private String generateSource() {
-        StringBuffer result = new StringBuffer();
-        BufferedReader reader = null;
-        try {
-            try {
-                reader = new BufferedReader(getTemplateReader());
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    appendLine(result, line);
-                }
-            } finally {
-                if (reader != null) {
-                    reader.close();
-                }
+        return new WebResourceWriter(pkg(), simple()).run();
+    }
+
+    private String pkg() {
+        for (Element e = type; e != null; e = e.getEnclosingElement()) {
+            if (e.getKind() == ElementKind.PACKAGE) {
+                return ((PackageElement) e).getQualifiedName().toString();
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
-        return result.toString();
+        throw new IllegalStateException("no package for " + type);
     }
 
-    /**
-     * The {@link Reader} for your template. Instead of overriding this method, you can also pass the name of a template
-     * resource relative to your subclass into the {@link #TemplateGenerator(Messager, Filer, String)} constructor.
-     */
-    private Reader getTemplateReader() {
-        String templateName = "/WebResource.template";
-        InputStream intputStream = this.getClass().getResourceAsStream(templateName);
-        if (intputStream == null)
-            throw new RuntimeException("can't find " + templateName);
-        return new InputStreamReader(intputStream, UTF_8);
-    }
-
-    private void appendLine(StringBuffer result, String line) {
-        Matcher matcher = VAR.matcher(line);
-        while (matcher.find()) {
-            matcher.appendReplacement(result, replaceVariable(matcher.group(1)));
-        }
-        matcher.appendTail(result).append('\n');
+    private String simple() {
+        return type.getSimpleName().toString();
     }
 }
