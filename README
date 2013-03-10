@@ -4,9 +4,10 @@ This is similar to what EclipseLink provides (http://wiki.eclipse.org/EclipseLin
 
 TODO:
 Non-Primary-Key field for resource-id
-other that Long ids (String, int, any?)
+Other that Long ids (String, int, any?)
 @Version as ETag.
 Timestamp as lastModified.
+Queries by prepared statements.
 Dynamic generation at runtime?
 pagination
 HEAD

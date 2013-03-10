@@ -1,18 +1,35 @@
 package com.github.t1.webresource;
 
+import javax.lang.model.element.*;
+
 class WebResourceWriter {
     private final StringBuilder out = new StringBuilder();
 
+    private final TypeElement type;
     private final String pkg;
     private final String simple;
     private final String lower;
 
     private int indent = 0;
 
-    public WebResourceWriter(String pkg, String simple) {
-        this.pkg = pkg;
-        this.simple = simple;
+    public WebResourceWriter(TypeElement type) {
+        this.type = type;
+        this.pkg = pkg();
+        this.simple = simple();
         this.lower = simple.toLowerCase();
+    }
+
+    private String pkg() {
+        for (Element e = type; e != null; e = e.getEnclosingElement()) {
+            if (e.getKind() == ElementKind.PACKAGE) {
+                return ((PackageElement) e).getQualifiedName().toString();
+            }
+        }
+        throw new IllegalStateException("no package for " + type);
+    }
+
+    private String simple() {
+        return type.getSimpleName().toString();
     }
 
     public String run() {
