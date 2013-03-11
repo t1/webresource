@@ -9,6 +9,7 @@ class WebResourceWriter {
     private final String pkg;
     private final String simple;
     private final String lower;
+    private final String path;
 
     private int indent = 0;
 
@@ -17,6 +18,7 @@ class WebResourceWriter {
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
+        this.path = path(lower);
     }
 
     private String pkg() {
@@ -26,6 +28,12 @@ class WebResourceWriter {
             }
         }
         throw new IllegalStateException("no package for " + type);
+    }
+
+    private String path(String name) {
+        if (name.endsWith("y"))
+            return name.substring(0, name.length() - 1) + "ies";
+        return name + "s";
     }
 
     public String run() {
@@ -73,8 +81,8 @@ class WebResourceWriter {
 
     private void getAll() {
         append("@GET");
-        append("@Path(\"" + lower + "s\")");
-        append("public List<" + simple + "> get" + simple + "s() {");
+        append("@Path(\"" + path + "\")");
+        append("public List<" + simple + "> getAll() {");
         ++indent;
         append("return em.createQuery(\"FROM " + simple + " ORDER BY id\", " + simple + ".class).getResultList();");
         --indent;
@@ -83,7 +91,7 @@ class WebResourceWriter {
 
     private void getOne() {
         append("@GET");
-        append("@Path(\"" + lower + "/{id}\")");
+        append("@Path(\"" + path + "/{id}\")");
         append("public Response get" + simple + "(@PathParam(\"id\") long id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");
@@ -99,7 +107,7 @@ class WebResourceWriter {
 
     private void post() {
         append("@POST");
-        append("@Path(\"" + lower + "s\")");
+        append("@Path(\"" + path + "\")");
         append("public Response create" + simple + "(" + simple + " " + lower + ", @Context UriInfo uriInfo) {");
         ++indent;
         append("em.persist(" + lower + ");");
@@ -114,7 +122,7 @@ class WebResourceWriter {
 
     private void put() {
         append("@PUT");
-        append("@Path(\"" + lower + "/{id}\")");
+        append("@Path(\"" + path + "/{id}\")");
         append("public Response update" + simple + "(@PathParam(\"id\") long id, " + simple + " " + lower + ") {");
         ++indent;
         append("if (" + lower + ".getId() == null) {");
@@ -141,7 +149,7 @@ class WebResourceWriter {
 
     private void delete() {
         append("@DELETE");
-        append("@Path(\"" + lower + "/{id}\")");
+        append("@Path(\"" + path + "/{id}\")");
         append("public Response delete" + simple + "(@PathParam(\"id\") long id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");

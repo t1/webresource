@@ -14,13 +14,13 @@ public class TestEntityWebResource {
     private EntityManager em;
 
     @GET
-    @Path("testentitys")
-    public List<TestEntity> getTestEntitys() {
+    @Path("testentities")
+    public List<TestEntity> getAll() {
         return em.createQuery("FROM TestEntity ORDER BY id", TestEntity.class).getResultList();
     }
 
     @GET
-    @Path("testentity/{id}")
+    @Path("testentities/{id}")
     public Response getTestEntity(@PathParam("id") long id) {
         TestEntity result = em.find(TestEntity.class, id);
         if (result == null) {
@@ -30,7 +30,7 @@ public class TestEntityWebResource {
     }
 
     @POST
-    @Path("testentitys")
+    @Path("testentities")
     public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
         em.persist(testentity);
         em.flush();
@@ -41,7 +41,7 @@ public class TestEntityWebResource {
     }
 
     @PUT
-    @Path("testentity/{id}")
+    @Path("testentities/{id}")
     public Response updateTestEntity(@PathParam("id") long id, TestEntity testentity) {
         if (testentity.getId() == null) {
             testentity.setId(id);
@@ -58,7 +58,7 @@ public class TestEntityWebResource {
     }
 
     @DELETE
-    @Path("testentity/{id}")
+    @Path("testentities/{id}")
     public Response deleteTestEntity(@PathParam("id") long id) {
         TestEntity result = em.find(TestEntity.class, id);
         if (result == null) {
