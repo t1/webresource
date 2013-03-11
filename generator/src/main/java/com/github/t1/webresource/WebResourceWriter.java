@@ -15,7 +15,7 @@ class WebResourceWriter {
     public WebResourceWriter(TypeElement type) {
         this.type = type;
         this.pkg = pkg();
-        this.simple = simple();
+        this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
     }
 
@@ -28,16 +28,28 @@ class WebResourceWriter {
         throw new IllegalStateException("no package for " + type);
     }
 
-    private String simple() {
-        return type.getSimpleName().toString();
-    }
-
     public String run() {
         append("package " + pkg + ";");
         nl();
         imports();
         nl();
-        classDeclaration();
+        clazz();
+        return out.toString();
+    }
+
+    private void imports() {
+        append("import java.util.List;");
+        append("import javax.ejb.Stateless;");
+        append("import javax.persistence.*;");
+        append("import javax.ws.rs.*;");
+        append("import javax.ws.rs.core.*;");
+        append("import javax.ws.rs.core.Response.Status;");
+    }
+
+    private void clazz() {
+        append("@Path(\"/\")");
+        append("@Stateless");
+        append("public class " + simple + "WebResource {");
         ++indent;
         entityManager();
         nl();
@@ -52,23 +64,6 @@ class WebResourceWriter {
         delete();
         --indent;
         append("}");
-
-        return out.toString();
-    }
-
-    private void imports() {
-        append("import java.util.List;");
-        append("import javax.ejb.Stateless;");
-        append("import javax.persistence.*;");
-        append("import javax.ws.rs.*;");
-        append("import javax.ws.rs.core.*;");
-        append("import javax.ws.rs.core.Response.Status;");
-    }
-
-    private void classDeclaration() {
-        append("@Path(\"/\")");
-        append("@Stateless");
-        append("public class " + simple + "WebResource {");
     }
 
     private void entityManager() {
