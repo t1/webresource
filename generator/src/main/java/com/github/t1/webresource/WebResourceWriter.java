@@ -61,15 +61,15 @@ class WebResourceWriter {
         ++indent;
         entityManager();
         nl();
-        getAll();
+        GET_ALL();
         nl();
-        getOne();
+        GET_ONE();
         nl();
-        post();
+        POST();
         nl();
-        put();
+        PUT();
         nl();
-        delete();
+        DELETE();
         --indent;
         append("}");
     }
@@ -83,7 +83,7 @@ class WebResourceWriter {
         append("private EntityManager em;");
     }
 
-    private void getAll() {
+    private void GET_ALL() {
         append("@GET");
         path(plural);
         append("public List<" + simple + "> getAll() {");
@@ -93,9 +93,9 @@ class WebResourceWriter {
         append("}");
     }
 
-    private void getOne() {
+    private void GET_ONE() {
         append("@GET");
-        path(plural + "/{id}");
+        idPath();
         append("public Response get" + simple + "(@PathParam(\"id\") long id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");
@@ -109,7 +109,11 @@ class WebResourceWriter {
         append("}");
     }
 
-    private void post() {
+    private void idPath() {
+        path(plural + "/{id}");
+    }
+
+    private void POST() {
         append("@POST");
         path(plural);
         append("public Response create" + simple + "(" + simple + " " + lower + ", @Context UriInfo uriInfo) {");
@@ -124,9 +128,9 @@ class WebResourceWriter {
         append("}");
     }
 
-    private void put() {
+    private void PUT() {
         append("@PUT");
-        path(plural + "/{id}");
+        idPath();
         append("public Response update" + simple + "(@PathParam(\"id\") long id, " + simple + " " + lower + ") {");
         ++indent;
         append("if (" + lower + ".getId() == null) {");
@@ -151,9 +155,9 @@ class WebResourceWriter {
         append("}");
     }
 
-    private void delete() {
+    private void DELETE() {
         append("@DELETE");
-        path(plural + "/{id}");
+        idPath();
         append("public Response delete" + simple + "(@PathParam(\"id\") long id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");
