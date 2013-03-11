@@ -36,16 +36,14 @@ public class TestEntityWebResource {
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
-        builder.path("testentity").path(Long.toString(testentity.getId()));
+        builder.path("testentity").path("" + testentity.getId());
         return Response.created(builder.build()).build();
     }
 
     @PUT
     @Path("testentities/{id}")
     public Response updateTestEntity(@PathParam("id") long id, TestEntity testentity) {
-        if (testentity.getId() == null) {
-            testentity.setId(id);
-        } else if (id != testentity.getId()) {
+        if (id != testentity.getId()) {
             String message = "id conflict! path=" + id + ", body=" + testentity.getId() + ".\n"
                 + "either leave the id in the body null or set it to the same id";
             return Response.status(Status.BAD_REQUEST).entity(message).build();

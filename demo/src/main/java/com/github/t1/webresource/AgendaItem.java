@@ -1,6 +1,7 @@
 package com.github.t1.webresource;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,8 +19,8 @@ public abstract class AgendaItem implements Serializable {
     @Id
     @GeneratedValue
     @XmlAttribute
-    private Long id;
-
+    private BigDecimal id;
+ 
     @NotNull
     private String text;
 

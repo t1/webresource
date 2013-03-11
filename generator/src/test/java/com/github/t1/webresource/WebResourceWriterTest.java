@@ -3,13 +3,9 @@ package com.github.t1.webresource;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import javax.lang.model.element.*;
-
-import lombok.Data;
-import lombok.Delegate;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
-    @Data
-    private static class TestName implements Name {
-        @Delegate
-        final String name;
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
     @Mock
     TypeElement type;
     @Mock
@@ -37,10 +22,10 @@ public class WebResourceWriterTest {
     @Test
     public void shouldGenerateTheSame() throws Exception {
         when(type.getEnclosingElement()).thenReturn(pkg);
-        when(type.getSimpleName()).thenReturn(new TestName("TestEntity"));
+        when(type.getSimpleName()).thenReturn(new NameMock("TestEntity"));
 
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
-        when(pkg.getQualifiedName()).thenReturn(new TestName("com.github.t1.webresource"));
+        when(pkg.getQualifiedName()).thenReturn(new NameMock("com.github.t1.webresource"));
 
         String oldGenerator = readReference();
         String newGenerator = new WebResourceWriter(type).run();
@@ -49,7 +34,10 @@ public class WebResourceWriterTest {
     }
 
     private String readReference() throws IOException {
-        InputStream inputStream = WebResourceWriterTest.class.getResourceAsStream("TestEntityWebResource.txt");
+        String fileName = "TestEntityWebResource.txt";
+        InputStream inputStream = WebResourceWriterTest.class.getResourceAsStream(fileName);
+        if (inputStream == null)
+            throw new FileNotFoundException(fileName);
         StringBuilder result = new StringBuilder();
         while (true) {
             int c = inputStream.read();

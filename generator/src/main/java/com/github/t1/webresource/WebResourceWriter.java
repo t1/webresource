@@ -10,21 +10,25 @@ class WebResourceWriter {
     private final String simple;
     private final String lower;
     private final String plural;
+    private final IdType idType;
 
     private int indent = 0;
 
     public WebResourceWriter(TypeElement type) {
+        System.out.println(">>>> " + type);
         this.type = type;
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
+        this.idType = new IdType(type);
+        System.out.println("<<<< " + type);
     }
 
     private String pkg() {
-        for (Element e = type; e != null; e = e.getEnclosingElement()) {
-            if (e.getKind() == ElementKind.PACKAGE) {
-                return ((PackageElement) e).getQualifiedName().toString();
+        for (Element element = type; element != null; element = element.getEnclosingElement()) {
+            if (ElementKind.PACKAGE == element.getKind()) {
+                return ((PackageElement) element).getQualifiedName().toString();
             }
         }
         throw new IllegalStateException("no package for " + type);
@@ -96,7 +100,7 @@ class WebResourceWriter {
     private void GET_ONE() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") long id) {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");
         append("if (result == null) {");
@@ -122,7 +126,7 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + lower + "\").path(Long.toString(" + lower + ".getId()));");
+        append("builder.path(\"" + lower + "\").path(\"\" + " + lower + ".getId());");
         append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
@@ -131,13 +135,21 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         idPath();
-        append("public Response update" + simple + "(@PathParam(\"id\") long id, " + simple + " " + lower + ") {");
+        append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " id, " + simple + " " + lower
+                + ") {");
         ++indent;
-        append("if (" + lower + ".getId() == null) {");
-        ++indent;
-        append(lower + ".setId(id);");
-        --indent;
-        append("} else if (id != " + lower + ".getId()) {");
+        if (idType.nullable) {
+            append("if (" + lower + ".getId() == null) {");
+            ++indent;
+            append(lower + ".setId(id);");
+            --indent;
+            appendIndent();
+            out.append("} else ");
+        } else {
+            appendIndent();
+        }
+        out.append("if (id != " + lower + ".getId()) {");
+        nl();
         ++indent;
         append("String message = \"id conflict! path=\" + id + \", body=\" + " + lower + ".getId() + \".\\n\"");
         append("    + \"either leave the id in the body null or set it to the same id\";");
@@ -158,7 +170,7 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") long id) {");
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + idType + " id) {");
         ++indent;
         append(simple + " result = em.find(" + simple + ".class, id);");
         append("if (result == null) {");
