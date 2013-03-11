@@ -15,14 +15,12 @@ class WebResourceWriter {
     private int indent = 0;
 
     public WebResourceWriter(TypeElement type) {
-        System.out.println(">>>> " + type);
         this.type = type;
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
         this.idType = new IdType(type);
-        System.out.println("<<<< " + type);
     }
 
     private String pkg() {
@@ -50,6 +48,8 @@ class WebResourceWriter {
     }
 
     private void imports() {
+        if (idType.packageImport != null)
+            append("import " + idType.packageImport + ";");
         append("import java.util.List;");
         append("import javax.ejb.Stateless;");
         append("import javax.persistence.*;");

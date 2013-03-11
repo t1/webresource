@@ -45,7 +45,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("String", idType.name);
+        assertEquals("String", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -56,7 +56,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("Long", idType.name);
+        assertEquals("Long", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -67,7 +67,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("long", idType.name);
+        assertEquals("long", idType.simpleName);
         assertFalse(idType.nullable);
     }
 
@@ -78,7 +78,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("Integer", idType.name);
+        assertEquals("Integer", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -89,7 +89,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("int", idType.name);
+        assertEquals("int", idType.simpleName);
         assertFalse(idType.nullable);
     }
 
@@ -100,7 +100,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("Short", idType.name);
+        assertEquals("Short", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -111,7 +111,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("short", idType.name);
+        assertEquals("short", idType.simpleName);
         assertFalse(idType.nullable);
     }
 
@@ -122,7 +122,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("Double", idType.name);
+        assertEquals("Double", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -133,7 +133,7 @@ public class IdTypeTest {
         IdType idType = new IdType(type);
 
         assertNull(idType.packageImport);
-        assertEquals("double", idType.name);
+        assertEquals("double", idType.simpleName);
         assertFalse(idType.nullable);
     }
 
@@ -143,8 +143,8 @@ public class IdTypeTest {
 
         IdType idType = new IdType(type);
 
-        assertEquals("java.math", idType.packageImport);
-        assertEquals("BigInteger", idType.name);
+        assertEquals("java.math.BigInteger", idType.packageImport);
+        assertEquals("BigInteger", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -154,8 +154,8 @@ public class IdTypeTest {
 
         IdType idType = new IdType(type);
 
-        assertEquals("java.math", idType.packageImport);
-        assertEquals("BigDecimal", idType.name);
+        assertEquals("java.math.BigDecimal", idType.packageImport);
+        assertEquals("BigDecimal", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -165,8 +165,8 @@ public class IdTypeTest {
 
         IdType idType = new IdType(type);
 
-        assertEquals("java.sql", idType.packageImport);
-        assertEquals("Date", idType.name);
+        assertEquals("java.sql.Date", idType.packageImport);
+        assertEquals("Date", idType.simpleName);
         assertTrue(idType.nullable);
     }
 
@@ -176,8 +176,8 @@ public class IdTypeTest {
 
         IdType idType = new IdType(type);
 
-        assertEquals("java.util", idType.packageImport);
-        assertEquals("Date", idType.name);
+        assertEquals("java.util.Date", idType.packageImport);
+        assertEquals("Date", idType.simpleName);
         assertTrue(idType.nullable);
     }
 }

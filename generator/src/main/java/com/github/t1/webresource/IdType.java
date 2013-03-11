@@ -5,17 +5,17 @@ import javax.lang.model.element.*;
 class IdType {
 
     final String packageImport;
-    final String name;
+    final String simpleName;
     final boolean nullable;
 
     public IdType(TypeElement type) {
-        String idType = idType(type);
-        this.packageImport = pkg(idType);
-        this.name = typeName(idType);
-        this.nullable = idType.contains(".");
+        String fullyQualifiedName = fullyQualifiedName(type);
+        this.nullable = fullyQualifiedName.contains(".");
+        this.packageImport = (nullable) ? packageImport(fullyQualifiedName) : null;
+        this.simpleName = simpleName(fullyQualifiedName);
     }
 
-    private String idType(TypeElement classElement) {
+    private String fullyQualifiedName(TypeElement classElement) {
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (isIdField(enclosedElement)) {
                 return enclosedElement.asType().toString();
@@ -38,18 +38,19 @@ class IdType {
         return false;
     }
 
-    private String pkg(String typeName) {
-        int index = typeName.lastIndexOf('.');
-        if (index < 0)
+    private String packageImport(String typeName) {
+        if (typeName.startsWith("java.lang."))
             return null;
-        String pkg = typeName.substring(0, index);
-        if ("java.lang".equals(pkg))
-            return null;
-        return pkg;
+        return typeName;
     }
 
-    private String typeName(String typeName) {
+    private String simpleName(String typeName) {
         int index = typeName.lastIndexOf('.');
         return index < 0 ? typeName : typeName.substring(index + 1);
+    }
+
+    @Override
+    public String toString() {
+        return simpleName;
     }
 }
