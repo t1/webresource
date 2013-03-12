@@ -1,6 +1,8 @@
 package com.github.t1.webresource;
 
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
+import javax.tools.Diagnostic.Kind;
 
 class WebResourceWriter {
     private final StringBuilder out = new StringBuilder();
@@ -14,13 +16,16 @@ class WebResourceWriter {
 
     private int indent = 0;
 
-    public WebResourceWriter(TypeElement type) {
+    public WebResourceWriter(Messager messager, TypeElement type) {
         this.type = type;
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
-        this.idType = new IdType(type);
+        this.idType = IdType.of(type);
+        if (idType == null) {
+            messager.printMessage(Kind.ERROR, "can't find @Id field", type);
+        }
     }
 
     private String pkg() {
@@ -39,6 +44,8 @@ class WebResourceWriter {
     }
 
     public String run() {
+        if (idType == null)
+            throw new IllegalStateException("no id type found in " + type.getQualifiedName());
         append("package " + pkg + ";");
         nl();
         imports();
@@ -48,8 +55,8 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        if (idType.packageImport != null)
-            append("import " + idType.packageImport + ";");
+        if (idType.packageImport() != null)
+            append("import " + idType.packageImport() + ";");
         append("import java.util.List;");
         append("import javax.ejb.Stateless;");
         append("import javax.persistence.*;");
@@ -138,7 +145,7 @@ class WebResourceWriter {
         append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " id, " + simple + " " + lower
                 + ") {");
         ++indent;
-        if (idType.nullable) {
+        if (idType.nullable()) {
             append("if (" + lower + ".getId() == null) {");
             ++indent;
             append(lower + ".setId(id);");

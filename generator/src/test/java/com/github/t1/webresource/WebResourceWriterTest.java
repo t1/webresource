@@ -1,10 +1,13 @@
 package com.github.t1.webresource;
 
+import static com.github.t1.webresource.IdTypeTest.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
+import java.util.Arrays;
 
+import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
 
 import org.junit.Test;
@@ -18,19 +21,29 @@ public class WebResourceWriterTest {
     TypeElement type;
     @Mock
     PackageElement pkg;
+    @Mock
+    Messager messager;
 
     @Test
     public void shouldGenerateTheSame() throws Exception {
+        String packageName = "com.github.t1.webresource";
+        String typeName = "TestEntity";
+
+        when(type.getQualifiedName()).thenReturn(new NameMock(packageName + "." + typeName));
         when(type.getEnclosingElement()).thenReturn(pkg);
-        when(type.getSimpleName()).thenReturn(new NameMock("TestEntity"));
+        when(type.getSimpleName()).thenReturn(new NameMock(typeName));
+
+        Element field = mockField();
+        mockFieldType(field, "long");
+        doReturn(Arrays.asList(field)).when(type).getEnclosedElements();
 
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
-        when(pkg.getQualifiedName()).thenReturn(new NameMock("com.github.t1.webresource"));
+        when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
 
-        String oldGenerator = readReference();
-        String newGenerator = new WebResourceWriter(type).run();
+        String expected = readReference();
+        String generated = new WebResourceWriter(messager, type).run();
 
-        assertEquals(oldGenerator, newGenerator);
+        assertEquals(expected, generated);
     }
 
     private String readReference() throws IOException {

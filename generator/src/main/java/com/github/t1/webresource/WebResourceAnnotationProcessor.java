@@ -99,7 +99,7 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     }
 
     private String generateSource() {
-        return new WebResourceWriter(type).run();
+        return new WebResourceWriter(messager, type).run();
     }
 
     private String toString(Throwable e) {

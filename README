@@ -7,7 +7,6 @@ Non-Primary-Key field for resource-id (with WebResourceKey annotation).
 @Version as ETag.
 Timestamp as lastModified.
 Queries by prepared statements.
-Inherited Id field.
 Dynamic generation at runtime?
 pagination
 HEAD
