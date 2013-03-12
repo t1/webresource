@@ -20,17 +20,17 @@ public class TagIT {
         @GET
         @Path("tags")
         @Produces("text/xml")
-        String getTags();
+        public String getTags();
 
         @GET
         @Path("tag/{id}")
         @Produces("text/xml")
-        String getTag(@PathParam("id") long id);
+        public String getTag(@PathParam("id") long id);
 
         @GET
         @Path("tag/{id}")
         @Produces("text/xml")
-        Tag getTagObject(@PathParam("id") long id);
+        public Tag getTagObject(@PathParam("id") long id);
 
         @POST
         @Path("tags")

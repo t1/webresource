@@ -37,17 +37,17 @@ public class PersonWebResourceIT {
         @GET
         @Path("persons")
         @Produces("text/xml")
-        String getPersons();
+        public String getPersons();
 
         @GET
         @Path("person-extension")
         @Produces("text/xml")
-        String getExtension();
+        public String getExtension();
 
         @GET
         @Path("person/{id}")
         @Produces("text/xml")
-        String getPerson(@PathParam("id") long id);
+        public String getPerson(@PathParam("id") long id);
 
         @POST
         @Path("persons")
