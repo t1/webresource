@@ -65,11 +65,15 @@ class WebResourceWriter {
     }
 
     private void imports() {
+        append("import static javax.persistence.PersistenceContextType.*;");
+        nl();
         if (idType.packageImport() != null)
             append("import " + idType.packageImport() + ";");
         append("import java.util.List;");
+        nl();
         append("import javax.ejb.Stateless;");
         append("import javax.persistence.*;");
+        nl();
         append("import javax.ws.rs.*;");
         append("import javax.ws.rs.core.*;");
         append("import javax.ws.rs.core.Response.Status;");
@@ -100,7 +104,7 @@ class WebResourceWriter {
     }
 
     private void entityManager() {
-        append("@PersistenceContext");
+        append("@PersistenceContext(type=EXTENDED)");
         append("private EntityManager em;");
     }
 
