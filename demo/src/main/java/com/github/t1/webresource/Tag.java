@@ -14,11 +14,13 @@ public class Tag implements Serializable {
 
     @Id
     @GeneratedValue
+    @XmlTransient
     private Long id;
 
     @NotNull
     @Size(min = 1, max = 20)
     @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
+    @WebResourceKey
     private String name;
 
     private String description;

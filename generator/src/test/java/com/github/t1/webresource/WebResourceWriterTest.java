@@ -34,7 +34,7 @@ public class WebResourceWriterTest {
         when(type.getSimpleName()).thenReturn(new NameMock(typeName));
 
         Element field = mockField();
-        mockFieldType(field, "long");
+        mockFieldType(field, "long", "id");
         doReturn(Arrays.asList(field)).when(type).getEnclosedElements();
 
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);

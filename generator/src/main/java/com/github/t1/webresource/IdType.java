@@ -7,18 +7,25 @@ import javax.lang.model.type.TypeMirror;
 class IdType {
 
     public static IdType of(TypeElement type) {
-        String fullyQualifiedName = fullyQualifiedName(type);
-        if (fullyQualifiedName == null)
+        Element idField = fullyQualifiedName(type);
+        if (idField == null)
             return null;
-        return new IdType(fullyQualifiedName);
+        return new IdType(idField);
     }
 
-    private static String fullyQualifiedName(TypeElement classElement) {
+    private static Element fullyQualifiedName(TypeElement classElement) {
+        Element idField = null;
         for (Element enclosedElement : classElement.getEnclosedElements()) {
-            if (isIdField(enclosedElement)) {
-                return enclosedElement.asType().toString();
+            if (ElementKind.FIELD != enclosedElement.getKind())
+                continue;
+            if (isAnnotated(enclosedElement, WebResourceKey.class.getName()))
+                return enclosedElement;
+            if (isAnnotated(enclosedElement, "javax.persistence.Id")) {
+                idField = enclosedElement;
             }
         }
+        if (idField != null)
+            return idField;
         TypeMirror superclass = classElement.getSuperclass();
         if (superclass != null) {
             Element superElement = ((DeclaredType) superclass).asElement();
@@ -27,39 +34,41 @@ class IdType {
         return null;
     }
 
-    private static boolean isIdField(Element element) {
-        return ElementKind.FIELD == element.getKind() && isAnnotatedAsId(element);
-    }
-
-    private static boolean isAnnotatedAsId(Element element) {
+    private static boolean isAnnotated(Element element, String annotationName) {
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             // the Id type may not be available at compile-time
-            if ("javax.persistence.Id".equals(annotation.getAnnotationType().toString())) {
+            if (annotationName.equals(annotation.getAnnotationType().toString())) {
                 return true;
             }
         }
         return false;
     }
 
-    private final String fullyQualifiedName;
+    private final String fullyQualifiedTypeName;
+    private final String fieldName;
 
-    private IdType(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
+    private IdType(Element idField) {
+        this.fullyQualifiedTypeName = idField.asType().toString();
+        this.fieldName = idField.getSimpleName().toString();
     }
 
     public boolean nullable() {
-        return fullyQualifiedName.contains(".");
+        return fullyQualifiedTypeName.contains(".");
     }
 
     public String packageImport() {
-        if (!nullable() || fullyQualifiedName.startsWith("java.lang."))
+        if (!nullable() || fullyQualifiedTypeName.startsWith("java.lang."))
             return null;
-        return fullyQualifiedName;
+        return fullyQualifiedTypeName;
     }
 
     @Override
     public String toString() {
-        int index = fullyQualifiedName.lastIndexOf('.');
-        return index < 0 ? fullyQualifiedName : fullyQualifiedName.substring(index + 1);
+        int index = fullyQualifiedTypeName.lastIndexOf('.');
+        return index < 0 ? fullyQualifiedTypeName : fullyQualifiedTypeName.substring(index + 1);
+    }
+
+    public String fieldName() {
+        return fieldName;
     }
 }

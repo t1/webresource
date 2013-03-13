@@ -13,6 +13,7 @@ class WebResourceWriter {
     private final String lower;
     private final String plural;
     private final IdType idType;
+    private final String upperCapsFieldName;
 
     private int indent = 0;
 
@@ -26,6 +27,7 @@ class WebResourceWriter {
         if (idType == null) {
             messager.printMessage(Kind.ERROR, "can't find @Id field", type);
         }
+        this.upperCapsFieldName = (idType == null) ? null : uppercaps(idType.fieldName());
     }
 
     private String pkg() {
@@ -41,6 +43,14 @@ class WebResourceWriter {
         if (name.endsWith("y"))
             return name.substring(0, name.length() - 1) + "ies";
         return name + "s";
+    }
+
+    private String uppercaps(String string) {
+        if (string == null || string.length() == 0)
+            return string;
+        if (string.length() == 1)
+            return string.toUpperCase();
+        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
     }
 
     public String run() {
@@ -133,10 +143,18 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + lower + "\").path(\"\" + " + lower + ".getId());");
+        append("builder.path(\"" + lower + "\").path(\"\" + " + lower + "." + getter() + "());");
         append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
+    }
+
+    private String getter() {
+        return "get" + upperCapsFieldName;
+    }
+
+    private String setter() {
+        return "set" + upperCapsFieldName;
     }
 
     private void PUT() {
@@ -146,19 +164,20 @@ class WebResourceWriter {
                 + ") {");
         ++indent;
         if (idType.nullable()) {
-            append("if (" + lower + ".getId() == null) {");
+            append("if (" + lower + "." + getter() + "() == null) {");
             ++indent;
-            append(lower + ".setId(id);");
+            append(lower + "." + setter() + "(id);");
             --indent;
             appendIndent();
             out.append("} else ");
         } else {
             appendIndent();
         }
-        out.append("if (id != " + lower + ".getId()) {");
+        out.append("if (id != " + lower + "." + getter() + "()) {");
         nl();
         ++indent;
-        append("String message = \"id conflict! path=\" + id + \", body=\" + " + lower + ".getId() + \".\\n\"");
+        append("String message = \"id conflict! path=\" + id + \", body=\" + " + lower + "." + getter()
+                + "() + \".\\n\"");
         append("    + \"either leave the id in the body null or set it to the same id\";");
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
