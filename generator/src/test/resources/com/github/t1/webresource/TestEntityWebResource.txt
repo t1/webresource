@@ -40,7 +40,7 @@ public class TestEntityWebResource {
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
-        builder.path("testentity").path("" + testentity.getId());
+        builder.path("testentities").path("" + testentity.getId());
         return Response.created(builder.build()).build();
     }
 

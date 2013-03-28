@@ -147,7 +147,7 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + lower + "\").path(\"\" + " + lower + "." + getter() + "());");
+        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + getter() + "());");
         append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
