@@ -74,8 +74,6 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        append("import static javax.persistence.PersistenceContextType.*;");
-        nl();
         if (idType.packageImport() != null)
             append("import " + idType.packageImport() + ";");
         append("import java.util.List;");
@@ -113,7 +111,7 @@ class WebResourceWriter {
     }
 
     private void entityManager() {
-        append("@PersistenceContext" + (extended ? "(type = EXTENDED)" : ""));
+        append("@PersistenceContext" + (extended ? "(type = PersistenceContextType.EXTENDED)" : ""));
         append("private EntityManager em;");
     }
 

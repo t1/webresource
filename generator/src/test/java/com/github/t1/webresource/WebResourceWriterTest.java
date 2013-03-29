@@ -66,7 +66,8 @@ public class WebResourceWriterTest {
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
         when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
 
-        String expected = readReference().replace("${extended}", extended ? "(type = EXTENDED)" : "");
+        String expected = readReference().replace("${extended}",
+                extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);

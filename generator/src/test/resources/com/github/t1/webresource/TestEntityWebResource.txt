@@ -1,7 +1,5 @@
 package com.github.t1.webresource;
 
-import static javax.persistence.PersistenceContextType.*;
-
 import java.util.List;
 
 import javax.ejb.Stateless;
