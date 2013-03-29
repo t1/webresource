@@ -14,6 +14,7 @@ class WebResourceWriter {
     private final String plural;
     private final IdType idType;
     private final String upperCapsFieldName;
+    private final boolean extended;
 
     private int indent = 0;
 
@@ -28,6 +29,7 @@ class WebResourceWriter {
             messager.printMessage(Kind.ERROR, "can't find @Id field", type);
         }
         this.upperCapsFieldName = (idType == null) ? null : uppercaps(idType.fieldName());
+        this.extended = isExtended(type);
     }
 
     private String pkg() {
@@ -51,6 +53,13 @@ class WebResourceWriter {
         if (string.length() == 1)
             return string.toUpperCase();
         return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+    }
+
+    private boolean isExtended(TypeElement type) {
+        WebResource annotation = type.getAnnotation(WebResource.class);
+        if (annotation == null)
+            throw new RuntimeException("expected type to be annotated as WebResource: " + type);
+        return annotation.extended();
     }
 
     public String run() {
@@ -104,7 +113,7 @@ class WebResourceWriter {
     }
 
     private void entityManager() {
-        append("@PersistenceContext(type=EXTENDED)");
+        append("@PersistenceContext" + (extended ? "(type = EXTENDED)" : ""));
         append("private EntityManager em;");
     }
 

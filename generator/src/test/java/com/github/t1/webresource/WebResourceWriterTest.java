@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.Arrays;
 
 import javax.annotation.processing.Messager;
+import javax.enterprise.util.AnnotationLiteral;
 import javax.lang.model.element.*;
 
 import org.junit.Test;
@@ -17,6 +18,21 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
+    @SuppressWarnings("all")
+    private static class WebResourceLiteral extends AnnotationLiteral<WebResource> implements WebResource {
+        private static final long serialVersionUID = 1L;
+        private final boolean extended;
+
+        public WebResourceLiteral(boolean extended) {
+            this.extended = extended;
+        }
+
+        @Override
+        public boolean extended() {
+            return extended;
+        }
+    }
+
     @Mock
     TypeElement type;
     @Mock
@@ -25,13 +41,23 @@ public class WebResourceWriterTest {
     Messager messager;
 
     @Test
-    public void shouldGenerateTheSame() throws Exception {
+    public void shouldGenerateExtended() throws Exception {
+        shouldGenerate(true);
+    }
+
+    @Test
+    public void shouldGenerateNonExtended() throws Exception {
+        shouldGenerate(false);
+    }
+
+    private void shouldGenerate(boolean extended) throws Exception {
         String packageName = "com.github.t1.webresource";
         String typeName = "TestEntity";
 
         when(type.getQualifiedName()).thenReturn(new NameMock(packageName + "." + typeName));
         when(type.getEnclosingElement()).thenReturn(pkg);
         when(type.getSimpleName()).thenReturn(new NameMock(typeName));
+        when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(extended));
 
         Element field = mockField();
         mockFieldType(field, "long", "id");
@@ -40,7 +66,7 @@ public class WebResourceWriterTest {
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
         when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
 
-        String expected = readReference();
+        String expected = readReference().replace("${extended}", extended ? "(type = EXTENDED)" : "");
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);

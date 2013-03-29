@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response.Status;
 @Path("/")
 @Stateless
 public class TestEntityWebResource {
-    @PersistenceContext(type=EXTENDED)
+    @PersistenceContext${extended}
     private EntityManager em;
 
     @GET
