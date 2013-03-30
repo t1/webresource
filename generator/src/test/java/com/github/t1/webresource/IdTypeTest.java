@@ -8,6 +8,7 @@ import java.util.*;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.persistence.Id;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,11 @@ public class IdTypeTest {
         return field;
     }
 
-    static void mockFieldType(Element field, String fieldType, String fieldName) {
+    static void mockFieldType(Element field, String fieldType) {
+        mockFieldType(field, fieldType, "id", Id.class);
+    }
+
+    static void mockFieldType(Element field, String fieldType, String fieldName, Class<?> annotationType) {
         TypeMirror fieldTypeMirror = mock(TypeMirror.class);
         when(field.asType()).thenReturn(fieldTypeMirror);
         when(field.getSimpleName()).thenReturn(new NameMock(fieldName));
@@ -34,7 +39,7 @@ public class IdTypeTest {
 
         DeclaredType declaredAnnotationType = mock(DeclaredType.class);
         when(annotationMirror.getAnnotationType()).thenReturn(declaredAnnotationType);
-        when(declaredAnnotationType.toString()).thenReturn("javax.persistence.Id");
+        when(declaredAnnotationType.toString()).thenReturn(annotationType.getName());
     }
 
     @Mock
@@ -50,7 +55,7 @@ public class IdTypeTest {
 
     @Test
     public void shouldParseString() throws Exception {
-        mockFieldType(field, "java.lang.String", "id");
+        mockFieldType(field, "java.lang.String");
 
         IdType idType = IdType.of(type);
 
@@ -58,11 +63,12 @@ public class IdTypeTest {
         assertEquals("String", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseLong() throws Exception {
-        mockFieldType(field, "java.lang.Long", "id");
+        mockFieldType(field, "java.lang.Long");
 
         IdType idType = IdType.of(type);
 
@@ -70,11 +76,12 @@ public class IdTypeTest {
         assertEquals("Long", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveLong() throws Exception {
-        mockFieldType(field, "long", "id");
+        mockFieldType(field, "long");
 
         IdType idType = IdType.of(type);
 
@@ -86,7 +93,7 @@ public class IdTypeTest {
 
     @Test
     public void shouldParseInteger() throws Exception {
-        mockFieldType(field, "java.lang.Integer", "id");
+        mockFieldType(field, "java.lang.Integer");
 
         IdType idType = IdType.of(type);
 
@@ -94,11 +101,12 @@ public class IdTypeTest {
         assertEquals("Integer", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveInt() throws Exception {
-        mockFieldType(field, "int", "id");
+        mockFieldType(field, "int");
 
         IdType idType = IdType.of(type);
 
@@ -110,7 +118,7 @@ public class IdTypeTest {
 
     @Test
     public void shouldParseShort() throws Exception {
-        mockFieldType(field, "java.lang.Short", "id");
+        mockFieldType(field, "java.lang.Short");
 
         IdType idType = IdType.of(type);
 
@@ -118,11 +126,12 @@ public class IdTypeTest {
         assertEquals("Short", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveShort() throws Exception {
-        mockFieldType(field, "short", "id");
+        mockFieldType(field, "short");
 
         IdType idType = IdType.of(type);
 
@@ -134,7 +143,7 @@ public class IdTypeTest {
 
     @Test
     public void shouldParseDouble() throws Exception {
-        mockFieldType(field, "java.lang.Double", "id");
+        mockFieldType(field, "java.lang.Double");
 
         IdType idType = IdType.of(type);
 
@@ -142,11 +151,12 @@ public class IdTypeTest {
         assertEquals("Double", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveDouble() throws Exception {
-        mockFieldType(field, "double", "id");
+        mockFieldType(field, "double");
 
         IdType idType = IdType.of(type);
 
@@ -158,7 +168,7 @@ public class IdTypeTest {
 
     @Test
     public void shouldParseBigInteger() throws Exception {
-        mockFieldType(field, "java.math.BigInteger", "id");
+        mockFieldType(field, "java.math.BigInteger");
 
         IdType idType = IdType.of(type);
 
@@ -166,11 +176,12 @@ public class IdTypeTest {
         assertEquals("BigInteger", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseBigDecimal() throws Exception {
-        mockFieldType(field, "java.math.BigDecimal", "id");
+        mockFieldType(field, "java.math.BigDecimal");
 
         IdType idType = IdType.of(type);
 
@@ -178,11 +189,12 @@ public class IdTypeTest {
         assertEquals("BigDecimal", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseSqlDate() throws Exception {
-        mockFieldType(field, "java.sql.Date", "id");
+        mockFieldType(field, "java.sql.Date");
 
         IdType idType = IdType.of(type);
 
@@ -190,11 +202,12 @@ public class IdTypeTest {
         assertEquals("Date", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseUtilDate() throws Exception {
-        mockFieldType(field, "java.util.Date", "id");
+        mockFieldType(field, "java.util.Date");
 
         IdType idType = IdType.of(type);
 
@@ -202,6 +215,7 @@ public class IdTypeTest {
         assertEquals("Date", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
@@ -220,7 +234,7 @@ public class IdTypeTest {
 
         Element field2 = mockField();
         doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
-        mockFieldType(field2, "long", "id");
+        mockFieldType(field2, "long");
 
         IdType idType = IdType.of(type);
 
@@ -239,7 +253,7 @@ public class IdTypeTest {
 
         Element field2 = mockField();
         doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
-        mockFieldType(field2, "java.math.BigDecimal", "id");
+        mockFieldType(field2, "java.math.BigDecimal");
 
         IdType idType = IdType.of(type);
 
@@ -247,25 +261,16 @@ public class IdTypeTest {
         assertEquals("BigDecimal", idType.toString());
         assertEquals("id", idType.fieldName());
         assertTrue(idType.nullable());
+        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldPreferWebResourceKey() throws Exception {
-        mockFieldType(field, "long", "id");
+        mockFieldType(field, "long");
 
         Element field2 = mockField();
         fields.add(field2);
-        TypeMirror fieldTypeMirror = mock(TypeMirror.class);
-        when(field2.asType()).thenReturn(fieldTypeMirror);
-        when(field2.getSimpleName()).thenReturn(new NameMock("key"));
-
-        when(fieldTypeMirror.toString()).thenReturn("java.lang.String");
-        AnnotationMirror annotationMirror = mock(AnnotationMirror.class);
-        doReturn(Arrays.asList(annotationMirror)).when(field2).getAnnotationMirrors();
-
-        DeclaredType declaredAnnotationType = mock(DeclaredType.class);
-        when(annotationMirror.getAnnotationType()).thenReturn(declaredAnnotationType);
-        when(declaredAnnotationType.toString()).thenReturn(WebResourceKey.class.getName());
+        mockFieldType(field2, "java.lang.String", "key", WebResourceKey.class);
 
         IdType idType = IdType.of(type);
 
@@ -273,5 +278,6 @@ public class IdTypeTest {
         assertEquals("String", idType.toString());
         assertEquals("key", idType.fieldName());
         assertTrue(idType.nullable());
+        assertFalse(idType.primary());
     }
 }

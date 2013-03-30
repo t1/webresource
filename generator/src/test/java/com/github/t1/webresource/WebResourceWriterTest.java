@@ -11,6 +11,7 @@ import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.lang.model.element.*;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -40,6 +41,25 @@ public class WebResourceWriterTest {
     @Mock
     Messager messager;
 
+    Element idField;
+
+    @Before
+    public void before() {
+        String packageName = "com.github.t1.webresource";
+        String typeName = "TestEntity";
+
+        when(type.getQualifiedName()).thenReturn(new NameMock(packageName + "." + typeName));
+        when(type.getEnclosingElement()).thenReturn(pkg);
+        when(type.getSimpleName()).thenReturn(new NameMock(typeName));
+
+        idField = mockField();
+        mockFieldType(idField, "long");
+        doReturn(Arrays.asList(idField)).when(type).getEnclosedElements();
+
+        when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
+        when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
+    }
+
     @Test
     public void shouldGenerateExtended() throws Exception {
         shouldGenerate(true);
@@ -51,30 +71,16 @@ public class WebResourceWriterTest {
     }
 
     private void shouldGenerate(boolean extended) throws Exception {
-        String packageName = "com.github.t1.webresource";
-        String typeName = "TestEntity";
-
-        when(type.getQualifiedName()).thenReturn(new NameMock(packageName + "." + typeName));
-        when(type.getEnclosingElement()).thenReturn(pkg);
-        when(type.getSimpleName()).thenReturn(new NameMock(typeName));
         when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(extended));
 
-        Element field = mockField();
-        mockFieldType(field, "long", "id");
-        doReturn(Arrays.asList(field)).when(type).getEnclosedElements();
-
-        when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
-        when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
-
-        String expected = readReference().replace("${extended}",
+        String expected = readReference("TestEntityWebResource.txt").replace("${extended}",
                 extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);
     }
 
-    private String readReference() throws IOException {
-        String fileName = "TestEntityWebResource.txt";
+    private String readReference(String fileName) throws IOException {
         InputStream inputStream = WebResourceWriterTest.class.getResourceAsStream(fileName);
         if (inputStream == null)
             throw new FileNotFoundException(fileName);
@@ -86,5 +92,21 @@ public class WebResourceWriterTest {
             result.appendCodePoint(c);
         }
         return result.toString();
+    }
+
+    @Test
+    public void shouldGenerateSecondaryKey() throws Exception {
+        when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(false));
+
+        Element key = mockField();
+        mockFieldType(key, "String", "key", WebResourceKey.class);
+        doReturn(Arrays.asList(key, idField)).when(type).getEnclosedElements();
+
+        String expected = readReference("TestEntityWebResource-secondary-key.txt");
+        String generated = new WebResourceWriter(messager, type).run();
+
+        assertEquals(expected, generated);
+
+        // TODO the generated webresource code should check that the primary key is null
     }
 }

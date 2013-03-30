@@ -16,7 +16,7 @@ import org.slf4j.*;
 public class TestEntityWebResource {
     private final Logger log = LoggerFactory.getLogger(TestEntityWebResource.class);
 
-    @PersistenceContext${extended}
+    @PersistenceContext
     private EntityManager em;
 
     @GET
@@ -29,14 +29,16 @@ public class TestEntityWebResource {
 
     @GET
     @Path("testentities/{id}")
-    public Response getTestEntity(@PathParam("id") long id) {
+    public Response getTestEntity(@PathParam("id") String id) {
         log.debug("get {}", id);
 
-        TestEntity result = em.find(TestEntity.class, id);
-        if (result == null) {
+        TypedQuery<TestEntity> query = em.createQuery("FROM TestEntity WHERE key = :key", TestEntity.class);
+        try {
+            TestEntity result = query.setParameter("key", id).getSingleResult();
+            return Response.ok(result).build();
+        } catch (NoResultException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        return Response.ok(result).build();
     }
 
     @POST
@@ -48,17 +50,17 @@ public class TestEntityWebResource {
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
-        builder.path("testentities").path("" + testentity.getId());
+        builder.path("testentities").path("" + testentity.getKey());
         return Response.created(builder.build()).build();
     }
 
     @PUT
     @Path("testentities/{id}")
-    public Response updateTestEntity(@PathParam("id") long id, TestEntity testentity) {
+    public Response updateTestEntity(@PathParam("id") String id, TestEntity testentity) {
         log.debug("put id {}: {}", id, testentity);
 
-        if (id != testentity.getId()) {
-            String message = "id conflict! path=" + id + ", body=" + testentity.getId() + ".\n"
+        if (id != testentity.getKey()) {
+            String message = "id conflict! path=" + id + ", body=" + testentity.getKey() + ".\n"
                 + "either leave the id in the body null or set it to the same id";
             return Response.status(Status.BAD_REQUEST).entity(message).build();
         }
@@ -71,7 +73,7 @@ public class TestEntityWebResource {
 
     @DELETE
     @Path("testentities/{id}")
-    public Response deleteTestEntity(@PathParam("id") long id) {
+    public Response deleteTestEntity(@PathParam("id") String id) {
         log.debug("delete {}", id);
 
         TestEntity result = em.find(TestEntity.class, id);

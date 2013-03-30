@@ -10,7 +10,8 @@ class IdType {
         Element idField = fullyQualifiedName(type);
         if (idField == null)
             return null;
-        return new IdType(idField);
+        boolean primary = isIdField(idField);
+        return new IdType(idField, primary);
     }
 
     private static Element fullyQualifiedName(TypeElement classElement) {
@@ -20,7 +21,8 @@ class IdType {
                 continue;
             if (isAnnotated(enclosedElement, WebResourceKey.class.getName()))
                 return enclosedElement;
-            if (isAnnotated(enclosedElement, "javax.persistence.Id")) {
+            // the Id type may not be available at compile-time
+            if (isIdField(enclosedElement)) {
                 idField = enclosedElement;
             }
         }
@@ -44,10 +46,16 @@ class IdType {
         return false;
     }
 
+    private static boolean isIdField(Element enclosedElement) {
+        return isAnnotated(enclosedElement, "javax.persistence.Id");
+    }
+
     private final String fullyQualifiedTypeName;
     private final String fieldName;
+    private final boolean primary;
 
-    private IdType(Element idField) {
+    private IdType(Element idField, boolean primary) {
+        this.primary = primary;
         this.fullyQualifiedTypeName = idField.asType().toString();
         this.fieldName = idField.getSimpleName().toString();
     }
@@ -70,5 +78,9 @@ class IdType {
 
     public String fieldName() {
         return fieldName;
+    }
+
+    public boolean primary() {
+        return primary;
     }
 }

@@ -25,9 +25,8 @@ class WebResourceWriter {
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
         this.idType = IdType.of(type);
-        if (idType == null) {
-            messager.printMessage(Kind.ERROR, "can't find @Id field", type);
-        }
+        if (idType == null)
+            messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
         this.upperCapsFieldName = (idType == null) ? null : uppercaps(idType.fieldName());
         this.extended = isExtended(type);
     }
@@ -97,9 +96,9 @@ class WebResourceWriter {
         nl();
         entityManager();
         nl();
-        GET_ALL();
+        list();
         nl();
-        GET_ONE();
+        GET();
         nl();
         POST();
         nl();
@@ -123,10 +122,10 @@ class WebResourceWriter {
         append("private EntityManager em;");
     }
 
-    private void GET_ALL() {
+    private void list() {
         append("@GET");
         path(plural);
-        append("public List<" + simple + "> getAll() {");
+        append("public List<" + simple + "> list() {");
         ++indent;
         log("getAll");
         nl();
@@ -145,13 +144,23 @@ class WebResourceWriter {
         nl();
     }
 
-    private void GET_ONE() {
+    private void GET() {
         append("@GET");
         idPath();
         append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " id) {");
         ++indent;
         log("get {}", "id");
         nl();
+        if (idType.primary()) {
+            findByPrimaryKey();
+        } else {
+            findBySecondaryKey();
+        }
+        --indent;
+        append("}");
+    }
+
+    private void findByPrimaryKey() {
         append(simple + " result = em.find(" + simple + ".class, id);");
         append("if (result == null) {");
         ++indent;
@@ -159,7 +168,20 @@ class WebResourceWriter {
         --indent;
         append("}");
         append("return Response.ok(result).build();");
-        --indent;
+    }
+
+    private void findBySecondaryKey() {
+        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE "
+                + idType.fieldName() + " = :" + idType.fieldName() + "\", " + simple + ".class);");
+        append("try {");
+        indent++;
+        append(simple + " result = query.setParameter(\"key\", id).getSingleResult();");
+        append("return Response.ok(result).build();");
+        indent--;
+        append("} catch (NoResultException e) {");
+        indent++;
+        append("return Response.status(Status.NOT_FOUND).build();");
+        indent--;
         append("}");
     }
 
