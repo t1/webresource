@@ -99,7 +99,7 @@ public class WebResourceWriterTest {
         when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(false));
 
         Element key = mockField();
-        mockFieldType(key, "String", "key", WebResourceKey.class);
+        mockFieldType(key, "java.lang.String", "key", WebResourceKey.class);
         doReturn(Arrays.asList(key, idField)).when(type).getEnclosedElements();
 
         String expected = readReference("TestEntityWebResource-secondary-key.txt");

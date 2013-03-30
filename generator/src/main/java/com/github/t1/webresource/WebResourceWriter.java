@@ -129,7 +129,8 @@ class WebResourceWriter {
         ++indent;
         log("getAll");
         nl();
-        append("return em.createQuery(\"FROM " + simple + " ORDER BY id\", " + simple + ".class).getResultList();");
+        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + idType.fieldName() + "\", " + simple
+                + ".class).getResultList();");
         --indent;
         append("}");
     }
@@ -147,9 +148,9 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " id) {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ") {");
         ++indent;
-        log("get {}", "id");
+        log("get {}", idType.fieldName());
         nl();
         if (idType.primary()) {
             findByPrimaryKey();
@@ -161,7 +162,7 @@ class WebResourceWriter {
     }
 
     private void findByPrimaryKey() {
-        append(simple + " result = em.find(" + simple + ".class, id);");
+        append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
         append("if (result == null) {");
         ++indent;
         append("return Response.status(Status.NOT_FOUND).build();");
@@ -171,11 +172,11 @@ class WebResourceWriter {
     }
 
     private void findBySecondaryKey() {
-        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE "
-                + idType.fieldName() + " = :" + idType.fieldName() + "\", " + simple + ".class);");
+        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + idType.fieldName()
+                + " = :" + idType.fieldName() + "\", " + simple + ".class);");
         append("try {");
         indent++;
-        append(simple + " result = query.setParameter(\"key\", id).getSingleResult();");
+        append(simple + " result = query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
         append("return Response.ok(result).build();");
         indent--;
         append("} catch (NoResultException e) {");
@@ -217,27 +218,25 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         idPath();
-        append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " id, " + simple + " " + lower
-                + ") {");
+        append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ", "
+                + simple + " " + lower + ") {");
         ++indent;
-        log("put id {}: {}", "id", lower);
+        log("put " + idType.fieldName() + " {}: {}", idType.fieldName(), lower);
         nl();
         if (idType.nullable()) {
             append("if (" + lower + "." + getter() + "() == null) {");
             ++indent;
-            append(lower + "." + setter() + "(id);");
+            append(lower + "." + setter() + "(" + idType.fieldName() + ");");
             --indent;
-            appendIndent();
-            out.append("} else ");
+            append("} else if (!" + lower + "." + getter() + "().equals(" + idType.fieldName() + ")) {");
         } else {
-            appendIndent();
+            append("if (" + idType.fieldName() + " != " + lower + "." + getter() + "()) {");
         }
-        out.append("if (id != " + lower + "." + getter() + "()) {");
-        nl();
         ++indent;
-        append("String message = \"id conflict! path=\" + id + \", body=\" + " + lower + "." + getter()
-                + "() + \".\\n\"");
-        append("    + \"either leave the id in the body null or set it to the same id\";");
+        append("String message = \"" + idType.fieldName() + " conflict! path=\" + " + idType.fieldName()
+                + " + \", body=\" + " + lower + "." + getter() + "() + \".\\n\"");
+        append("    + \"either leave the " + idType.fieldName() + " in the body null or set it to the same "
+                + idType.fieldName() + "\";");
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
@@ -255,18 +254,34 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") " + idType + " id) {");
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ") {");
         ++indent;
-        log("delete {}", "id");
+        log("delete {}", idType.fieldName());
         nl();
-        append(simple + " result = em.find(" + simple + ".class, id);");
-        append("if (result == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
-        append("em.remove(result);");
-        append("return Response.ok(result).build();");
+        if (idType.primary()) {
+            append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
+            append("if (result == null) {");
+            ++indent;
+            append("return Response.status(Status.NOT_FOUND).build();");
+            --indent;
+            append("}");
+            append("em.remove(result);");
+            append("return Response.ok(result).build();");
+        } else {
+            append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE key = :key\", "
+                    + simple + ".class);");
+            append("try {");
+            ++indent;
+            append("" + simple + " result = query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
+            append("em.remove(result);");
+            append("return Response.ok(result).build();");
+            --indent;
+            append("} catch (NoResultException e) {");
+            ++indent;
+            append("return Response.status(Status.NOT_FOUND).build();");
+            --indent;
+            append("}");
+        }
         --indent;
         append("}");
     }
