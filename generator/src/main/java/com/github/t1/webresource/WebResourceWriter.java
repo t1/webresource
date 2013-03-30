@@ -84,6 +84,8 @@ class WebResourceWriter {
         append("import javax.ws.rs.*;");
         append("import javax.ws.rs.core.*;");
         append("import javax.ws.rs.core.Response.Status;");
+        nl();
+        append("import org.slf4j.*;");
     }
 
     private void clazz() {
@@ -91,6 +93,8 @@ class WebResourceWriter {
         append("@Stateless");
         append("public class " + simple + "WebResource {");
         ++indent;
+        logger();
+        nl();
         entityManager();
         nl();
         GET_ALL();
@@ -110,6 +114,10 @@ class WebResourceWriter {
         append("@Path(\"" + path + "\")");
     }
 
+    private void logger() {
+        append("private final Logger log = LoggerFactory.getLogger(" + simple + "WebResource.class);");
+    }
+
     private void entityManager() {
         append("@PersistenceContext" + (extended ? "(type = PersistenceContextType.EXTENDED)" : ""));
         append("private EntityManager em;");
@@ -120,9 +128,21 @@ class WebResourceWriter {
         path(plural);
         append("public List<" + simple + "> getAll() {");
         ++indent;
+        log("getAll");
+        nl();
         append("return em.createQuery(\"FROM " + simple + " ORDER BY id\", " + simple + ".class).getResultList();");
         --indent;
         append("}");
+    }
+
+    private void log(String message, String... args) {
+        appendIndent();
+        out.append("log.debug(\"" + message + "\"");
+        for (String arg : args) {
+            out.append(", ").append(arg);
+        }
+        out.append(");");
+        nl();
     }
 
     private void GET_ONE() {
@@ -130,6 +150,8 @@ class WebResourceWriter {
         idPath();
         append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " id) {");
         ++indent;
+        log("get {}", "id");
+        nl();
         append(simple + " result = em.find(" + simple + ".class, id);");
         append("if (result == null) {");
         ++indent;
@@ -150,6 +172,8 @@ class WebResourceWriter {
         path(plural);
         append("public Response create" + simple + "(" + simple + " " + lower + ", @Context UriInfo uriInfo) {");
         ++indent;
+        log("post {}", lower);
+        nl();
         append("em.persist(" + lower + ");");
         append("em.flush();");
         nl();
@@ -174,6 +198,8 @@ class WebResourceWriter {
         append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " id, " + simple + " " + lower
                 + ") {");
         ++indent;
+        log("put id {}: {}", "id", lower);
+        nl();
         if (idType.nullable()) {
             append("if (" + lower + "." + getter() + "() == null) {");
             ++indent;
@@ -209,6 +235,8 @@ class WebResourceWriter {
         idPath();
         append("public Response delete" + simple + "(@PathParam(\"id\") " + idType + " id) {");
         ++indent;
+        log("delete {}", "id");
+        nl();
         append(simple + " result = em.find(" + simple + ".class, id);");
         append("if (result == null) {");
         ++indent;
