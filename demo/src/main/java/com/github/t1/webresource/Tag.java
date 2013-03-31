@@ -8,33 +8,39 @@ import javax.xml.bind.annotation.*;
 
 @Entity
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 @WebResource
 public class Tag implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue
     @XmlTransient
-    private Long id;
+    private @Id
+    @GeneratedValue
+    Long id;
 
-    @NotNull
+    @XmlTransient
+    private @Column
+    @Version
+    int version = 0;
+
+    @XmlAttribute
+    private @NotNull
     @Size(min = 1, max = 20)
     @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
     @WebResourceKey
-    private String name;
+    String name;
 
+    @XmlValue
     private String description;
 
     /** required by JAXB */
-    Tag() {
-    }
+    Tag() {}
 
     public Tag(String name, String description) {
         this.setName(name);
         this.description = description;
     }
 
-    @XmlAttribute
     public Long getId() {
         return id;
     }
@@ -43,7 +49,14 @@ public class Tag implements Serializable {
         this.id = id;
     }
 
-    @XmlAttribute
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
     public String getName() {
         return name;
     }
@@ -52,7 +65,6 @@ public class Tag implements Serializable {
         this.name = name;
     }
 
-    @XmlValue
     public String getDescription() {
         return description;
     }

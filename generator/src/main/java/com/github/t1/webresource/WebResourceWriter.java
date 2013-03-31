@@ -100,6 +100,10 @@ class WebResourceWriter {
         nl();
         GET();
         nl();
+        if (!idType.primary()) {
+            findByKeyMethod();
+            nl();
+        }
         POST();
         nl();
         PUT();
@@ -157,32 +161,39 @@ class WebResourceWriter {
         } else {
             findBySecondaryKey();
         }
-        --indent;
-        append("}");
-    }
-
-    private void findByPrimaryKey() {
-        append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
         append("if (result == null) {");
         ++indent;
         append("return Response.status(Status.NOT_FOUND).build();");
         --indent;
         append("}");
         append("return Response.ok(result).build();");
+        --indent;
+        append("}");
+    }
+
+    private void findByPrimaryKey() {
+        append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
     }
 
     private void findBySecondaryKey() {
+        append(simple + " result = findByKey(" + idType.fieldName() + ");");
+    }
+
+    private void findByKeyMethod() {
+        append("private " + simple + " findByKey(" + idType + " " + idType.fieldName() + ") {");
+        ++indent;
         append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + idType.fieldName()
                 + " = :" + idType.fieldName() + "\", " + simple + ".class);");
         append("try {");
-        indent++;
-        append(simple + " result = query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
-        append("return Response.ok(result).build();");
-        indent--;
+        ++indent;
+        append("return query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
+        --indent;
         append("} catch (NoResultException e) {");
-        indent++;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        indent--;
+        ++indent;
+        append("return null;");
+        --indent;
+        append("}");
+        --indent;
         append("}");
     }
 
@@ -240,10 +251,29 @@ class WebResourceWriter {
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
+        if (!idType.primary()) {
+            append("if (" + lower + ".getId() == null) {");
+            ++indent;
+            append(simple + " existing = findByKey(" + idType.fieldName() + ");");
+            append("if (existing == null) {");
+            ++indent;
+            append("return Response.status(Status.NOT_FOUND).build();");
+            --indent;
+            append("}");
+            append(lower + ".setId(existing.getId());");
+            append(lower + ".setVersion(existing.getVersion());");
+            --indent;
+            append("}");
+        }
         append(simple + " result = em.merge(" + lower + ");");
         append("if (result == null) {");
         ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
+        if (idType.primary()) {
+            append("return Response.status(Status.NOT_FOUND).build();");
+        } else {
+            append("throw new IllegalStateException(\"expected to be able to merge " + idType.fieldName() + " \" + "
+                    + idType.fieldName() + ");");
+        }
         --indent;
         append("}");
         append("return Response.ok(result).build();");
@@ -260,28 +290,16 @@ class WebResourceWriter {
         nl();
         if (idType.primary()) {
             append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
-            append("if (result == null) {");
-            ++indent;
-            append("return Response.status(Status.NOT_FOUND).build();");
-            --indent;
-            append("}");
-            append("em.remove(result);");
-            append("return Response.ok(result).build();");
         } else {
-            append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE key = :key\", "
-                    + simple + ".class);");
-            append("try {");
-            ++indent;
-            append("" + simple + " result = query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
-            append("em.remove(result);");
-            append("return Response.ok(result).build();");
-            --indent;
-            append("} catch (NoResultException e) {");
-            ++indent;
-            append("return Response.status(Status.NOT_FOUND).build();");
-            --indent;
-            append("}");
+            append(simple + " result = findByKey(" + idType.fieldName() + ");");
         }
+        append("if (result == null) {");
+        ++indent;
+        append("return Response.status(Status.NOT_FOUND).build();");
+        --indent;
+        append("}");
+        append("em.remove(result);");
+        append("return Response.ok(result).build();");
         --indent;
         append("}");
     }

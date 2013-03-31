@@ -106,7 +106,5 @@ public class WebResourceWriterTest {
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);
-
-        // TODO the generated webresource code should check that the primary key is null
     }
 }
