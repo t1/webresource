@@ -12,8 +12,7 @@ class WebResourceWriter {
     private final String simple;
     private final String lower;
     private final String plural;
-    private final IdType idType;
-    private final String upperCapsFieldName;
+    private final IdField id;
     private final boolean extended;
 
     private int indent = 0;
@@ -24,10 +23,9 @@ class WebResourceWriter {
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
-        this.idType = IdType.of(type);
-        if (idType == null)
+        this.id = IdField.of(type);
+        if (id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
-        this.upperCapsFieldName = (idType == null) ? null : uppercaps(idType.fieldName());
         this.extended = isExtended(type);
     }
 
@@ -46,14 +44,6 @@ class WebResourceWriter {
         return name + "s";
     }
 
-    private String uppercaps(String string) {
-        if (string == null || string.length() == 0)
-            return string;
-        if (string.length() == 1)
-            return string.toUpperCase();
-        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
-    }
-
     private boolean isExtended(TypeElement type) {
         WebResource annotation = type.getAnnotation(WebResource.class);
         if (annotation == null)
@@ -62,7 +52,7 @@ class WebResourceWriter {
     }
 
     public String run() {
-        if (idType == null)
+        if (id == null)
             throw new IllegalStateException("no id type found in " + type.getQualifiedName());
         append("package " + pkg + ";");
         nl();
@@ -73,8 +63,8 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        if (idType.packageImport() != null)
-            append("import " + idType.packageImport() + ";");
+        if (id.packageImport() != null)
+            append("import " + id.packageImport() + ";");
         append("import java.util.List;");
         nl();
         append("import javax.ejb.Stateless;");
@@ -100,7 +90,7 @@ class WebResourceWriter {
         nl();
         GET();
         nl();
-        if (!idType.primary()) {
+        if (!id.primary()) {
             findByKeyMethod();
             nl();
         }
@@ -133,7 +123,7 @@ class WebResourceWriter {
         ++indent;
         log("getAll");
         nl();
-        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + idType.fieldName() + "\", " + simple
+        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + id.name() + "\", " + simple
                 + ".class).getResultList();");
         --indent;
         append("}");
@@ -152,11 +142,11 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ") {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ") {");
         ++indent;
-        log("get {}", idType.fieldName());
+        log("get {}", id.name());
         nl();
-        if (idType.primary()) {
+        if (id.primary()) {
             findByPrimaryKey();
         } else {
             findBySecondaryKey();
@@ -172,21 +162,21 @@ class WebResourceWriter {
     }
 
     private void findByPrimaryKey() {
-        append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
+        append(simple + " result = em.find(" + simple + ".class, " + id.name() + ");");
     }
 
     private void findBySecondaryKey() {
-        append(simple + " result = findByKey(" + idType.fieldName() + ");");
+        append(simple + " result = findByKey(" + id.name() + ");");
     }
 
     private void findByKeyMethod() {
-        append("private " + simple + " findByKey(" + idType + " " + idType.fieldName() + ") {");
+        append("private " + simple + " findByKey(" + id.type() + " " + id.name() + ") {");
         ++indent;
-        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + idType.fieldName()
-                + " = :" + idType.fieldName() + "\", " + simple + ".class);");
+        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + id.name() + " = :"
+                + id.name() + "\", " + simple + ".class);");
         append("try {");
         ++indent;
-        append("return query.setParameter(\"key\", " + idType.fieldName() + ").getSingleResult();");
+        append("return query.setParameter(\"key\", " + id.name() + ").getSingleResult();");
         --indent;
         append("} catch (NoResultException e) {");
         ++indent;
@@ -212,55 +202,46 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + getter() + "());");
+        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + id.getter() + "());");
         append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
     }
 
-    private String getter() {
-        return "get" + upperCapsFieldName;
-    }
-
-    private String setter() {
-        return "set" + upperCapsFieldName;
-    }
-
     private void PUT() {
         append("@PUT");
         idPath();
-        append("public Response update" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ", "
-                + simple + " " + lower + ") {");
+        append("public Response update" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ", " + simple
+                + " " + lower + ") {");
         ++indent;
-        log("put " + idType.fieldName() + " {}: {}", idType.fieldName(), lower);
+        log("put " + id.name() + " {}: {}", id.name(), lower);
         nl();
-        if (idType.nullable()) {
-            append("if (" + lower + "." + getter() + "() == null) {");
+        if (id.nullable()) {
+            append("if (" + lower + "." + id.getter() + "() == null) {");
             ++indent;
-            append(lower + "." + setter() + "(" + idType.fieldName() + ");");
+            append(lower + "." + id.setter() + "(" + id.name() + ");");
             --indent;
-            append("} else if (!" + lower + "." + getter() + "().equals(" + idType.fieldName() + ")) {");
+            append("} else if (!" + lower + "." + id.getter() + "().equals(" + id.name() + ")) {");
         } else {
-            append("if (" + idType.fieldName() + " != " + lower + "." + getter() + "()) {");
+            append("if (" + id.name() + " != " + lower + "." + id.getter() + "()) {");
         }
         ++indent;
-        append("String message = \"" + idType.fieldName() + " conflict! path=\" + " + idType.fieldName()
-                + " + \", body=\" + " + lower + "." + getter() + "() + \".\\n\"");
-        append("    + \"either leave the " + idType.fieldName() + " in the body null or set it to the same "
-                + idType.fieldName() + "\";");
+        append("String message = \"" + id.name() + " conflict! path=\" + " + id.name() + " + \", body=\" + " + lower
+                + "." + id.getter() + "() + \".\\n\"");
+        append("    + \"either leave the " + id.name() + " in the body null or set it to the same " + id.name() + "\";");
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
-        if (!idType.primary()) {
-            append("if (" + lower + ".getId() == null) {");
+        if (!id.primary()) {
+            append("if (" + lower + "." + id.getter() + "() == null) {");
             ++indent;
-            append(simple + " existing = findByKey(" + idType.fieldName() + ");");
+            append(simple + " existing = findByKey(" + id.name() + ");");
             append("if (existing == null) {");
             ++indent;
             append("return Response.status(Status.NOT_FOUND).build();");
             --indent;
             append("}");
-            append(lower + ".setId(existing.getId());");
+            append(lower + "." + id.setter() + "(existing." + id.getter() + "());");
             append(lower + ".setVersion(existing.getVersion());");
             --indent;
             append("}");
@@ -268,11 +249,11 @@ class WebResourceWriter {
         append(simple + " result = em.merge(" + lower + ");");
         append("if (result == null) {");
         ++indent;
-        if (idType.primary()) {
+        if (id.primary()) {
             append("return Response.status(Status.NOT_FOUND).build();");
         } else {
-            append("throw new IllegalStateException(\"expected to be able to merge " + idType.fieldName() + " \" + "
-                    + idType.fieldName() + ");");
+            append("throw new IllegalStateException(\"expected to be able to merge " + id.name() + " \" + " + id.name()
+                    + ");");
         }
         --indent;
         append("}");
@@ -284,14 +265,14 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") " + idType + " " + idType.fieldName() + ") {");
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ") {");
         ++indent;
-        log("delete {}", idType.fieldName());
+        log("delete {}", id.name());
         nl();
-        if (idType.primary()) {
-            append(simple + " result = em.find(" + simple + ".class, " + idType.fieldName() + ");");
+        if (id.primary()) {
+            append(simple + " result = em.find(" + simple + ".class, " + id.name() + ");");
         } else {
-            append(simple + " result = findByKey(" + idType.fieldName() + ");");
+            append(simple + " result = findByKey(" + id.name() + ");");
         }
         append("if (result == null) {");
         ++indent;

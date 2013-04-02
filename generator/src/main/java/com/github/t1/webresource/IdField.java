@@ -4,14 +4,13 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-class IdType {
-
-    public static IdType of(TypeElement type) {
+class IdField {
+    public static IdField of(TypeElement type) {
         Element idField = fullyQualifiedName(type);
         if (idField == null)
             return null;
         boolean primary = isIdField(idField);
-        return new IdType(idField, primary);
+        return new IdField(idField, primary);
     }
 
     private static Element fullyQualifiedName(TypeElement classElement) {
@@ -51,13 +50,13 @@ class IdType {
     }
 
     private final String fullyQualifiedTypeName;
-    private final String fieldName;
+    private final String name;
     private final boolean primary;
 
-    private IdType(Element idField, boolean primary) {
+    private IdField(Element idField, boolean primary) {
         this.primary = primary;
         this.fullyQualifiedTypeName = idField.asType().toString();
-        this.fieldName = idField.getSimpleName().toString();
+        this.name = idField.getSimpleName().toString();
     }
 
     public boolean nullable() {
@@ -70,17 +69,32 @@ class IdType {
         return fullyQualifiedTypeName;
     }
 
-    @Override
-    public String toString() {
+    public String type() {
         int index = fullyQualifiedTypeName.lastIndexOf('.');
         return index < 0 ? fullyQualifiedTypeName : fullyQualifiedTypeName.substring(index + 1);
     }
 
-    public String fieldName() {
-        return fieldName;
+    public String name() {
+        return name;
     }
 
     public boolean primary() {
         return primary;
+    }
+
+    private String uppercaps() {
+        if (name == null || name.length() == 0)
+            return name;
+        if (name.length() == 1)
+            return name.toUpperCase();
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+
+    public String getter() {
+        return "get" + uppercaps();
+    }
+
+    public String setter() {
+        return "set" + uppercaps();
     }
 }
