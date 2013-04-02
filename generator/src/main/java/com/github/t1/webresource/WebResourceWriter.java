@@ -13,6 +13,8 @@ class WebResourceWriter {
     private final String lower;
     private final String plural;
     private final IdField id;
+    private final KeyField key;
+    private final VersionField version;
     private final boolean extended;
 
     private int indent = 0;
@@ -24,8 +26,10 @@ class WebResourceWriter {
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
         this.id = IdField.of(type);
-        if (id == null)
+        this.key = KeyField.of(type);
+        if (key == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
+        this.version = VersionField.of(type);
         this.extended = isExtended(type);
     }
 
@@ -52,7 +56,7 @@ class WebResourceWriter {
     }
 
     public String run() {
-        if (id == null)
+        if (key == null)
             throw new IllegalStateException("no id type found in " + type.getQualifiedName());
         append("package " + pkg + ";");
         nl();
@@ -63,8 +67,8 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        if (id.packageImport() != null)
-            append("import " + id.packageImport() + ";");
+        if (key.packageImport() != null)
+            append("import " + key.packageImport() + ";");
         append("import java.util.List;");
         nl();
         append("import javax.ejb.Stateless;");
@@ -90,7 +94,7 @@ class WebResourceWriter {
         nl();
         GET();
         nl();
-        if (!id.primary()) {
+        if (!key.primary()) {
             findByKeyMethod();
             nl();
         }
@@ -123,7 +127,7 @@ class WebResourceWriter {
         ++indent;
         log("getAll");
         nl();
-        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + id.name() + "\", " + simple
+        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + key.name() + "\", " + simple
                 + ".class).getResultList();");
         --indent;
         append("}");
@@ -142,11 +146,11 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ") {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ") {");
         ++indent;
-        log("get {}", id.name());
+        log("get {}", key.name());
         nl();
-        if (id.primary()) {
+        if (key.primary()) {
             findByPrimaryKey();
         } else {
             findBySecondaryKey();
@@ -162,21 +166,21 @@ class WebResourceWriter {
     }
 
     private void findByPrimaryKey() {
-        append(simple + " result = em.find(" + simple + ".class, " + id.name() + ");");
+        append(simple + " result = em.find(" + simple + ".class, " + key.name() + ");");
     }
 
     private void findBySecondaryKey() {
-        append(simple + " result = findByKey(" + id.name() + ");");
+        append(simple + " result = findByKey(" + key.name() + ");");
     }
 
     private void findByKeyMethod() {
-        append("private " + simple + " findByKey(" + id.type() + " " + id.name() + ") {");
+        append("private " + simple + " findByKey(" + key.type() + " " + key.name() + ") {");
         ++indent;
-        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + id.name() + " = :"
-                + id.name() + "\", " + simple + ".class);");
+        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + key.name() + " = :"
+                + key.name() + "\", " + simple + ".class);");
         append("try {");
         ++indent;
-        append("return query.setParameter(\"key\", " + id.name() + ").getSingleResult();");
+        append("return query.setParameter(\"key\", " + key.name() + ").getSingleResult();");
         --indent;
         append("} catch (NoResultException e) {");
         ++indent;
@@ -202,7 +206,7 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + id.getter() + "());");
+        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + key.getter() + "());");
         append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
@@ -211,49 +215,56 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         idPath();
-        append("public Response update" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ", " + simple
-                + " " + lower + ") {");
+        append("public Response update" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ", "
+                + simple + " " + lower + ") {");
         ++indent;
-        log("put " + id.name() + " {}: {}", id.name(), lower);
+        log("put " + key.name() + " {}: {}", key.name(), lower);
         nl();
-        if (id.nullable()) {
-            append("if (" + lower + "." + id.getter() + "() == null) {");
+        if (key.nullable()) {
+            append("if (" + lower + "." + key.getter() + "() == null) {");
             ++indent;
-            append(lower + "." + id.setter() + "(" + id.name() + ");");
+            append(lower + "." + key.setter() + "(" + key.name() + ");");
             --indent;
-            append("} else if (!" + lower + "." + id.getter() + "().equals(" + id.name() + ")) {");
+            append("} else if (!" + lower + "." + key.getter() + "().equals(" + key.name() + ")) {");
         } else {
-            append("if (" + id.name() + " != " + lower + "." + id.getter() + "()) {");
+            append("if (" + key.name() + " != " + lower + "." + key.getter() + "()) {");
         }
         ++indent;
-        append("String message = \"" + id.name() + " conflict! path=\" + " + id.name() + " + \", body=\" + " + lower
-                + "." + id.getter() + "() + \".\\n\"");
-        append("    + \"either leave the " + id.name() + " in the body null or set it to the same " + id.name() + "\";");
+        append("String message = \"" + key.name() + " conflict! path=\" + " + key.name() + " + \", body=\" + " + lower
+                + "." + key.getter() + "() + \".\\n\"");
+        append("    + \"either leave the " + key.name() + " in the body null or set it to the same " + key.name()
+                + "\";");
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
-        if (!id.primary()) {
+        if (!key.primary()) {
             append("if (" + lower + "." + id.getter() + "() == null) {");
             ++indent;
-            append(simple + " existing = findByKey(" + id.name() + ");");
+            append(simple + " existing = findByKey(" + key.name() + ");");
             append("if (existing == null) {");
             ++indent;
             append("return Response.status(Status.NOT_FOUND).build();");
             --indent;
             append("}");
             append(lower + "." + id.setter() + "(existing." + id.getter() + "());");
-            append(lower + ".setVersion(existing.getVersion());");
+            if (version != null) {
+                append("if (" + lower + "." + version.getter() + "() == null) {");
+                ++indent;
+                append(lower + "." + version.setter() + "(existing." + version.getter() + "());");
+                --indent;
+                append("}");
+            }
             --indent;
             append("}");
         }
         append(simple + " result = em.merge(" + lower + ");");
         append("if (result == null) {");
         ++indent;
-        if (id.primary()) {
+        if (key.primary()) {
             append("return Response.status(Status.NOT_FOUND).build();");
         } else {
-            append("throw new IllegalStateException(\"expected to be able to merge " + id.name() + " \" + " + id.name()
-                    + ");");
+            append("throw new IllegalStateException(\"expected to be able to merge " + key.name() + " \" + "
+                    + key.name() + ");");
         }
         --indent;
         append("}");
@@ -265,14 +276,14 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") " + id.type() + " " + id.name() + ") {");
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ") {");
         ++indent;
-        log("delete {}", id.name());
+        log("delete {}", key.name());
         nl();
-        if (id.primary()) {
-            append(simple + " result = em.find(" + simple + ".class, " + id.name() + ");");
+        if (key.primary()) {
+            append(simple + " result = em.find(" + simple + ".class, " + key.name() + ");");
         } else {
-            append(simple + " result = findByKey(" + id.name() + ");");
+            append(simple + " result = findByKey(" + key.name() + ");");
         }
         append("if (result == null) {");
         ++indent;

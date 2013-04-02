@@ -4,38 +4,36 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-class IdField extends WebResourceField {
-    public static IdField of(TypeElement type) {
-        Element idField = findIdField(type);
-        if (idField == null)
+class VersionField extends WebResourceField {
+    public static VersionField of(TypeElement type) {
+        Element versionField = findVersionField(type);
+        if (versionField == null)
             return null;
-        boolean primary = isPrimary(idField);
-        return new IdField(idField, primary);
+        return new VersionField(versionField);
     }
 
-    private static Element findIdField(TypeElement classElement) {
-        Element idField = null;
+    private static Element findVersionField(TypeElement classElement) {
+        Element versionField = null;
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (ElementKind.FIELD != enclosedElement.getKind())
                 continue;
-            // the Id type may not be available at compile-time
-            if (isPrimary(enclosedElement)) {
-                idField = enclosedElement;
+            // the Version type may not be available at compile-time
+            if (isAnnotated(enclosedElement, "javax.persistence.Version")) {
+                versionField = enclosedElement;
             }
         }
-        if (idField != null)
-            return idField;
+        if (versionField != null)
+            return versionField;
         TypeMirror superclass = classElement.getSuperclass();
         if (superclass != null) {
             Element superElement = ((DeclaredType) superclass).asElement();
-            return findIdField((TypeElement) superElement);
+            return findVersionField((TypeElement) superElement);
         }
         return null;
     }
 
     private static boolean isAnnotated(Element element, String annotationName) {
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            // the Id type may not be available at compile-time
             if (annotationName.equals(annotation.getAnnotationType().toString())) {
                 return true;
             }
@@ -43,18 +41,12 @@ class IdField extends WebResourceField {
         return false;
     }
 
-    private static boolean isPrimary(Element enclosedElement) {
-        return isAnnotated(enclosedElement, "javax.persistence.Id");
-    }
-
     private final String fullyQualifiedTypeName;
     private final String name;
-    private final boolean primary;
 
-    private IdField(Element idField, boolean primary) {
-        this.primary = primary;
-        this.fullyQualifiedTypeName = idField.asType().toString();
-        this.name = idField.getSimpleName().toString();
+    private VersionField(Element versionField) {
+        this.fullyQualifiedTypeName = versionField.asType().toString();
+        this.name = versionField.getSimpleName().toString();
     }
 
     public boolean nullable() {
@@ -74,10 +66,6 @@ class IdField extends WebResourceField {
 
     public String name() {
         return name;
-    }
-
-    public boolean primary() {
-        return primary;
     }
 
     private String uppercaps() {

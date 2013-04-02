@@ -4,13 +4,13 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-class IdField extends WebResourceField {
-    public static IdField of(TypeElement type) {
+class KeyField extends WebResourceField {
+    public static KeyField of(TypeElement type) {
         Element idField = findIdField(type);
         if (idField == null)
             return null;
         boolean primary = isPrimary(idField);
-        return new IdField(idField, primary);
+        return new KeyField(idField, primary);
     }
 
     private static Element findIdField(TypeElement classElement) {
@@ -18,6 +18,8 @@ class IdField extends WebResourceField {
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (ElementKind.FIELD != enclosedElement.getKind())
                 continue;
+            if (isAnnotated(enclosedElement, WebResourceKey.class.getName()))
+                return enclosedElement;
             // the Id type may not be available at compile-time
             if (isPrimary(enclosedElement)) {
                 idField = enclosedElement;
@@ -51,7 +53,7 @@ class IdField extends WebResourceField {
     private final String name;
     private final boolean primary;
 
-    private IdField(Element idField, boolean primary) {
+    private KeyField(Element idField, boolean primary) {
         this.primary = primary;
         this.fullyQualifiedTypeName = idField.asType().toString();
         this.name = idField.getSimpleName().toString();

@@ -60,7 +60,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("String", idType.toString());
+        assertEquals("String", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -73,7 +73,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("Long", idType.toString());
+        assertEquals("Long", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -86,7 +86,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("long", idType.toString());
+        assertEquals("long", idType.type());
         assertEquals("id", idType.name());
         assertFalse(idType.nullable());
     }
@@ -98,7 +98,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("Integer", idType.toString());
+        assertEquals("Integer", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -111,7 +111,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("int", idType.toString());
+        assertEquals("int", idType.type());
         assertEquals("id", idType.name());
         assertFalse(idType.nullable());
     }
@@ -123,7 +123,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("Short", idType.toString());
+        assertEquals("Short", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -136,7 +136,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("short", idType.toString());
+        assertEquals("short", idType.type());
         assertEquals("id", idType.name());
         assertFalse(idType.nullable());
     }
@@ -148,7 +148,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("Double", idType.toString());
+        assertEquals("Double", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -161,7 +161,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("double", idType.toString());
+        assertEquals("double", idType.type());
         assertEquals("id", idType.name());
         assertFalse(idType.nullable());
     }
@@ -173,7 +173,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertEquals("java.math.BigInteger", idType.packageImport());
-        assertEquals("BigInteger", idType.toString());
+        assertEquals("BigInteger", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -186,7 +186,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
-        assertEquals("BigDecimal", idType.toString());
+        assertEquals("BigDecimal", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -199,7 +199,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertEquals("java.sql.Date", idType.packageImport());
-        assertEquals("Date", idType.toString());
+        assertEquals("Date", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -212,7 +212,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertEquals("java.util.Date", idType.packageImport());
-        assertEquals("Date", idType.toString());
+        assertEquals("Date", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -239,7 +239,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("long", idType.toString());
+        assertEquals("long", idType.type());
         assertEquals("id", idType.name());
         assertFalse(idType.nullable());
     }
@@ -258,7 +258,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
-        assertEquals("BigDecimal", idType.toString());
+        assertEquals("BigDecimal", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
         assertTrue(idType.primary());
@@ -275,7 +275,7 @@ public class IdTypeTest {
         IdField idType = IdField.of(type);
 
         assertNull(idType.packageImport());
-        assertEquals("String", idType.toString());
+        assertEquals("String", idType.type());
         assertEquals("key", idType.name());
         assertTrue(idType.nullable());
         assertFalse(idType.primary());

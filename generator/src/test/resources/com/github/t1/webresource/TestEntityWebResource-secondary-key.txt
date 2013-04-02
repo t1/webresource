@@ -79,7 +79,9 @@ public class TestEntityWebResource {
                 return Response.status(Status.NOT_FOUND).build();
             }
             testentity.setId(existing.getId());
-            testentity.setVersion(existing.getVersion());
+            if (testentity.getVersion() == null) {
+                testentity.setVersion(existing.getVersion());
+            }
         }
         TestEntity result = em.merge(testentity);
         if (result == null) {

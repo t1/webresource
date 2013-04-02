@@ -98,13 +98,21 @@ public class WebResourceWriterTest {
     public void shouldGenerateSecondaryKey() throws Exception {
         when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(false));
 
-        Element key = mockField();
-        mockFieldType(key, "java.lang.String", "key", WebResourceKey.class);
-        doReturn(Arrays.asList(key, idField)).when(type).getEnclosedElements();
+        mockKeyAndVersion();
 
         String expected = readReference("TestEntityWebResource-secondary-key.txt");
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);
+    }
+
+    private void mockKeyAndVersion() {
+        Element key = mockField();
+        mockFieldType(key, "java.lang.String", "key", WebResourceKey.class);
+
+        Element version = mockField();
+        mockFieldType(version, "java.lang.String", "version", javax.persistence.Version.class);
+
+        doReturn(Arrays.asList(key, idField, version)).when(type).getEnclosedElements();
     }
 }
