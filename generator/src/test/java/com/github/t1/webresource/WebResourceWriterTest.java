@@ -1,6 +1,6 @@
 package com.github.t1.webresource;
 
-import static com.github.t1.webresource.IdTypeTest.*;
+import static com.github.t1.webresource.WebResourceFieldTest.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -111,7 +111,7 @@ public class WebResourceWriterTest {
         mockFieldType(key, "java.lang.String", "key", WebResourceKey.class);
 
         Element version = mockField();
-        mockFieldType(version, "java.lang.String", "version", javax.persistence.Version.class);
+        mockFieldType(version, "int", "version", javax.persistence.Version.class);
 
         doReturn(Arrays.asList(key, idField, version)).when(type).getEnclosedElements();
     }

@@ -12,9 +12,9 @@ class WebResourceWriter {
     private final String simple;
     private final String lower;
     private final String plural;
-    private final IdField id;
-    private final KeyField key;
-    private final VersionField version;
+    private final WebResourceField id;
+    private final WebResourceField key;
+    private final WebResourceField version;
     private final boolean extended;
 
     private int indent = 0;
@@ -25,12 +25,42 @@ class WebResourceWriter {
         this.simple = type.getSimpleName().toString();
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
-        this.id = IdField.of(type);
-        this.key = KeyField.of(type);
-        if (key == null)
+        this.id = getIdField(type);
+        this.key = keyField();
+        if (id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
-        this.version = VersionField.of(type);
+        this.version = getVersionField(type);
         this.extended = isExtended(type);
+    }
+
+    private WebResourceField getIdField(TypeElement type) {
+        // don't use the Id type itself, it may not be available at compile-time
+        Element idField = WebResourceField.findField(type, "javax.persistence.Id");
+        if (idField == null)
+            return null;
+        return new WebResourceField(idField);
+    }
+
+    private WebResourceField keyField() {
+        WebResourceField key = getKeyField();
+        if (key != null)
+            return key;
+        return id;
+    }
+
+    private WebResourceField getKeyField() {
+        Element idField = WebResourceField.findField(type, WebResourceKey.class.getName());
+        if (idField == null)
+            return null;
+        return new WebResourceField(idField);
+    }
+
+    private WebResourceField getVersionField(TypeElement type) {
+        // don't use the Version type itself, it may not be available at compile-time
+        Element versionField = WebResourceField.findField(type, "javax.persistence.Version");
+        if (versionField == null)
+            return null;
+        return new WebResourceField(versionField);
     }
 
     private String pkg() {
@@ -67,8 +97,8 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        if (key.packageImport() != null)
-            append("import " + key.packageImport() + ";");
+        importField(id);
+        importField(key);
         append("import java.util.List;");
         nl();
         append("import javax.ejb.Stateless;");
@@ -79,6 +109,12 @@ class WebResourceWriter {
         append("import javax.ws.rs.core.Response.Status;");
         nl();
         append("import org.slf4j.*;");
+    }
+
+    private void importField(WebResourceField field) {
+        if (field != null && field.packageImport() != null) {
+            append("import " + field.packageImport() + ";");
+        }
     }
 
     private void clazz() {
@@ -94,7 +130,7 @@ class WebResourceWriter {
         nl();
         GET();
         nl();
-        if (!key.primary()) {
+        if (!primary()) {
             findByKeyMethod();
             nl();
         }
@@ -105,6 +141,10 @@ class WebResourceWriter {
         DELETE();
         --indent;
         append("}");
+    }
+
+    private boolean primary() {
+        return id.equals(key);
     }
 
     private void path(String path) {
@@ -150,7 +190,7 @@ class WebResourceWriter {
         ++indent;
         log("get {}", key.name());
         nl();
-        if (key.primary()) {
+        if (primary()) {
             findByPrimaryKey();
         } else {
             findBySecondaryKey();
@@ -237,7 +277,7 @@ class WebResourceWriter {
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
-        if (!key.primary()) {
+        if (!primary()) {
             append("if (" + lower + "." + id.getter() + "() == null) {");
             ++indent;
             append(simple + " existing = findByKey(" + key.name() + ");");
@@ -260,7 +300,7 @@ class WebResourceWriter {
         append(simple + " result = em.merge(" + lower + ");");
         append("if (result == null) {");
         ++indent;
-        if (key.primary()) {
+        if (primary()) {
             append("return Response.status(Status.NOT_FOUND).build();");
         } else {
             append("throw new IllegalStateException(\"expected to be able to merge " + key.name() + " \" + "
@@ -280,7 +320,7 @@ class WebResourceWriter {
         ++indent;
         log("delete {}", key.name());
         nl();
-        if (key.primary()) {
+        if (primary()) {
             append(simple + " result = em.find(" + simple + ".class, " + key.name() + ");");
         } else {
             append(simple + " result = findByKey(" + key.name() + ");");

@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IdTypeTest {
+public class WebResourceFieldTest {
     static Element mockField() {
         Element field = mock(Element.class);
         when(field.getKind()).thenReturn(ElementKind.FIELD);
@@ -53,37 +53,39 @@ public class IdTypeTest {
         doReturn(fields).when(type).getEnclosedElements();
     }
 
+    private WebResourceField findField() {
+        return new WebResourceField(WebResourceField.findField(type, Id.class.getName()));
+    }
+
     @Test
     public void shouldParseString() throws Exception {
         mockFieldType(field, "java.lang.String");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("String", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseLong() throws Exception {
         mockFieldType(field, "java.lang.Long");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("Long", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveLong() throws Exception {
         mockFieldType(field, "long");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("long", idType.type());
@@ -95,20 +97,19 @@ public class IdTypeTest {
     public void shouldParseInteger() throws Exception {
         mockFieldType(field, "java.lang.Integer");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("Integer", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveInt() throws Exception {
         mockFieldType(field, "int");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("int", idType.type());
@@ -120,20 +121,19 @@ public class IdTypeTest {
     public void shouldParseShort() throws Exception {
         mockFieldType(field, "java.lang.Short");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("Short", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveShort() throws Exception {
         mockFieldType(field, "short");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("short", idType.type());
@@ -145,20 +145,19 @@ public class IdTypeTest {
     public void shouldParseDouble() throws Exception {
         mockFieldType(field, "java.lang.Double");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("Double", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParsePrimitiveDouble() throws Exception {
         mockFieldType(field, "double");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("double", idType.type());
@@ -170,59 +169,48 @@ public class IdTypeTest {
     public void shouldParseBigInteger() throws Exception {
         mockFieldType(field, "java.math.BigInteger");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertEquals("java.math.BigInteger", idType.packageImport());
         assertEquals("BigInteger", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseBigDecimal() throws Exception {
         mockFieldType(field, "java.math.BigDecimal");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
         assertEquals("BigDecimal", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseSqlDate() throws Exception {
         mockFieldType(field, "java.sql.Date");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertEquals("java.sql.Date", idType.packageImport());
         assertEquals("Date", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
     }
 
     @Test
     public void shouldParseUtilDate() throws Exception {
         mockFieldType(field, "java.util.Date");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertEquals("java.util.Date", idType.packageImport());
         assertEquals("Date", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
-    }
-
-    @Test
-    public void shouldReturnNullWithoutIdField() throws Exception {
-        IdField idType = IdField.of(type);
-
-        assertNull(idType);
     }
 
     @Test
@@ -236,7 +224,7 @@ public class IdTypeTest {
         doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
         mockFieldType(field2, "long");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertNull(idType.packageImport());
         assertEquals("long", idType.type());
@@ -255,29 +243,11 @@ public class IdTypeTest {
         doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
         mockFieldType(field2, "java.math.BigDecimal");
 
-        IdField idType = IdField.of(type);
+        WebResourceField idType = findField();
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
         assertEquals("BigDecimal", idType.type());
         assertEquals("id", idType.name());
         assertTrue(idType.nullable());
-        assertTrue(idType.primary());
-    }
-
-    @Test
-    public void shouldPreferWebResourceKey() throws Exception {
-        mockFieldType(field, "long");
-
-        Element field2 = mockField();
-        fields.add(field2);
-        mockFieldType(field2, "java.lang.String", "key", WebResourceKey.class);
-
-        IdField idType = IdField.of(type);
-
-        assertNull(idType.packageImport());
-        assertEquals("String", idType.type());
-        assertEquals("key", idType.name());
-        assertTrue(idType.nullable());
-        assertFalse(idType.primary());
     }
 }
