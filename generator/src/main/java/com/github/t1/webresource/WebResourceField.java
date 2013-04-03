@@ -14,9 +14,13 @@ class WebResourceField {
             }
         }
         TypeMirror superclass = classElement.getSuperclass();
-        if (superclass != null) {
-            Element superElement = ((DeclaredType) superclass).asElement();
-            return findField((TypeElement) superElement, annotationTypeName);
+        if (superclass != null && superclass instanceof DeclaredType) {
+            try {
+                Element superElement = ((DeclaredType) superclass).asElement();
+                return findField((TypeElement) superElement, annotationTypeName);
+            } catch (RuntimeException e) {
+                throw new RuntimeException("findField in superclass of " + classElement.getQualifiedName(), e);
+            }
         }
         return null;
     }
