@@ -111,7 +111,7 @@ public class WebResourceWriterTest {
         mockFieldType(key, "java.lang.String", "key", WebResourceKey.class);
 
         Element version = mockField();
-        mockFieldType(version, "int", "version", javax.persistence.Version.class);
+        mockFieldType(version, "java.lang.Long", "version", javax.persistence.Version.class);
 
         doReturn(Arrays.asList(key, idField, version)).when(type).getEnclosedElements();
     }

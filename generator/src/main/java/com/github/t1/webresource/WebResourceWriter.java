@@ -287,7 +287,7 @@ class WebResourceWriter {
             --indent;
             append("}");
             append(lower + "." + id.setter() + "(existing." + id.getter() + "());");
-            if (version != null) {
+            if (version != null && version.nullable()) {
                 append("if (" + lower + "." + version.getter() + "() == null) {");
                 ++indent;
                 append(lower + "." + version.setter() + "(existing." + version.getter() + "());");
