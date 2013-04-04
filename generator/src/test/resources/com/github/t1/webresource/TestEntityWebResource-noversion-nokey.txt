@@ -36,6 +36,7 @@ public class TestEntityWebResource {
         if (result == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
+
         return Response.ok(result).build();
     }
 

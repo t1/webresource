@@ -187,7 +187,8 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ") {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name()
+                + requestContext() + ") {");
         ++indent;
         log("get {}", key.name());
         nl();
@@ -201,6 +202,8 @@ class WebResourceWriter {
         append("return Response.status(Status.NOT_FOUND).build();");
         --indent;
         append("}");
+        evaluatePreconditions("result");
+        nl();
         append("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
         append("}");

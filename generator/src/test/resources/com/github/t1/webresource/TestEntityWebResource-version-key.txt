@@ -29,13 +29,20 @@ public class TestEntityWebResource {
 
     @GET
     @Path("testentities/{id}")
-    public Response getTestEntity(@PathParam("id") String key) {
+    public Response getTestEntity(@PathParam("id") String key, @Context Request request) {
         log.debug("get {}", key);
 
         TestEntity result = findByKey(key);
         if (result == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
+
+        EntityTag eTag = new EntityTag(Objects.toString(result.getVersion()));
+        ResponseBuilder failed = request.evaluatePreconditions(eTag);
+        if (failed != null) {
+            return failed.entity(result).build();
+        }
+
         return Response.ok(result).tag(Objects.toString(result.getVersion())).build();
     }
 
