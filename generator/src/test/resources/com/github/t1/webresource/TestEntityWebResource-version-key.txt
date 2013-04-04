@@ -1,13 +1,13 @@
 package com.github.t1.webresource;
 
-import java.util.List;
+import java.util.*;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.*;
 
 import org.slf4j.*;
 
@@ -36,7 +36,7 @@ public class TestEntityWebResource {
         if (result == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        return Response.ok(result).build();
+        return Response.ok(result).tag(Objects.toString(result.getVersion())).build();
     }
 
     private TestEntity findByKey(String key) {
@@ -58,12 +58,12 @@ public class TestEntityWebResource {
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
         builder.path("testentities").path("" + testentity.getKey());
-        return Response.created(builder.build()).build();
+        return Response.created(builder.build()).tag(Objects.toString(testentity.getVersion())).build();
     }
 
     @PUT
     @Path("testentities/{id}")
-    public Response updateTestEntity(@PathParam("id") String key, TestEntity testentity) {
+    public Response updateTestEntity(@PathParam("id") String key, TestEntity testentity, @Context Request request) {
         log.debug("put key {}: {}", key, testentity);
 
         if (testentity.getKey() == null) {
@@ -83,23 +83,40 @@ public class TestEntityWebResource {
                 testentity.setVersion(existing.getVersion());
             }
         }
+
+        EntityTag eTag = new EntityTag(Objects.toString(testentity.getVersion()));
+        ResponseBuilder failed = request.evaluatePreconditions(eTag);
+        if (failed != null) {
+            return failed.entity(testentity).build();
+        }
+
         TestEntity result = em.merge(testentity);
+        em.flush();
+
         if (result == null) {
             throw new IllegalStateException("expected to be able to merge key " + key);
         }
-        return Response.ok(result).build();
+        return Response.ok(result).tag(Objects.toString(result.getVersion())).build();
     }
 
     @DELETE
     @Path("testentities/{id}")
-    public Response deleteTestEntity(@PathParam("id") String key) {
+    public Response deleteTestEntity(@PathParam("id") String key, @Context Request request) {
         log.debug("delete {}", key);
 
         TestEntity result = findByKey(key);
         if (result == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
+
+        EntityTag eTag = new EntityTag(Objects.toString(result.getVersion()));
+        ResponseBuilder failed = request.evaluatePreconditions(eTag);
+        if (failed != null) {
+            return failed.entity(result).build();
+        }
+
         em.remove(result);
-        return Response.ok(result).build();
+
+        return Response.ok(result).tag(Objects.toString(result.getVersion())).build();
     }
 }

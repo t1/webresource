@@ -11,7 +11,6 @@ import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.lang.model.element.*;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -43,8 +42,7 @@ public class WebResourceWriterTest {
 
     Element idField;
 
-    @Before
-    public void before() {
+    void mockAnnotationProcessor(boolean extended, String idType) {
         String packageName = "com.github.t1.webresource";
         String typeName = "TestEntity";
 
@@ -53,11 +51,13 @@ public class WebResourceWriterTest {
         when(type.getSimpleName()).thenReturn(new NameMock(typeName));
 
         idField = mockField();
-        mockFieldType(idField, "long");
+        mockFieldType(idField, idType);
         doReturn(Arrays.asList(idField)).when(type).getEnclosedElements();
 
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
         when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
+
+        when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(extended));
     }
 
     @Test
@@ -71,9 +71,9 @@ public class WebResourceWriterTest {
     }
 
     private void shouldGenerate(boolean extended) throws Exception {
-        when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(extended));
+        mockAnnotationProcessor(extended, "long");
 
-        String expected = readReference("TestEntityWebResource.txt").replace("${extended}",
+        String expected = readReference("TestEntityWebResource-noversion-nokey.txt").replace("${extended}",
                 extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         String generated = new WebResourceWriter(messager, type).run();
 
@@ -96,11 +96,11 @@ public class WebResourceWriterTest {
 
     @Test
     public void shouldGenerateSecondaryKey() throws Exception {
-        when(type.getAnnotation(WebResource.class)).thenReturn(new WebResourceLiteral(false));
+        mockAnnotationProcessor(false, "long");
 
         mockKeyAndVersion();
 
-        String expected = readReference("TestEntityWebResource-secondary-key.txt");
+        String expected = readReference("TestEntityWebResource-version-key.txt");
         String generated = new WebResourceWriter(messager, type).run();
 
         assertEquals(expected, generated);
@@ -115,4 +115,15 @@ public class WebResourceWriterTest {
 
         doReturn(Arrays.asList(key, idField, version)).when(type).getEnclosedElements();
     }
+
+    @Test
+    public void shouldGenerateBigDecimal() throws Exception {
+        mockAnnotationProcessor(false, "java.math.BigDecimal");
+
+        String expected = readReference("TestEntityWebResource-bigdecimal-noversion-nokey.txt");
+        String generated = new WebResourceWriter(messager, type).run();
+
+        assertEquals(expected, generated);
+    }
+
 }

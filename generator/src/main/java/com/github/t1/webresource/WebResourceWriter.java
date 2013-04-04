@@ -97,24 +97,25 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        importField(id);
-        importField(key);
-        append("import java.util.List;");
+        if (id != null && id.packageImport() != null)
+            append("import " + id.packageImport() + ";");
+        if (requiresKeyTypeImport())
+            append("import " + key.packageImport() + ";");
+        append("import java.util.*;");
         nl();
         append("import javax.ejb.Stateless;");
         append("import javax.persistence.*;");
         nl();
         append("import javax.ws.rs.*;");
         append("import javax.ws.rs.core.*;");
-        append("import javax.ws.rs.core.Response.Status;");
+        append("import javax.ws.rs.core.Response.*;");
         nl();
         append("import org.slf4j.*;");
     }
 
-    private void importField(WebResourceField field) {
-        if (field != null && field.packageImport() != null) {
-            append("import " + field.packageImport() + ";");
-        }
+    private boolean requiresKeyTypeImport() {
+        return key != null && key.packageImport() != null
+                && (id.packageImport() == null || !id.packageImport().equals(key.packageImport()));
     }
 
     private void clazz() {
@@ -191,26 +192,22 @@ class WebResourceWriter {
         log("get {}", key.name());
         nl();
         if (primary()) {
-            findByPrimaryKey();
+            append(simple + " result = em.find(" + simple + ".class, " + key.name() + ");");
         } else {
-            findBySecondaryKey();
+            append(simple + " result = findByKey(" + key.name() + ");");
         }
         append("if (result == null) {");
         ++indent;
         append("return Response.status(Status.NOT_FOUND).build();");
         --indent;
         append("}");
-        append("return Response.ok(result).build();");
+        append("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
         append("}");
     }
 
-    private void findByPrimaryKey() {
-        append(simple + " result = em.find(" + simple + ".class, " + key.name() + ");");
-    }
-
-    private void findBySecondaryKey() {
-        append(simple + " result = findByKey(" + key.name() + ");");
+    private String etag(String var) {
+        return (version == null) ? "" : ".tag(Objects.toString(" + var + "." + version.getter() + "()))";
     }
 
     private void findByKeyMethod() {
@@ -247,7 +244,7 @@ class WebResourceWriter {
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
         append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + key.getter() + "());");
-        append("return Response.created(builder.build()).build();");
+        append("return Response.created(builder.build())" + etag(lower) + ".build();");
         --indent;
         append("}");
     }
@@ -256,7 +253,7 @@ class WebResourceWriter {
         append("@PUT");
         idPath();
         append("public Response update" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ", "
-                + simple + " " + lower + ") {");
+                + simple + " " + lower + requestContext() + ") {");
         ++indent;
         log("put " + key.name() + " {}: {}", key.name(), lower);
         nl();
@@ -297,7 +294,11 @@ class WebResourceWriter {
             --indent;
             append("}");
         }
+        evaluatePreconditions(lower);
+        nl();
         append(simple + " result = em.merge(" + lower + ");");
+        append("em.flush();");
+        nl();
         append("if (result == null) {");
         ++indent;
         if (primary()) {
@@ -308,15 +309,33 @@ class WebResourceWriter {
         }
         --indent;
         append("}");
-        append("return Response.ok(result).build();");
+        append("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
         append("}");
+    }
+
+    private void evaluatePreconditions(String entity) {
+        if (version == null)
+            return;
+        nl();
+        append("EntityTag eTag = new EntityTag(Objects.toString(" + entity + "." + version.getter() + "()));");
+        append("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
+        append("if (failed != null) {");
+        ++indent;
+        append("return failed.entity(" + entity + ").build();"); // etag is already set
+        --indent;
+        append("}");
+    }
+
+    private String requestContext() {
+        return (version == null) ? "" : ", @Context Request request";
     }
 
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name() + ") {");
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name()
+                + requestContext() + ") {");
         ++indent;
         log("delete {}", key.name());
         nl();
@@ -330,8 +349,11 @@ class WebResourceWriter {
         append("return Response.status(Status.NOT_FOUND).build();");
         --indent;
         append("}");
+        evaluatePreconditions("result");
+        nl();
         append("em.remove(result);");
-        append("return Response.ok(result).build();");
+        nl();
+        append("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
         append("}");
     }
