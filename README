@@ -3,6 +3,7 @@ Add @WebResource to your @Entity to generate a standard REST binding.
 This is similar to what EclipseLink provides (http://wiki.eclipse.org/EclipseLink/Release/2.4.0/JPA-RS/REST-API), but IMHO hides technology better (e.g. why should a client care about the name of the persistence unit).
 
 TODO:
+Sub-Resources?
 Timestamp as lastModified.
 Queries by prepared statements.
 Dynamic generation at runtime?
@@ -10,3 +11,4 @@ pagination
 HEAD
 OPTIONS
 TRACE (if it's necessary; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)
+Binding for DAOs
