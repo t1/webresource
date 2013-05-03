@@ -4,89 +4,85 @@ import java.io.Serializable;
 import java.util.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
 import javax.xml.bind.annotation.*;
 
+import lombok.*;
+
 @Entity
-@XmlRootElement
 @WebResource
+// JAXB
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+// lombok
+@Getter
+@Setter
+@ToString
 public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Id
+    @XmlTransient
+    private @Id
     @GeneratedValue
-    private Long id;
+    Long id;
 
-    @NotNull
-    @Size(min = 1, max = 100)
-    @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
-    private String first;
+    @XmlTransient
+    private @Column
+    @Version
+    int version;
 
-    @NotNull
-    @Size(min = 1, max = 50)
-    @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
-    private String last;
+    private @Column
+    String first;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<Tag> tags;
+    private @Column
+    String last;
 
-    /** required by JAXB */
-    Person() {
-    }
+    @XmlElement(name = "tag")
+    @XmlElementWrapper(name = "tags")
+    private @ManyToMany(fetch = FetchType.EAGER)
+    List<Tag> tags;
+
+    @WebSubResource
+    private @Column
+    Category category;
+
+    /** @deprecated required by JAXB and JPA */
+    @Deprecated
+    Person() {}
 
     public Person(String first, String last) {
         this.first = first;
         this.last = last;
     }
 
-    @XmlAttribute
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFirst() {
-        return first;
-    }
-
-    public void setFirst(String first) {
-        this.first = first;
-    }
-
-    public String getLast() {
-        return last;
-    }
-
-    public void setLast(String last) {
-        this.last = last;
-    }
-
     public List<Tag> getTags() {
-        return tags;
+        if (tags == null)
+            return Collections.emptyList();
+        return Collections.unmodifiableList(tags);
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public void addTag(Tag tag) {
+    public Person tag(Tag tag) {
         if (tags == null)
             tags = new ArrayList<>();
         tags.add(tag);
+        return this;
     }
 
-    public boolean removeTag(Tag tag) {
+    public boolean untag(Tag tag) {
         if (tags == null)
             return false;
         return tags.remove(tag);
     }
 
-    @Override
-    public String toString() {
-        return "Person [" + (id != null ? "id=" + id + ", " : "") + (first != null ? "first=" + first + ", " : "")
-                + (last != null ? "last=" + last + ", " : "") + (tags != null ? "tags=" + tags : "") + "]";
+    public boolean untag(String key) {
+        if (tags == null)
+            return false;
+        for (Iterator<Tag> iter = tags.iterator(); iter.hasNext();) {
+            Tag tag = iter.next();
+            if (tag.getKey().equals(key)) {
+                iter.remove();
+                return true;
+            }
+        }
+        return false;
     }
 }

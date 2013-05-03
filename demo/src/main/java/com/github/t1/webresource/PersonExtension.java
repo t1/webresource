@@ -5,7 +5,6 @@ import javax.persistence.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
-@Path("/")
 @Stateless
 public class PersonExtension extends PersonWebResource {
     @PersistenceContext

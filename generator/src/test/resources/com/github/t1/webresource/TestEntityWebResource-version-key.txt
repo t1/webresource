@@ -22,7 +22,7 @@ public class TestEntityWebResource {
     @GET
     @Path("testentities")
     public List<TestEntity> list() {
-        log.debug("getAll");
+        log.debug("get all testentities");
 
         return em.createQuery("FROM TestEntity ORDER BY key", TestEntity.class).getResultList();
     }
@@ -30,7 +30,7 @@ public class TestEntityWebResource {
     @GET
     @Path("testentities/{id}")
     public Response getTestEntity(@PathParam("id") String key, @Context Request request) {
-        log.debug("get {}", key);
+        log.debug("get testentity {}", key);
 
         TestEntity result = findByKey(key);
         if (result == null) {
@@ -58,7 +58,7 @@ public class TestEntityWebResource {
     @POST
     @Path("testentities")
     public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
-        log.debug("post {}", testentity);
+        log.debug("post testentity {}", testentity);
 
         em.persist(testentity);
         em.flush();
@@ -71,7 +71,7 @@ public class TestEntityWebResource {
     @PUT
     @Path("testentities/{id}")
     public Response updateTestEntity(@PathParam("id") String key, TestEntity testentity, @Context Request request) {
-        log.debug("put key {}: {}", key, testentity);
+        log.debug("put testentity key {}: {}", key, testentity);
 
         if (testentity.getKey() == null) {
             testentity.setKey(key);
@@ -109,7 +109,7 @@ public class TestEntityWebResource {
     @DELETE
     @Path("testentities/{id}")
     public Response deleteTestEntity(@PathParam("id") String key, @Context Request request) {
-        log.debug("delete {}", key);
+        log.debug("delete testentity {}", key);
 
         TestEntity result = findByKey(key);
         if (result == null) {

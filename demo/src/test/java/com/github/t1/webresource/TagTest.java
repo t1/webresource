@@ -2,7 +2,7 @@ package com.github.t1.webresource;
 
 import static org.junit.Assert.*;
 
-import java.io.StringWriter;
+import java.io.*;
 
 import javax.xml.bind.JAXB;
 
@@ -11,12 +11,12 @@ import org.junit.Test;
 public class TagTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;
 
-    private static final String XML = XML_HEADER + "\n" //
-            + "<tag name=\"X\">hiho</tag>\n";
+    private static final String XML = XML_HEADER //
+            + "<tag key=\"X\">hiho</tag>\n";
     private static final Tag TAG = new Tag("X", "hiho");
 
     @Test
-    public void toXml() throws Exception {
+    public void shouldMarshal() throws Exception {
         StringWriter writer = new StringWriter();
 
         JAXB.marshal(TAG, writer);
@@ -25,10 +25,30 @@ public class TagTest {
     }
 
     @Test
-    public void inPerson() throws Exception {
-        Person person = new Person("John", "Smith");
-        person.addTag(TAG);
+    public void shouldUnmarshal() throws Exception {
+        Tag tag = JAXB.unmarshal(new StringReader(XML), Tag.class);
 
-        assertEquals("Person [first=John, last=Smith, tags=[Tag [name=X, description=hiho]]]", person.toString());
+        assertEquals(TAG, tag);
+    }
+
+    @Test
+    public void twoEqualTagsShouldBeEqual() throws Exception {
+        Tag tag2 = new Tag("X", "hiho");
+
+        assertEquals(TAG, tag2);
+    }
+
+    @Test
+    public void twoEqualTagsShouldHaveSameHash() throws Exception {
+        Tag tag2 = new Tag("X", "hiho");
+
+        assertEquals(TAG.hashCode(), tag2.hashCode());
+    }
+
+    @Test
+    public void twoEqualTagsShouldHaveSameToString() throws Exception {
+        Tag tag2 = new Tag("X", "hiho");
+
+        assertEquals(TAG.toString(), tag2.toString());
     }
 }

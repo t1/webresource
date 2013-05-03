@@ -10,8 +10,9 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.persistence.Id;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.hamcrest.CoreMatchers;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -54,8 +55,11 @@ public class WebResourceFieldTest {
     }
 
     private WebResourceField findField() {
-        return new WebResourceField(WebResourceField.findField(type, Id.class.getName()));
+        return WebResourceField.findField(type, Id.class.getName());
     }
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldParseString() throws Exception {
@@ -65,7 +69,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("String", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -77,7 +81,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("Long", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -89,7 +93,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("long", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertFalse(idType.nullable());
     }
 
@@ -101,7 +105,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("Integer", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -113,7 +117,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("int", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertFalse(idType.nullable());
     }
 
@@ -125,7 +129,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("Short", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -137,7 +141,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("short", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertFalse(idType.nullable());
     }
 
@@ -149,7 +153,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("Double", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -161,7 +165,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("double", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertFalse(idType.nullable());
     }
 
@@ -173,7 +177,7 @@ public class WebResourceFieldTest {
 
         assertEquals("java.math.BigInteger", idType.packageImport());
         assertEquals("BigInteger", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -185,7 +189,7 @@ public class WebResourceFieldTest {
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
         assertEquals("BigDecimal", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -197,7 +201,7 @@ public class WebResourceFieldTest {
 
         assertEquals("java.sql.Date", idType.packageImport());
         assertEquals("Date", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -209,7 +213,7 @@ public class WebResourceFieldTest {
 
         assertEquals("java.util.Date", idType.packageImport());
         assertEquals("Date", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
     }
 
@@ -228,7 +232,7 @@ public class WebResourceFieldTest {
 
         assertNull(idType.packageImport());
         assertEquals("long", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertFalse(idType.nullable());
     }
 
@@ -247,7 +251,21 @@ public class WebResourceFieldTest {
 
         assertEquals("java.math.BigDecimal", idType.packageImport());
         assertEquals("BigDecimal", idType.type());
-        assertEquals("id", idType.name());
+        assertEquals("id", idType.name);
         assertTrue(idType.nullable());
+    }
+
+    @Test
+    public void shouldFailWithTwoIdFields() throws Exception {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage(CoreMatchers.startsWith("more than one javax.persistence.Id field found: "));
+
+        mockFieldType(field, "long");
+
+        Element field2 = mockField();
+        mockFieldType(field2, "java.math.BigDecimal");
+        fields.add(field2);
+
+        findField();
     }
 }

@@ -1,28 +1,41 @@
 package com.github.t1.webresource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 class WebResourceField {
-    protected static Element findField(TypeElement classElement, String annotationTypeName) {
+    protected static WebResourceField findField(TypeElement classElement, String annotationTypeName) {
+        List<WebResourceField> list = findFields(classElement, annotationTypeName);
+        if (list.isEmpty())
+            return null;
+        if (list.size() == 1)
+            return list.get(0);
+        throw new IllegalArgumentException("more than one " + annotationTypeName + " field found: " + list);
+    }
+
+    protected static List<WebResourceField> findFields(TypeElement classElement, String annotationTypeName) {
+        List<WebResourceField> result = new ArrayList<WebResourceField>();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (ElementKind.FIELD != enclosedElement.getKind())
                 continue;
             if (isAnnotated(enclosedElement, annotationTypeName)) {
-                return enclosedElement;
+                result.add(new WebResourceField(enclosedElement));
             }
         }
         TypeMirror superclass = classElement.getSuperclass();
         if (superclass != null && superclass instanceof DeclaredType) {
             try {
                 Element superElement = ((DeclaredType) superclass).asElement();
-                return findField((TypeElement) superElement, annotationTypeName);
+                result.addAll(findFields((TypeElement) superElement, annotationTypeName));
             } catch (RuntimeException e) {
                 throw new RuntimeException("findField in superclass of " + classElement.getQualifiedName(), e);
             }
         }
-        return null;
+        return result;
     }
 
     private static boolean isAnnotated(Element element, String annotationName) {
@@ -37,7 +50,7 @@ class WebResourceField {
     protected final String fullyQualifiedTypeName;
     protected final String name;
 
-    public WebResourceField(Element field) {
+    private WebResourceField(Element field) {
         this.fullyQualifiedTypeName = field.asType().toString();
         this.name = field.getSimpleName().toString();
     }
@@ -57,11 +70,7 @@ class WebResourceField {
         return index < 0 ? fullyQualifiedTypeName : fullyQualifiedTypeName.substring(index + 1);
     }
 
-    public String name() {
-        return name;
-    }
-
-    private String uppercaps() {
+    public String uppercaps() {
         if (name == null || name.length() == 0)
             return name;
         if (name.length() == 1)

@@ -23,7 +23,7 @@ public class TestEntityWebResource {
     @GET
     @Path("testentities")
     public List<TestEntity> list() {
-        log.debug("getAll");
+        log.debug("get all testentities");
 
         return em.createQuery("FROM TestEntity ORDER BY id", TestEntity.class).getResultList();
     }
@@ -31,7 +31,7 @@ public class TestEntityWebResource {
     @GET
     @Path("testentities/{id}")
     public Response getTestEntity(@PathParam("id") BigDecimal id) {
-        log.debug("get {}", id);
+        log.debug("get testentity {}", id);
 
         TestEntity result = em.find(TestEntity.class, id);
         if (result == null) {
@@ -44,7 +44,7 @@ public class TestEntityWebResource {
     @POST
     @Path("testentities")
     public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
-        log.debug("post {}", testentity);
+        log.debug("post testentity {}", testentity);
 
         em.persist(testentity);
         em.flush();
@@ -57,7 +57,7 @@ public class TestEntityWebResource {
     @PUT
     @Path("testentities/{id}")
     public Response updateTestEntity(@PathParam("id") BigDecimal id, TestEntity testentity) {
-        log.debug("put id {}: {}", id, testentity);
+        log.debug("put testentity id {}: {}", id, testentity);
 
         if (testentity.getId() == null) {
             testentity.setId(id);
@@ -79,7 +79,7 @@ public class TestEntityWebResource {
     @DELETE
     @Path("testentities/{id}")
     public Response deleteTestEntity(@PathParam("id") BigDecimal id) {
-        log.debug("delete {}", id);
+        log.debug("delete testentity {}", id);
 
         TestEntity result = em.find(TestEntity.class, id);
         if (result == null) {

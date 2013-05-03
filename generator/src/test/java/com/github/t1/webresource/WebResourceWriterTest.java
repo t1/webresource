@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
@@ -15,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
@@ -41,6 +44,7 @@ public class WebResourceWriterTest {
     Messager messager;
 
     Element idField;
+    List<Element> fields = Lists.newArrayList();
 
     void mockAnnotationProcessor(boolean extended, String idType) {
         String packageName = "com.github.t1.webresource";
@@ -51,8 +55,9 @@ public class WebResourceWriterTest {
         when(type.getSimpleName()).thenReturn(new NameMock(typeName));
 
         idField = mockField();
+        fields.add(idField);
         mockFieldType(idField, idType);
-        doReturn(Arrays.asList(idField)).when(type).getEnclosedElements();
+        doReturn(fields).when(type).getEnclosedElements();
 
         when(pkg.getKind()).thenReturn(ElementKind.PACKAGE);
         when(pkg.getQualifiedName()).thenReturn(new NameMock(packageName));
@@ -126,4 +131,17 @@ public class WebResourceWriterTest {
         assertEquals(expected, generated);
     }
 
+    @Test
+    public void shouldGenerateSubResource() throws Exception {
+        mockAnnotationProcessor(false, "long");
+
+        Element subResourceField = mockField();
+        mockFieldType(subResourceField, "java.lang.String", "subresource", WebSubResource.class);
+        fields.add(subResourceField);
+
+        String expected = readReference("TestEntityWebResource-noversion-nokey-subresource.txt");
+        String generated = new WebResourceWriter(messager, type).run();
+
+        assertEquals(expected, generated);
+    }
 }
