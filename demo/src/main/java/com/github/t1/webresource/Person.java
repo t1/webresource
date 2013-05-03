@@ -42,8 +42,7 @@ public class Person implements Serializable {
     List<Tag> tags;
 
     @WebSubResource
-    private @Column
-    @ManyToOne
+    private @ManyToOne
     Category category;
 
     /** @deprecated required by JAXB and JPA */
