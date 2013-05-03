@@ -43,6 +43,7 @@ public class Person implements Serializable {
 
     @WebSubResource
     private @Column
+    @ManyToOne
     Category category;
 
     /** @deprecated required by JAXB and JPA */
