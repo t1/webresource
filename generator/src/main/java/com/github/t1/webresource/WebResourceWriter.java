@@ -1,5 +1,7 @@
 package com.github.t1.webresource;
 
+import java.util.List;
+
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic.Kind;
@@ -82,10 +84,10 @@ class WebResourceWriter {
     }
 
     private void imports() {
-        if (id != null && id.packageImport() != null)
-            append("import " + id.packageImport() + ";");
+        if (id != null)
+            imports(id.imports);
         if (requiresKeyTypeImport())
-            append("import " + key.packageImport() + ";");
+            imports(key.imports);
         append("import java.util.*;");
         nl();
         append("import javax.ejb.Stateless;");
@@ -98,9 +100,30 @@ class WebResourceWriter {
         append("import org.slf4j.*;");
     }
 
+    private void imports(List<String> imports) {
+        for (String imp : imports) {
+            append("import " + imp + ";");
+        }
+    }
+
+    private void append(String string) {
+        appendIndent();
+        out.append(string);
+        nl();
+    }
+
+    private void appendIndent() {
+        for (int i = 0; i < indent; i++) {
+            out.append("    ");
+        }
+    }
+
+    private void nl() {
+        out.append('\n');
+    }
+
     private boolean requiresKeyTypeImport() {
-        return key != null && key.packageImport() != null
-                && (id.packageImport() == null || !id.packageImport().equals(key.packageImport()));
+        return key != null && !key.imports.isEmpty() && !key.imports.equals(id.imports);
     }
 
     private void clazz() {
@@ -173,8 +196,8 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         idPath();
-        append("public Response get" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name + requestContext()
-                + ") {");
+        append("public Response get" + simple + "(@PathParam(\"id\") " + key.simpleType + " " + key.name
+                + requestContext() + ") {");
         ++indent;
         log("get " + lower + " {}", key.name);
         nl();
@@ -200,7 +223,7 @@ class WebResourceWriter {
     }
 
     private void findByKeyMethod() {
-        append("private " + simple + " findByKey(" + key.type() + " " + key.name + ") {");
+        append("private " + simple + " findByKey(" + key.simpleType + " " + key.name + ") {");
         ++indent;
         append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + key.name + " = :"
                 + key.name + "\", " + simple + ".class);");
@@ -241,12 +264,12 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         idPath();
-        append("public Response update" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name + ", " + simple
-                + " " + lower + requestContext() + ") {");
+        append("public Response update" + simple + "(@PathParam(\"id\") " + key.simpleType + " " + key.name + ", "
+                + simple + " " + lower + requestContext() + ") {");
         ++indent;
         log("put " + lower + " " + key.name + " {}: {}", key.name, lower);
         nl();
-        if (key.nullable()) {
+        if (key.nullable) {
             append("if (" + lower + "." + key.getter() + "() == null) {");
             ++indent;
             append(lower + "." + key.setter() + "(" + key.name + ");");
@@ -272,7 +295,7 @@ class WebResourceWriter {
             --indent;
             append("}");
             append(lower + "." + id.setter() + "(existing." + id.getter() + "());");
-            if (version != null && version.nullable()) {
+            if (version != null && version.nullable) {
                 append("if (" + lower + "." + version.getter() + "() == null) {");
                 ++indent;
                 append(lower + "." + version.setter() + "(existing." + version.getter() + "());");
@@ -322,7 +345,7 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         idPath();
-        append("public Response delete" + simple + "(@PathParam(\"id\") " + key.type() + " " + key.name
+        append("public Response delete" + simple + "(@PathParam(\"id\") " + key.simpleType + " " + key.name
                 + requestContext() + ") {");
         ++indent;
         log("delete " + lower + " {}", key.name);
@@ -352,7 +375,7 @@ class WebResourceWriter {
             subGET(subresource);
             nl();
             subPUT(subresource);
-            if (subresource.nullable()) {
+            if (subresource.nullable) {
                 nl();
                 subDELETE(subresource);
             }
@@ -362,7 +385,7 @@ class WebResourceWriter {
     private void subGET(WebResourceField subresource) {
         append("@GET");
         path(plural + "/{id}/" + subresource.name);
-        append("public Response get" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.type() + " "
+        append("public Response get" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.simpleType + " "
                 + key.name + requestContext() + ") {");
         ++indent;
         log("get " + subresource.name + " from " + lower + " {}", key.name);
@@ -387,8 +410,8 @@ class WebResourceWriter {
     private void subPUT(WebResourceField subresource) {
         append("@PUT");
         path(plural + "/{id}/" + subresource.name);
-        append("public Response update" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.type() + " "
-                + key.name + requestContext() + ", " + subresource.type() + " " + subresource.name + ") {");
+        append("public Response update" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.simpleType
+                + " " + key.name + requestContext() + ", " + subresource.simpleType + " " + subresource.name + ") {");
         ++indent;
         log("put " + subresource.name + " {} of " + lower + " {}", subresource.name, key.name);
         nl();
@@ -415,8 +438,8 @@ class WebResourceWriter {
     private void subDELETE(WebResourceField subresource) {
         append("@DELETE");
         path(plural + "/{id}/" + subresource.name);
-        append("public Response delete" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.type() + " "
-                + key.name + requestContext() + ") {");
+        append("public Response delete" + simple + subresource.uppercaps() + "(@PathParam(\"id\") " + key.simpleType
+                + " " + key.name + requestContext() + ") {");
         ++indent;
         log("delete " + subresource.name + " of " + lower + " {}", key.name);
         nl();
@@ -438,21 +461,5 @@ class WebResourceWriter {
         append("return Response.ok()" + etag(lower) + ".build();");
         --indent;
         append("}");
-    }
-
-    private void append(String string) {
-        appendIndent();
-        out.append(string);
-        nl();
-    }
-
-    private void appendIndent() {
-        for (int i = 0; i < indent; i++) {
-            out.append("    ");
-        }
-    }
-
-    private void nl() {
-        out.append('\n');
     }
 }

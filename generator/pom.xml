@@ -137,7 +137,7 @@
 		<profile>
 			<id>arquillian-jbossas-managed</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
 				<dependency>

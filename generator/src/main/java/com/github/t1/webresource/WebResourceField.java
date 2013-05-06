@@ -7,6 +7,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+@lombok.EqualsAndHashCode
 class WebResourceField {
     protected static WebResourceField findField(TypeElement classElement, String annotationTypeName) {
         List<WebResourceField> list = findFields(classElement, annotationTypeName);
@@ -47,27 +48,20 @@ class WebResourceField {
         return false;
     }
 
-    protected final String fullyQualifiedTypeName;
-    protected final String name;
+    final Element field;
+
+    final String name;
+    final boolean nullable;
+    final List<String> imports = new ArrayList<String>();
+    final String simpleType;
 
     private WebResourceField(Element field) {
-        this.fullyQualifiedTypeName = field.asType().toString();
+        this.field = field;
         this.name = field.getSimpleName().toString();
-    }
-
-    public boolean nullable() {
-        return fullyQualifiedTypeName.contains(".");
-    }
-
-    public String packageImport() {
-        if (!nullable() || fullyQualifiedTypeName.startsWith("java.lang."))
-            return null;
-        return fullyQualifiedTypeName;
-    }
-
-    public String type() {
-        int index = fullyQualifiedTypeName.lastIndexOf('.');
-        return index < 0 ? fullyQualifiedTypeName : fullyQualifiedTypeName.substring(index + 1);
+        TypeString typeString = new TypeString(field.asType().toString());
+        this.nullable = typeString.nullable;
+        this.imports.addAll(typeString.imports);
+        this.simpleType = typeString.simpleType;
     }
 
     public String uppercaps() {
@@ -84,36 +78,5 @@ class WebResourceField {
 
     public String setter() {
         return "set" + uppercaps();
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((fullyQualifiedTypeName == null) ? 0 : fullyQualifiedTypeName.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        WebResourceField other = (WebResourceField) obj;
-        if (fullyQualifiedTypeName == null) {
-            if (other.fullyQualifiedTypeName != null)
-                return false;
-        } else if (!fullyQualifiedTypeName.equals(other.fullyQualifiedTypeName))
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        return true;
     }
 }

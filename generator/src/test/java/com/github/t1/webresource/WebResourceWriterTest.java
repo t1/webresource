@@ -5,8 +5,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
@@ -16,8 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
@@ -44,7 +41,7 @@ public class WebResourceWriterTest {
     Messager messager;
 
     Element idField;
-    List<Element> fields = Lists.newArrayList();
+    List<Element> fields = new ArrayList<Element>();
 
     void mockAnnotationProcessor(boolean extended, String idType) {
         String packageName = "com.github.t1.webresource";
@@ -78,10 +75,10 @@ public class WebResourceWriterTest {
     private void shouldGenerate(boolean extended) throws Exception {
         mockAnnotationProcessor(extended, "long");
 
-        String expected = readReference("TestEntityWebResource-noversion-nokey.txt").replace("${extended}",
-                extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         String generated = new WebResourceWriter(messager, type).run();
 
+        String expected = readReference("TestEntityWebResource-noversion-nokey.txt").replace("${extended}",
+                extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         assertEquals(expected, generated);
     }
 
@@ -105,9 +102,9 @@ public class WebResourceWriterTest {
 
         mockKeyAndVersion();
 
-        String expected = readReference("TestEntityWebResource-version-key.txt");
         String generated = new WebResourceWriter(messager, type).run();
 
+        String expected = readReference("TestEntityWebResource-version-key.txt");
         assertEquals(expected, generated);
     }
 
@@ -125,9 +122,9 @@ public class WebResourceWriterTest {
     public void shouldGenerateBigDecimal() throws Exception {
         mockAnnotationProcessor(false, "java.math.BigDecimal");
 
-        String expected = readReference("TestEntityWebResource-bigdecimal-noversion-nokey.txt");
         String generated = new WebResourceWriter(messager, type).run();
 
+        String expected = readReference("TestEntityWebResource-bigdecimal-noversion-nokey.txt");
         assertEquals(expected, generated);
     }
 
@@ -139,9 +136,23 @@ public class WebResourceWriterTest {
         mockFieldType(subResourceField, "java.lang.String", "subresource", WebSubResource.class);
         fields.add(subResourceField);
 
-        String expected = readReference("TestEntityWebResource-noversion-nokey-subresource.txt");
         String generated = new WebResourceWriter(messager, type).run();
 
+        String expected = readReference("TestEntityWebResource-noversion-nokey-subresource.txt");
+        assertEquals(expected, generated);
+    }
+
+    @Test
+    public void shouldGenerateCollectionSubResource() throws Exception {
+        mockAnnotationProcessor(false, "long");
+
+        Element subResourceField = mockField();
+        mockFieldType(subResourceField, "java.util.List<java.lang.String>", "subresource", WebSubResource.class);
+        fields.add(subResourceField);
+
+        String generated = new WebResourceWriter(messager, type).run();
+
+        String expected = readReference("TestEntityWebResource-noversion-nokey-coll-subresource.txt");
         assertEquals(expected, generated);
     }
 }

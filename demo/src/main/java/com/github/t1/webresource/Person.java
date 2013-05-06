@@ -36,6 +36,7 @@ public class Person implements Serializable {
     private @Column
     String last;
 
+    @WebSubResource
     @XmlElement(name = "tag")
     @XmlElementWrapper(name = "tags")
     private @ManyToMany(fetch = FetchType.EAGER)

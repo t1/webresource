@@ -1,0 +1,135 @@
+package com.github.t1.webresource;
+
+import java.util.*;
+
+import javax.ejb.Stateless;
+import javax.persistence.*;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.*;
+
+import org.slf4j.*;
+
+@Path("/")
+@Stateless
+public class TestEntityWebResource {
+    private final Logger log = LoggerFactory.getLogger(TestEntityWebResource.class);
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @GET
+    @Path("testentities")
+    public List<TestEntity> list() {
+        log.debug("get all testentities");
+
+        return em.createQuery("FROM TestEntity ORDER BY id", TestEntity.class).getResultList();
+    }
+
+    @GET
+    @Path("testentities/{id}")
+    public Response getTestEntity(@PathParam("id") long id) {
+        log.debug("get testentity {}", id);
+
+        TestEntity result = em.find(TestEntity.class, id);
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        return Response.ok(result).build();
+    }
+
+    @POST
+    @Path("testentities")
+    public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
+        log.debug("post testentity {}", testentity);
+
+        em.persist(testentity);
+        em.flush();
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder();
+        builder.path("testentities").path("" + testentity.getId());
+        return Response.created(builder.build()).build();
+    }
+
+    @PUT
+    @Path("testentities/{id}")
+    public Response updateTestEntity(@PathParam("id") long id, TestEntity testentity) {
+        log.debug("put testentity id {}: {}", id, testentity);
+
+        if (id != testentity.getId()) {
+            String message = "id conflict! path=" + id + ", body=" + testentity.getId() + ".\n"
+                + "either leave the id in the body null or set it to the same id";
+            return Response.status(Status.BAD_REQUEST).entity(message).build();
+        }
+
+        TestEntity result = em.merge(testentity);
+        em.flush();
+
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.ok(result).build();
+    }
+
+    @DELETE
+    @Path("testentities/{id}")
+    public Response deleteTestEntity(@PathParam("id") long id) {
+        log.debug("delete testentity {}", id);
+
+        TestEntity result = em.find(TestEntity.class, id);
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        em.remove(result);
+
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("testentities/{id}/subresource")
+    public Response getTestEntitySubresource(@PathParam("id") long id) {
+        log.debug("get subresource from testentity {}", id);
+
+        TestEntity result = em.find(TestEntity.class, id);
+        if (result == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        return Response.ok(result.getSubresource()).build();
+    }
+
+    @PUT
+    @Path("testentities/{id}/subresource")
+    public Response updateTestEntitySubresource(@PathParam("id") long id, List<String> subresource) {
+        log.debug("put subresource {} of testentity {}", subresource, id);
+
+        TestEntity testentity = em.find(TestEntity.class, id);
+        if (testentity == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        testentity.setSubresource(subresource);
+        em.flush();
+
+        return Response.ok(subresource).build();
+    }
+
+    @DELETE
+    @Path("testentities/{id}/subresource")
+    public Response deleteTestEntitySubresource(@PathParam("id") long id) {
+        log.debug("delete subresource of testentity {}", id);
+
+        TestEntity testentity = em.find(TestEntity.class, id);
+        if (testentity == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        testentity.setSubresource(null);
+        em.flush();
+
+        return Response.ok().build();
+    }
+}
