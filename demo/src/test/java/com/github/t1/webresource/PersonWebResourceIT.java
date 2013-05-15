@@ -20,8 +20,6 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class PersonWebResourceIT {
 
-    // TODO use MessageBodyReader/Writer instead of parsing xml
-
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class, PersonWebResourceIT.class.getName() + ".war") //
@@ -34,6 +32,7 @@ public class PersonWebResourceIT {
     private static final Pattern PERSON =
             Pattern.compile("<person id=\"(?<id>[0-9]+)\"><first>(?<first>\\w*)</first><last>(?<last>\\w*)</last></person>(?<overflow>.*)");
 
+    // TODO don't use the RestEasy binding to an interface
     public interface PersonService {
         @GET
         @Path("persons")

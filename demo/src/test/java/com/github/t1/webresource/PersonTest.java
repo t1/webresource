@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import javax.xml.bind.JAXB;
 
-import org.junit.Test;
+import org.junit.*;
 
 public class PersonTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;
@@ -27,7 +27,8 @@ public class PersonTest {
             + "    </tags>\n" //
             + "</person>\n";
 
-    private static final Tag TAG = new Tag("tag1", "description-1");
+    private static final Tag TAG1 = new Tag("tag1", "description-1");
+    private static final Tag TAG2 = new Tag("tag2", "description-2");
 
     private final Person person = new Person("Joe", "Doe");
 
@@ -59,24 +60,23 @@ public class PersonTest {
 
     @Test
     public void shouldTag() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
-        assertEquals(Arrays.asList(TAG), person.getTags());
+        assertEquals(Arrays.asList(TAG1), person.getTags());
     }
 
     @Test
     public void shouldTagTwo() throws Exception {
-        Tag tag2 = new Tag("tag2", "description2");
-        person.tag(TAG).tag(tag2);
+        person.tag(TAG1).tag(TAG2);
 
-        assertEquals(Arrays.asList(TAG, tag2), person.getTags());
+        assertEquals(Arrays.asList(TAG1, TAG2), person.getTags());
     }
 
     @Test
     public void shouldUntag() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
-        boolean untagged = person.untag(TAG);
+        boolean untagged = person.untag(TAG1);
 
         assertTrue(untagged);
         assertTrue(person.getTags().isEmpty());
@@ -84,9 +84,9 @@ public class PersonTest {
 
     @Test
     public void shouldUntagKey() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
-        boolean untagged = person.untag(TAG.getKey());
+        boolean untagged = person.untag(TAG1.getKey());
 
         assertTrue(untagged);
         assertTrue(person.getTags().isEmpty());
@@ -94,7 +94,7 @@ public class PersonTest {
 
     @Test
     public void shouldNotUntagUntagged() throws Exception {
-        boolean untagged = person.untag(TAG);
+        boolean untagged = person.untag(TAG1);
 
         assertFalse(untagged);
         assertTrue(person.getTags().isEmpty());
@@ -102,7 +102,7 @@ public class PersonTest {
 
     @Test
     public void shouldNotUntagUntaggedKey() throws Exception {
-        boolean untagged = person.untag(TAG.getKey());
+        boolean untagged = person.untag(TAG1.getKey());
 
         assertFalse(untagged);
         assertTrue(person.getTags().isEmpty());
@@ -110,37 +110,37 @@ public class PersonTest {
 
     @Test
     public void shouldNotUntagUnknownKey() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
         boolean untagged = person.untag("wrong-key");
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG), person.getTags());
+        assertEquals(Arrays.asList(TAG1), person.getTags());
     }
 
     @Test
     public void shouldNotUntagEmptyKey() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
         boolean untagged = person.untag("");
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG), person.getTags());
+        assertEquals(Arrays.asList(TAG1), person.getTags());
     }
 
     @Test
     public void shouldNotUntagNullKey() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
         boolean untagged = person.untag((String) null);
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG), person.getTags());
+        assertEquals(Arrays.asList(TAG1), person.getTags());
     }
 
     @Test
     public void shouldMarshalTagged() throws Exception {
-        person.tag(TAG);
+        person.tag(TAG1);
 
         StringWriter xml = new StringWriter();
         JAXB.marshal(person, xml);
@@ -154,6 +154,22 @@ public class PersonTest {
 
         assertEquals("Joe", person.getFirst());
         assertEquals("Doe", person.getLast());
-        assertEquals(Arrays.asList(TAG), person.getTags());
+        assertEquals(Arrays.asList(TAG1), person.getTags());
+    }
+
+    @Test
+    @Ignore
+    public void shouldMarshalTagList() throws Exception {
+        person.tag(TAG1).tag(TAG2);
+
+        StringWriter xml = new StringWriter();
+        JAXB.marshal(person.getTags(), xml);
+
+        assertEquals(XML_HEADER //
+                + "<tags>\n" //
+                + "    <tag key=\"tag1\">description-1</tag>\n" //
+                + "    <tag key=\"tag2\">description-2</tag>\n" //
+                + "</tags>\n" //
+        , xml.toString());
     }
 }
