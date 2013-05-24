@@ -9,7 +9,6 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-@lombok.EqualsAndHashCode
 class WebResourceField {
     protected static WebResourceField findField(TypeElement classElement, String annotationTypeName) {
         List<WebResourceField> list = findFields(classElement, annotationTypeName);
@@ -87,6 +86,23 @@ class WebResourceField {
         if (!matcher.matches())
             return simpleType;
         return matcher.group(2);
+    }
+
+    @Override
+    public int hashCode() {
+        return field.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WebResourceField other = (WebResourceField) obj;
+        return field.equals(other.field);
     }
 
     public String uppercaps() {

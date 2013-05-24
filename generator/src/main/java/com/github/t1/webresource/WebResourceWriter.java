@@ -3,89 +3,32 @@ package com.github.t1.webresource;
 import java.util.List;
 
 import javax.annotation.processing.Messager;
-import javax.lang.model.element.*;
-import javax.persistence.Entity;
+import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
 class WebResourceWriter {
     private final StringBuilder out = new StringBuilder();
 
-    private final TypeElement type;
-    private final String pkg;
-    private final String simple;
-    private final String entityName;
-    private final String lower;
-    private final String plural;
+    private final WebResourceType type;
     private final WebResourceField id;
     private final WebResourceField key;
     private final WebResourceField version;
-    private final boolean extended;
 
     private int indent = 0;
 
-    public WebResourceWriter(Messager messager, TypeElement type) {
-        this.type = type;
-        this.pkg = pkg();
-        this.simple = type.getSimpleName().toString();
-        this.entityName = entity(type);
-        this.lower = simple.toLowerCase();
-        this.plural = plural(lower);
-        this.id = getIdField(type);
-        this.key = getKeyField();
+    public WebResourceWriter(Messager messager, TypeElement typeElement) {
+        this.type = new WebResourceType(typeElement);
+        this.id = type.getIdField();
+        this.key = type.getKeyField();
         if (id == null)
-            messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
-        this.version = getVersionField(type);
-        this.extended = isExtended(type);
-    }
-
-    private String pkg() {
-        for (Element element = type; element != null; element = element.getEnclosingElement()) {
-            if (ElementKind.PACKAGE == element.getKind()) {
-                return ((PackageElement) element).getQualifiedName().toString();
-            }
-        }
-        throw new IllegalStateException("no package for " + type);
-    }
-
-    private String plural(String name) {
-        if (name.endsWith("y"))
-            return name.substring(0, name.length() - 1) + "ies";
-        return name + "s";
-    }
-
-    private String entity(TypeElement type) {
-        Entity entity = type.getAnnotation(Entity.class);
-        if (entity == null)
-            return type.getSimpleName().toString();
-        return entity.name();
-    }
-
-    private WebResourceField getIdField(TypeElement type) {
-        // don't use the Id type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Id");
-    }
-
-    private WebResourceField getKeyField() {
-        WebResourceField keyField = WebResourceField.findField(type, WebResourceKey.class.getName());
-        return (keyField == null) ? id : keyField;
-    }
-
-    private WebResourceField getVersionField(TypeElement type) {
-        // don't use the Version type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Version");
-    }
-
-    private boolean isExtended(TypeElement type) {
-        WebResource annotation = type.getAnnotation(WebResource.class);
-        if (annotation == null)
-            throw new RuntimeException("expected type to be annotated as WebResource: " + type);
-        return annotation.extended();
+            messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
+        this.version = type.getVersionField();
     }
 
     public String run() {
         if (key == null)
             throw new IllegalStateException("no id type found in " + type.getQualifiedName());
-        append("package " + pkg + ";");
+        append("package " + type.pkg + ";");
         nl();
         imports();
         nl();
@@ -137,9 +80,9 @@ class WebResourceWriter {
     }
 
     private void clazz() {
-        path("/" + plural);
+        path("/" + type.plural);
         append("@Stateless");
-        append("public class " + simple + "WebResource {");
+        append("public class " + type.simple + "WebResource {");
         ++indent;
         logger();
         nl();
@@ -168,11 +111,11 @@ class WebResourceWriter {
     }
 
     private void logger() {
-        append("private final Logger log = LoggerFactory.getLogger(" + simple + "WebResource.class);");
+        append("private final Logger log = LoggerFactory.getLogger(" + type.simple + "WebResource.class);");
     }
 
     private void entityManager() {
-        append("@PersistenceContext" + (extended ? "(type = PersistenceContextType.EXTENDED)" : ""));
+        append("@PersistenceContext" + (type.extended ? "(type = PersistenceContextType.EXTENDED)" : ""));
         append("private EntityManager em;");
     }
 
@@ -182,11 +125,11 @@ class WebResourceWriter {
 
     private void LIST() {
         append("@GET");
-        append("public List<" + simple + "> list() {");
+        append("public List<" + type.simple + "> list() {");
         ++indent;
-        log("get all " + plural);
+        log("get all " + type.plural);
         nl();
-        append("return em.createQuery(\"FROM " + entityName + " ORDER BY " + key.name + "\", " + simple
+        append("return em.createQuery(\"FROM " + type.entityName + " ORDER BY " + key.name + "\", " + type.simple
                 + ".class).getResultList();");
         --indent;
         append("}");
@@ -205,9 +148,9 @@ class WebResourceWriter {
     private void GET() {
         append("@GET");
         path("/{id}");
-        append("public Response get" + simple + "(" + idParam() + requestContext() + ") {");
+        append("public Response get" + type.simple + "(" + idParam() + requestContext() + ") {");
         ++indent;
-        log("get " + lower + " {}", key.name);
+        log("get " + type.lower + " {}", key.name);
         nl();
         findOrFail("result");
         evaluatePreconditions("result");
@@ -218,9 +161,9 @@ class WebResourceWriter {
     }
 
     private void findOrFail(String variableName) {
-        String assignment = simple + " " + variableName + " = ";
+        String assignment = type.simple + " " + variableName + " = ";
         if (primary()) {
-            append(assignment + "em.find(" + simple + ".class, " + key.name + ");");
+            append(assignment + "em.find(" + type.simple + ".class, " + key.name + ");");
         } else {
             append(assignment + "findByKey(" + key.name + ");");
         }
@@ -240,10 +183,10 @@ class WebResourceWriter {
     }
 
     private void findByKeyMethod() {
-        append("private " + simple + " findByKey(" + key.simpleType + " " + key.name + ") {");
+        append("private " + type.simple + " findByKey(" + key.simpleType + " " + key.name + ") {");
         ++indent;
-        append("TypedQuery<" + simple + "> query = em.createQuery(\"FROM " + simple + " WHERE " + key.name + " = :"
-                + key.name + "\", " + simple + ".class);");
+        append("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE " + key.name
+                + " = :" + key.name + "\", " + type.simple + ".class);");
         append("try {");
         ++indent;
         append("return query.setParameter(\"key\", " + key.name + ").getSingleResult();");
@@ -259,16 +202,17 @@ class WebResourceWriter {
 
     private void POST() {
         append("@POST");
-        append("public Response create" + simple + "(" + simple + " " + lower + ", @Context UriInfo uriInfo) {");
+        append("public Response create" + type.simple + "(" + type.simple + " " + type.lower
+                + ", @Context UriInfo uriInfo) {");
         ++indent;
-        log("post " + lower + " {}", lower);
+        log("post " + type.lower + " {}", type.lower);
         nl();
-        append("em.persist(" + lower + ");");
+        append("em.persist(" + type.lower + ");");
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + plural + "\").path(" + toString(lower + "." + key.getter() + "()") + ");");
-        append("return Response.created(builder.build())" + etag(lower) + ".build();");
+        append("builder.path(\"" + type.plural + "\").path(" + toString(type.lower + "." + key.getter() + "()") + ");");
+        append("return Response.created(builder.build())" + etag(type.lower) + ".build();");
         --indent;
         append("}");
     }
@@ -280,50 +224,50 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         path("/{id}");
-        append("public Response update" + simple + "(" + idParam() + ", " + simple + " " + lower + requestContext()
-                + ") {");
+        append("public Response update" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
+                + requestContext() + ") {");
         ++indent;
-        log("put " + lower + " " + key.name + " {}: {}", key.name, lower);
+        log("put " + type.lower + " " + key.name + " {}: {}", key.name, type.lower);
         nl();
         if (key.nullable) {
-            append("if (" + lower + "." + key.getter() + "() == null) {");
+            append("if (" + type.lower + "." + key.getter() + "() == null) {");
             ++indent;
-            append(lower + "." + key.setter() + "(" + key.name + ");");
+            append(type.lower + "." + key.setter() + "(" + key.name + ");");
             --indent;
-            append("} else if (!" + lower + "." + key.getter() + "().equals(" + key.name + ")) {");
+            append("} else if (!" + type.lower + "." + key.getter() + "().equals(" + key.name + ")) {");
         } else {
-            append("if (" + key.name + " != " + lower + "." + key.getter() + "()) {");
+            append("if (" + key.name + " != " + type.lower + "." + key.getter() + "()) {");
         }
         ++indent;
-        append("String message = \"" + key.name + " conflict! path=\" + " + key.name + " + \", body=\" + " + lower
+        append("String message = \"" + key.name + " conflict! path=\" + " + key.name + " + \", body=\" + " + type.lower
                 + "." + key.getter() + "() + \".\\n\"");
         append("    + \"either leave the " + key.name + " in the body null or set it to the same " + key.name + "\";");
         append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         append("}");
         if (!primary()) {
-            append("if (" + lower + "." + id.getter() + "() == null) {");
+            append("if (" + type.lower + "." + id.getter() + "() == null) {");
             ++indent;
-            append(simple + " existing = findByKey(" + key.name + ");");
+            append(type.simple + " existing = findByKey(" + key.name + ");");
             append("if (existing == null) {");
             ++indent;
             append("return Response.status(Status.NOT_FOUND).build();");
             --indent;
             append("}");
-            append(lower + "." + id.setter() + "(existing." + id.getter() + "());");
+            append(type.lower + "." + id.setter() + "(existing." + id.getter() + "());");
             if (version != null && version.nullable) {
-                append("if (" + lower + "." + version.getter() + "() == null) {");
+                append("if (" + type.lower + "." + version.getter() + "() == null) {");
                 ++indent;
-                append(lower + "." + version.setter() + "(existing." + version.getter() + "());");
+                append(type.lower + "." + version.setter() + "(existing." + version.getter() + "());");
                 --indent;
                 append("}");
             }
             --indent;
             append("}");
         }
-        evaluatePreconditions(lower);
+        evaluatePreconditions(type.lower);
         nl();
-        append(simple + " result = em.merge(" + lower + ");");
+        append(type.simple + " result = em.merge(" + type.lower + ");");
         append("em.flush();");
         nl();
         append("if (result == null) {");
@@ -361,9 +305,9 @@ class WebResourceWriter {
     private void DELETE() {
         append("@DELETE");
         path("/{id}");
-        append("public Response delete" + simple + "(" + idParam() + requestContext() + ") {");
+        append("public Response delete" + type.simple + "(" + idParam() + requestContext() + ") {");
         ++indent;
-        log("delete " + lower + " {}", key.name);
+        log("delete " + type.lower + " {}", key.name);
         nl();
         findOrFail("result");
         evaluatePreconditions("result");
@@ -376,7 +320,7 @@ class WebResourceWriter {
     }
 
     private void subresources() {
-        for (WebResourceField subresource : WebResourceField.findFields(type, WebSubResource.class.getName())) {
+        for (WebResourceField subresource : type.getSubResourceFields()) {
             nl();
             subGET(subresource);
             if (subresource.isCollection) {
@@ -395,9 +339,10 @@ class WebResourceWriter {
     private void subGET(WebResourceField subresource) {
         append("@GET");
         path("/{id}/" + subresource.name);
-        append("public Response get" + simple + subresource.uppercaps() + "(" + idParam() + requestContext() + ") {");
+        append("public Response get" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+                + ") {");
         ++indent;
-        log("get " + subresource.name + " from " + lower + " {}", key.name);
+        log("get " + subresource.name + " from " + type.lower + " {}", key.name);
         nl();
         findOrFail("result");
         evaluatePreconditions("result");
@@ -410,18 +355,18 @@ class WebResourceWriter {
     private void subPOST(WebResourceField subresource) {
         append("@POST");
         path("/{id}/" + subresource.name);
-        append("public Response add" + simple + subresource.uppercaps() + "(" + idParam() + ", "
+        append("public Response add" + type.simple + subresource.uppercaps() + "(" + idParam() + ", "
                 + subresource.uncollectedType + " " + subresource.name + ", @Context UriInfo uriInfo) {");
         ++indent;
-        log("post " + subresource.name + " {} for " + lower + " {}", subresource.name, key.name);
+        log("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name, key.name);
         nl();
-        findOrFail(lower);
+        findOrFail(type.lower);
         nl();
-        append(lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
+        append(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + plural + "\").path(" + toString(key.name) + ").path(\"" + subresource.name
+        append("builder.path(\"" + type.plural + "\").path(" + toString(key.name) + ").path(\"" + subresource.name
                 + "\").path(" + toString(subresource.name) + ");");
         append("return Response.created(builder.build()).build();");
         --indent;
@@ -431,18 +376,18 @@ class WebResourceWriter {
     private void subPUT(WebResourceField subresource) {
         append("@PUT");
         path("/{id}/" + subresource.name);
-        append("public Response update" + simple + subresource.uppercaps() + "(" + idParam() + requestContext() + ", "
-                + subresource.simpleType + " " + subresource.name + ") {");
+        append("public Response update" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+                + ", " + subresource.simpleType + " " + subresource.name + ") {");
         ++indent;
-        log("put " + subresource.name + " {} of " + lower + " {}", subresource.name, key.name);
+        log("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name, key.name);
         nl();
-        findOrFail(lower);
-        evaluatePreconditions(lower);
+        findOrFail(type.lower);
+        evaluatePreconditions(type.lower);
         nl();
-        append(lower + "." + subresource.setter() + "(" + subresource.name + ");");
+        append(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
         append("em.flush();");
         nl();
-        append("return Response.ok(" + subresource.name + ")" + etag(lower) + ".build();");
+        append("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
         --indent;
         append("}");
     }
@@ -450,17 +395,18 @@ class WebResourceWriter {
     private void subDELETE(WebResourceField subresource) {
         append("@DELETE");
         path("/{id}/" + subresource.name);
-        append("public Response delete" + simple + subresource.uppercaps() + "(" + idParam() + requestContext() + ") {");
+        append("public Response delete" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+                + ") {");
         ++indent;
-        log("delete " + subresource.name + " of " + lower + " {}", key.name);
+        log("delete " + subresource.name + " of " + type.lower + " {}", key.name);
         nl();
-        findOrFail(lower);
-        evaluatePreconditions(lower);
+        findOrFail(type.lower);
+        evaluatePreconditions(type.lower);
         nl();
-        append(lower + "." + subresource.setter() + "(null);");
+        append(type.lower + "." + subresource.setter() + "(null);");
         append("em.flush();");
         nl();
-        append("return Response.ok()" + etag(lower) + ".build();");
+        append("return Response.ok()" + etag(type.lower) + ".build();");
         --indent;
         append("}");
     }
