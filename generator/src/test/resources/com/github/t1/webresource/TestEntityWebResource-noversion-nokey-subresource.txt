@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response.*;
 
 import org.slf4j.*;
 
-@Path("/")
+@Path("/testentities")
 @Stateless
 public class TestEntityWebResource {
     private final Logger log = LoggerFactory.getLogger(TestEntityWebResource.class);
@@ -20,7 +20,6 @@ public class TestEntityWebResource {
     private EntityManager em;
 
     @GET
-    @Path("testentities")
     public List<TestEntity> list() {
         log.debug("get all testentities");
 
@@ -28,7 +27,7 @@ public class TestEntityWebResource {
     }
 
     @GET
-    @Path("testentities/{id}")
+    @Path("/{id}")
     public Response getTestEntity(@PathParam("id") long id) {
         log.debug("get testentity {}", id);
 
@@ -41,7 +40,6 @@ public class TestEntityWebResource {
     }
 
     @POST
-    @Path("testentities")
     public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
         log.debug("post testentity {}", testentity);
 
@@ -54,7 +52,7 @@ public class TestEntityWebResource {
     }
 
     @PUT
-    @Path("testentities/{id}")
+    @Path("/{id}")
     public Response updateTestEntity(@PathParam("id") long id, TestEntity testentity) {
         log.debug("put testentity id {}: {}", id, testentity);
 
@@ -74,7 +72,7 @@ public class TestEntityWebResource {
     }
 
     @DELETE
-    @Path("testentities/{id}")
+    @Path("/{id}")
     public Response deleteTestEntity(@PathParam("id") long id) {
         log.debug("delete testentity {}", id);
 
@@ -89,7 +87,7 @@ public class TestEntityWebResource {
     }
 
     @GET
-    @Path("testentities/{id}/subresource")
+    @Path("/{id}/subresource")
     public Response getTestEntitySubresource(@PathParam("id") long id) {
         log.debug("get subresource from testentity {}", id);
 
@@ -102,7 +100,7 @@ public class TestEntityWebResource {
     }
 
     @PUT
-    @Path("testentities/{id}/subresource")
+    @Path("/{id}/subresource")
     public Response updateTestEntitySubresource(@PathParam("id") long id, String subresource) {
         log.debug("put subresource {} of testentity {}", subresource, id);
 
@@ -118,7 +116,7 @@ public class TestEntityWebResource {
     }
 
     @DELETE
-    @Path("testentities/{id}/subresource")
+    @Path("/{id}/subresource")
     public Response deleteTestEntitySubresource(@PathParam("id") long id) {
         log.debug("delete subresource of testentity {}", id);
 
