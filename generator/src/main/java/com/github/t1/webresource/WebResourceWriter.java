@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
+import javax.persistence.Entity;
 import javax.tools.Diagnostic.Kind;
 
 class WebResourceWriter {
@@ -12,6 +13,7 @@ class WebResourceWriter {
     private final TypeElement type;
     private final String pkg;
     private final String simple;
+    private final String entityName;
     private final String lower;
     private final String plural;
     private final WebResourceField id;
@@ -25,6 +27,7 @@ class WebResourceWriter {
         this.type = type;
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
+        this.entityName = entity(type);
         this.lower = simple.toLowerCase();
         this.plural = plural(lower);
         this.id = getIdField(type);
@@ -33,21 +36,6 @@ class WebResourceWriter {
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", type);
         this.version = getVersionField(type);
         this.extended = isExtended(type);
-    }
-
-    private WebResourceField getIdField(TypeElement type) {
-        // don't use the Id type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Id");
-    }
-
-    private WebResourceField getKeyField() {
-        WebResourceField keyField = WebResourceField.findField(type, WebResourceKey.class.getName());
-        return (keyField == null) ? id : keyField;
-    }
-
-    private WebResourceField getVersionField(TypeElement type) {
-        // don't use the Version type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Version");
     }
 
     private String pkg() {
@@ -63,6 +51,28 @@ class WebResourceWriter {
         if (name.endsWith("y"))
             return name.substring(0, name.length() - 1) + "ies";
         return name + "s";
+    }
+
+    private String entity(TypeElement type) {
+        Entity entity = type.getAnnotation(Entity.class);
+        if (entity == null)
+            return type.getSimpleName().toString();
+        return entity.name();
+    }
+
+    private WebResourceField getIdField(TypeElement type) {
+        // don't use the Id type itself, it may not be available at compile-time
+        return WebResourceField.findField(type, "javax.persistence.Id");
+    }
+
+    private WebResourceField getKeyField() {
+        WebResourceField keyField = WebResourceField.findField(type, WebResourceKey.class.getName());
+        return (keyField == null) ? id : keyField;
+    }
+
+    private WebResourceField getVersionField(TypeElement type) {
+        // don't use the Version type itself, it may not be available at compile-time
+        return WebResourceField.findField(type, "javax.persistence.Version");
     }
 
     private boolean isExtended(TypeElement type) {
@@ -176,7 +186,7 @@ class WebResourceWriter {
         ++indent;
         log("get all " + plural);
         nl();
-        append("return em.createQuery(\"FROM " + simple + " ORDER BY " + key.name + "\", " + simple
+        append("return em.createQuery(\"FROM " + entityName + " ORDER BY " + key.name + "\", " + simple
                 + ".class).getResultList();");
         --indent;
         append("}");
@@ -199,12 +209,7 @@ class WebResourceWriter {
         ++indent;
         log("get " + lower + " {}", key.name);
         nl();
-        find("result");
-        append("if (result == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
+        findOrFail("result");
         evaluatePreconditions("result");
         nl();
         append("return Response.ok(result)" + etag("result") + ".build();");
@@ -212,13 +217,18 @@ class WebResourceWriter {
         append("}");
     }
 
-    private void find(String variableName) {
+    private void findOrFail(String variableName) {
         String assignment = simple + " " + variableName + " = ";
         if (primary()) {
             append(assignment + "em.find(" + simple + ".class, " + key.name + ");");
         } else {
             append(assignment + "findByKey(" + key.name + ");");
         }
+        append("if (" + variableName + " == null) {");
+        ++indent;
+        append("return Response.status(Status.NOT_FOUND).build();");
+        --indent;
+        append("}");
     }
 
     private String idParam() {
@@ -257,10 +267,14 @@ class WebResourceWriter {
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + plural + "\").path(\"\" + " + lower + "." + key.getter() + "());");
+        append("builder.path(\"" + plural + "\").path(" + toString(lower + "." + key.getter() + "()") + ");");
         append("return Response.created(builder.build())" + etag(lower) + ".build();");
         --indent;
         append("}");
+    }
+
+    private String toString(String name) {
+        return "Objects.toString(" + name + ")";
     }
 
     private void PUT() {
@@ -331,7 +345,7 @@ class WebResourceWriter {
         if (version == null)
             return;
         nl();
-        append("EntityTag eTag = new EntityTag(Objects.toString(" + entity + "." + version.getter() + "()));");
+        append("EntityTag eTag = new EntityTag(" + toString(entity + "." + version.getter() + "()") + ");");
         append("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
         append("if (failed != null) {");
         ++indent;
@@ -351,12 +365,7 @@ class WebResourceWriter {
         ++indent;
         log("delete " + lower + " {}", key.name);
         nl();
-        find("result");
-        append("if (result == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
+        findOrFail("result");
         evaluatePreconditions("result");
         nl();
         append("em.remove(result);");
@@ -370,6 +379,10 @@ class WebResourceWriter {
         for (WebResourceField subresource : WebResourceField.findFields(type, WebSubResource.class.getName())) {
             nl();
             subGET(subresource);
+            if (subresource.isCollection) {
+                nl();
+                subPOST(subresource);
+            }
             nl();
             subPUT(subresource);
             if (subresource.nullable) {
@@ -386,15 +399,31 @@ class WebResourceWriter {
         ++indent;
         log("get " + subresource.name + " from " + lower + " {}", key.name);
         nl();
-        find("result");
-        append("if (result == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
+        findOrFail("result");
         evaluatePreconditions("result");
         nl();
         append("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
+        --indent;
+        append("}");
+    }
+
+    private void subPOST(WebResourceField subresource) {
+        append("@POST");
+        path("/{id}/" + subresource.name);
+        append("public Response add" + simple + subresource.uppercaps() + "(" + idParam() + ", "
+                + subresource.uncollectedType + " " + subresource.name + ", @Context UriInfo uriInfo) {");
+        ++indent;
+        log("post " + subresource.name + " {} for " + lower + " {}", subresource.name, key.name);
+        nl();
+        findOrFail(lower);
+        nl();
+        append(lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
+        append("em.flush();");
+        nl();
+        append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+        append("builder.path(\"" + plural + "\").path(" + toString(key.name) + ").path(\"" + subresource.name
+                + "\").path(" + toString(subresource.name) + ");");
+        append("return Response.created(builder.build()).build();");
         --indent;
         append("}");
     }
@@ -407,12 +436,7 @@ class WebResourceWriter {
         ++indent;
         log("put " + subresource.name + " {} of " + lower + " {}", subresource.name, key.name);
         nl();
-        find(lower);
-        append("if (" + lower + " == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
+        findOrFail(lower);
         evaluatePreconditions(lower);
         nl();
         append(lower + "." + subresource.setter() + "(" + subresource.name + ");");
@@ -430,12 +454,7 @@ class WebResourceWriter {
         ++indent;
         log("delete " + subresource.name + " of " + lower + " {}", key.name);
         nl();
-        find(lower);
-        append("if (" + lower + " == null) {");
-        ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        append("}");
+        findOrFail(lower);
         evaluatePreconditions(lower);
         nl();
         append(lower + "." + subresource.setter() + "(null);");

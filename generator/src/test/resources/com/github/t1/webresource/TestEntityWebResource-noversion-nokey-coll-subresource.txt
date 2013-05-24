@@ -47,7 +47,7 @@ public class TestEntityWebResource {
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
-        builder.path("testentities").path("" + testentity.getId());
+        builder.path("testentities").path(Objects.toString(testentity.getId()));
         return Response.created(builder.build()).build();
     }
 
@@ -97,6 +97,24 @@ public class TestEntityWebResource {
         }
 
         return Response.ok(result.getSubresource()).build();
+    }
+
+    @POST
+    @Path("/{id}/subresource")
+    public Response addTestEntitySubresource(@PathParam("id") long id, String subresource, @Context UriInfo uriInfo) {
+        log.debug("post subresource {} for testentity {}", subresource, id);
+
+        TestEntity testentity = em.find(TestEntity.class, id);
+        if (testentity == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        testentity.getSubresource().add(subresource);
+        em.flush();
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder();
+        builder.path("testentities").path(Objects.toString(id)).path("subresource").path(Objects.toString(subresource));
+        return Response.created(builder.build()).build();
     }
 
     @PUT

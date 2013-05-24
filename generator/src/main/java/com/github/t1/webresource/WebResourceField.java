@@ -2,6 +2,8 @@ package com.github.t1.webresource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
@@ -50,10 +52,18 @@ class WebResourceField {
 
     final Element field;
 
+    /** The field name */
     final String name;
+    /** Is this a non-primitive type, i.e. can it be null */
     final boolean nullable;
+    /** What imports are required for this type */
     final List<String> imports = new ArrayList<String>();
+    /** The unqualified type name */
     final String simpleType;
+    /** Is this a collection type, i.e. List, Set, etc. */
+    final boolean isCollection;
+    /** The unqualified type of the elements in the collection or the same as {@link #simpleType} */
+    final String uncollectedType;
 
     private WebResourceField(Element field) {
         this.field = field;
@@ -62,6 +72,21 @@ class WebResourceField {
         this.nullable = typeString.nullable;
         this.imports.addAll(typeString.imports);
         this.simpleType = typeString.simpleType;
+        this.isCollection = isCollection();
+        this.uncollectedType = uncollected();
+    }
+
+    private static final Pattern COLLECTION = Pattern.compile("(List|Set|Collection)<(.*)>");
+
+    private boolean isCollection() {
+        return COLLECTION.matcher(simpleType).matches();
+    }
+
+    private String uncollected() {
+        Matcher matcher = COLLECTION.matcher(simpleType);
+        if (!matcher.matches())
+            return simpleType;
+        return matcher.group(2);
     }
 
     public String uppercaps() {

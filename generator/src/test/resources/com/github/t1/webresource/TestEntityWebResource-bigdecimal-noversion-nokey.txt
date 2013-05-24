@@ -24,7 +24,7 @@ public class TestEntityWebResource {
     public List<TestEntity> list() {
         log.debug("get all testentities");
 
-        return em.createQuery("FROM TestEntity ORDER BY id", TestEntity.class).getResultList();
+        return em.createQuery("FROM TEST_ENTITY ORDER BY id", TestEntity.class).getResultList();
     }
 
     @GET
@@ -48,7 +48,7 @@ public class TestEntityWebResource {
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
-        builder.path("testentities").path("" + testentity.getId());
+        builder.path("testentities").path(Objects.toString(testentity.getId()));
         return Response.created(builder.build()).build();
     }
 

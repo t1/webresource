@@ -10,6 +10,7 @@ import java.util.*;
 import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.lang.model.element.*;
+import javax.persistence.Entity;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,6 +122,9 @@ public class WebResourceWriterTest {
     @Test
     public void shouldGenerateBigDecimal() throws Exception {
         mockAnnotationProcessor(false, "java.math.BigDecimal");
+        Entity entity = mock(Entity.class);
+        when(type.getAnnotation(Entity.class)).thenReturn(entity);
+        when(entity.name()).thenReturn("TEST_ENTITY");
 
         String generated = new WebResourceWriter(messager, type).run();
 

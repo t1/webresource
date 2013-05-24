@@ -40,11 +40,17 @@ public class Person implements Serializable {
     @XmlElement(name = "tag")
     @XmlElementWrapper(name = "tags")
     private @ManyToMany(fetch = FetchType.EAGER)
-    List<Tag> tags;
+    Set<Tag> tags;
 
     @WebSubResource
     private @ManyToOne
     Category category;
+
+    @WebSubResource
+    @XmlElement(name = "group")
+    @XmlElementWrapper(name = "groups")
+    private @ManyToMany(fetch = FetchType.EAGER)
+    Set<Group> groups;
 
     /** @deprecated required by JAXB and JPA */
     @Deprecated
@@ -55,15 +61,15 @@ public class Person implements Serializable {
         this.last = last;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         if (tags == null)
-            return Collections.emptyList();
-        return Collections.unmodifiableList(tags);
+            tags = new HashSet<>();
+        return tags;
     }
 
     public Person tag(Tag tag) {
         if (tags == null)
-            tags = new ArrayList<>();
+            tags = new HashSet<>();
         tags.add(tag);
         return this;
     }

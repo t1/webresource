@@ -3,11 +3,12 @@ package com.github.t1.webresource;
 import static org.junit.Assert.*;
 
 import java.io.*;
-import java.util.Arrays;
 
 import javax.xml.bind.JAXB;
 
 import org.junit.*;
+
+import com.google.common.collect.ImmutableSet;
 
 public class PersonTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;
@@ -62,14 +63,14 @@ public class PersonTest {
     public void shouldTag() throws Exception {
         person.tag(TAG1);
 
-        assertEquals(Arrays.asList(TAG1), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1), person.getTags());
     }
 
     @Test
     public void shouldTagTwo() throws Exception {
         person.tag(TAG1).tag(TAG2);
 
-        assertEquals(Arrays.asList(TAG1, TAG2), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1, TAG2), person.getTags());
     }
 
     @Test
@@ -115,7 +116,7 @@ public class PersonTest {
         boolean untagged = person.untag("wrong-key");
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG1), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1), person.getTags());
     }
 
     @Test
@@ -125,7 +126,7 @@ public class PersonTest {
         boolean untagged = person.untag("");
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG1), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1), person.getTags());
     }
 
     @Test
@@ -135,7 +136,7 @@ public class PersonTest {
         boolean untagged = person.untag((String) null);
 
         assertFalse(untagged);
-        assertEquals(Arrays.asList(TAG1), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1), person.getTags());
     }
 
     @Test
@@ -154,7 +155,7 @@ public class PersonTest {
 
         assertEquals("Joe", person.getFirst());
         assertEquals("Doe", person.getLast());
-        assertEquals(Arrays.asList(TAG1), person.getTags());
+        assertEquals(ImmutableSet.of(TAG1), person.getTags());
     }
 
     @Test
