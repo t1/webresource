@@ -19,7 +19,7 @@ class WebResourceField {
         throw new IllegalArgumentException("more than one " + annotationTypeName + " field found: " + list);
     }
 
-    protected static List<WebResourceField> findFields(TypeElement classElement, String annotationTypeName) {
+    static List<WebResourceField> findFields(TypeElement classElement, String annotationTypeName) {
         List<WebResourceField> result = new ArrayList<WebResourceField>();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (ElementKind.FIELD != enclosedElement.getKind())
@@ -40,13 +40,17 @@ class WebResourceField {
         return result;
     }
 
-    private static boolean isAnnotated(Element element, String annotationName) {
+    static boolean isAnnotated(Element element, String annotationName) {
+        return getAnnotation(element, annotationName) != null;
+    }
+
+    static AnnotationMirror getAnnotation(Element element, String annotationName) {
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             if (annotationName.equals(annotation.getAnnotationType().toString())) {
-                return true;
+                return annotation;
             }
         }
-        return false;
+        return null;
     }
 
     final Element field;

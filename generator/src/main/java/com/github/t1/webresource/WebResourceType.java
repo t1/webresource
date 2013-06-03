@@ -3,7 +3,6 @@ package com.github.t1.webresource;
 import java.util.List;
 
 import javax.lang.model.element.*;
-import javax.persistence.Entity;
 
 class WebResourceType {
     final TypeElement type;
@@ -34,10 +33,14 @@ class WebResourceType {
     }
 
     private String entity(TypeElement type) {
-        Entity entity = type.getAnnotation(Entity.class);
-        if (entity == null)
-            return type.getSimpleName().toString();
-        return entity.name();
+        AnnotationMirror annotation = WebResourceField.getAnnotation(type, "javax.persistence.Entity");
+        if (annotation != null) {
+            AnnotationValue name = annotation.getElementValues().get("name");
+            if (name != null) {
+                return name.toString();
+            }
+        }
+        return type.getSimpleName().toString();
     }
 
     private String plural(String name) {
