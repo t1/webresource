@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,8 @@ import java.io.*;
 import javax.xml.bind.JAXB;
 
 import org.junit.Test;
+
+import com.github.t1.webresource.model.Tag;
 
 public class TagTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;

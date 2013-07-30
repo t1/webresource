@@ -1,9 +1,11 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import java.io.Serializable;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+
+import com.github.t1.webresource.*;
 
 @Entity
 @WebResource

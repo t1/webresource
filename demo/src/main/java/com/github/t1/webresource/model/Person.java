@@ -1,10 +1,12 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import java.io.Serializable;
 import java.util.*;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+
+import com.github.t1.webresource.*;
 
 import lombok.*;
 

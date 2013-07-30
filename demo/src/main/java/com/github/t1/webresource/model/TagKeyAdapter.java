@@ -1,7 +1,8 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -6,6 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * A helper for {@link WebResourceField}s, encapsulating everything about types.
+ * <p/>
  * Not smart enough for doubly nested type variables
  */
 class TypeString {

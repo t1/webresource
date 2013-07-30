@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import static org.junit.Assert.*;
 
@@ -16,6 +16,8 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.github.t1.webresource.model.*;
 
 @RunWith(Arquillian.class)
 public class PersonWebResourceIT {

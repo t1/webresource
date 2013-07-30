@@ -1,13 +1,15 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import java.io.Serializable;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 
+import com.github.t1.webresource.WebResource;
+
 import lombok.*;
 
-@Entity(name = "group_")
+@Entity
 @WebResource
 // JAXB
 @XmlRootElement
@@ -16,7 +18,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class Group implements Serializable {
+public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @XmlTransient
@@ -34,4 +36,13 @@ public class Group implements Serializable {
 
     private @Column
     String description;
+
+    /** @deprecated required by JAXB */
+    @Deprecated
+    Category() {}
+
+    public Category(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

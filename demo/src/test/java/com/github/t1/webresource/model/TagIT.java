@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,8 @@ import org.jboss.resteasy.client.*;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.junit.Test;
+
+import com.github.t1.webresource.model.Tag;
 
 public class TagIT {
     private static final String BASE_URL = PersonWebResourceIT.BASE_URL;

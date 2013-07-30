@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,7 @@ import javax.xml.bind.JAXB;
 
 import org.junit.*;
 
+import com.github.t1.webresource.model.*;
 import com.google.common.collect.ImmutableSet;
 
 public class PersonTest {

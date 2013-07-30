@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.model;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
