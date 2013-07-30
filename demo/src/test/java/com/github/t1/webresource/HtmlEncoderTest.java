@@ -8,7 +8,7 @@ import java.util.*;
 
 import lombok.*;
 
-import org.junit.*;
+import org.junit.Test;
 
 public class HtmlEncoderTest {
     private final Writer out = new StringWriter();
@@ -66,6 +66,15 @@ public class HtmlEncoderTest {
     }
 
     @Test
+    public void shouldWriteOneFieldPojoNullValue() throws Exception {
+        OneFieldPojo pojo = new OneFieldPojo(null);
+
+        writer.write(pojo);
+
+        assertEquals(wrapped(""), result());
+    }
+
+    @Test
     public void shouldWriteOneFieldPojoListWithoutKeys() throws Exception {
         OneFieldPojo pojo1 = new OneFieldPojo("one");
         OneFieldPojo pojo2 = new OneFieldPojo("two");
@@ -85,7 +94,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoLikeMap() throws Exception {
+    public void shouldWriteTwoFieldPojoAsTable() throws Exception {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
         writer.write(pojo);
@@ -100,8 +109,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    @Ignore
-    public void shouldWriteTwoFieldPojoListLikeMap() throws Exception {
+    public void shouldWriteTwoFieldPojoListAsListOfTables() throws Exception {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
