@@ -80,10 +80,77 @@ class HtmlEncoder {
     }
 
     private void write(List<?> list) throws IOException {
+        if (list.isEmpty())
+            return;
+        Object t = list.get(0);
+        if (isSimple(t)) {
+            writeSimpleList(list);
+        } else {
+            List<Field> fields = fields(t);
+            switch (fields.size()) {
+                case 0:
+                    break;
+                case 1:
+                    writeOneFieldList(list, fields.get(0));
+                    break;
+                default:
+                    writeTable(fields, list);
+            }
+        }
+    }
+
+    private void writeSimpleList(List<?> list) throws IOException {
         try (Tag ul = new Tag("ul")) {
             for (Object object : list) {
                 try (Tag li = new Tag("li")) {
-                    writeBody(object);
+                    escaped.append(Objects.toString(object));
+                }
+            }
+        }
+    }
+
+    private void writeOneFieldList(List<?> list, Field field) throws IOException {
+        try (Tag ul = new Tag("ul")) {
+            for (Object object : list) {
+                try (Tag li = new Tag("li")) {
+                    writeField(field, object);
+                }
+            }
+        }
+    }
+
+    private void writeField(Field field, Object object) throws IOException {
+        try {
+            escaped.append(Objects.toString(field.get(object)));
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("can't get field " + field + " of " + object, e);
+        }
+    }
+
+    private void writeTable(List<Field> fields, List<?> list) throws IOException {
+        try (Tag ul = new Tag("table")) {
+            writeTableHead(fields);
+            for (Object object : list) {
+                writeTableRow(object, fields);
+            }
+        }
+    }
+
+    private void writeTableHead(List<Field> fields) throws IOException {
+        try (Tag tr = new Tag("tr")) {
+            for (Field field : fields) {
+                try (Tag td = new Tag("td")) {
+                    escaped.append(field.getName());
+                }
+            }
+        }
+    }
+
+    private void writeTableRow(Object object, List<Field> fields) throws IOException {
+        try (Tag tr = new Tag("tr")) {
+            for (Field field : fields) {
+                try (Tag td = new Tag("td")) {
+                    writeField(field, object);
                 }
             }
         }
@@ -137,19 +204,13 @@ class HtmlEncoder {
     }
 
     private void writeFields(List<Field> fields, Object t) throws ReflectiveOperationException, IOException {
-        try (Tag table = new Tag("table")) {
-            for (Field field : fields) {
-                try (Tag tr = new Tag("tr")) {
-                    String id = id(field.getName());
-                    try (Tag td = new Tag("td")) {
-                        try (Tag label = new Tag("label", new Attribute("for", id))) {
-                            escaped.write(field.getName());
-                        }
-                    }
-                    try (Tag td = new Tag("td")) {
-                        writeValue(id, field.get(t));
-                    }
+        for (Field field : fields) {
+            try (Tag div = new Tag("div")) {
+                String id = id(field.getName());
+                try (Tag label = new Tag("label", new Attribute("for", id))) {
+                    escaped.write(field.getName());
                 }
+                writeValue(id, field.get(t));
             }
         }
     }

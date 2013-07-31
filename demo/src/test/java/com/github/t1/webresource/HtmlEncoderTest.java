@@ -75,7 +75,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteOneFieldPojoListWithoutKeys() throws Exception {
+    public void shouldWriteOneFieldPojoListAsUnorderedList() throws Exception {
         OneFieldPojo pojo1 = new OneFieldPojo("one");
         OneFieldPojo pojo2 = new OneFieldPojo("two");
         OneFieldPojo pojo3 = new OneFieldPojo("three");
@@ -94,43 +94,33 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoAsTable() throws Exception {
+    public void shouldWriteTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
         writer.write(pojo);
 
-        assertEquals(wrapped("<table><tr>" //
-                + "<td><label for='str-0'>str</label></td>" //
-                + "<td><input id='str-0' type='text' value='dummy' readonly/></td>" //
-                + "</tr><tr>" //
-                + "<td><label for='i-0'>i</label></td>" //
-                + "<td><input id='i-0' type='text' value='123' readonly/></td>" //
-                + "</tr></table>"), result());
+        assertEquals(wrapped("" //
+                + "<div>" //
+                + "<label for='str-0'>str</label>" //
+                + "<input id='str-0' type='text' value='dummy' readonly/>" //
+                + "</div><div>" //
+                + "<label for='i-0'>i</label>" //
+                + "<input id='i-0' type='text' value='123' readonly/>" //
+                + "</div>"), result());
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoListAsListOfTables() throws Exception {
+    public void shouldWriteTwoFieldPojoListAsTables() throws Exception {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
 
         writer.write(list);
 
-        assertEquals(wrapped("<ul>" //
-                + "<li><table><tr>" //
-                + "<td><label for='str-0'>str</label></td>" //
-                + "<td><input id='str-0' type='text' value='one' readonly/></td>" //
-                + "</tr><tr>" //
-                + "<td><label for='i-0'>i</label></td>" //
-                + "<td><input id='i-0' type='text' value='111' readonly/></td>" //
-                + "</tr></table></li>" //
-                + "<li><table><tr>" //
-                + "<td><label for='str-1'>str</label></td>" //
-                + "<td><input id='str-1' type='text' value='two' readonly/></td>" //
-                + "</tr><tr>" //
-                + "<td><label for='i-1'>i</label></td>" //
-                + "<td><input id='i-1' type='text' value='222' readonly/></td>" //
-                + "</tr></table></li>" //
-                + "</ul>"), result());
+        assertEquals(wrapped("<table>" //
+                + "<tr><td>str</td><td>i</td></tr>" //
+                + "<tr><td>one</td><td>111</td></tr>" //
+                + "<tr><td>two</td><td>222</td></tr>" //
+                + "</table>"), result());
     }
 }
