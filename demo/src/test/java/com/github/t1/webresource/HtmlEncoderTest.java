@@ -165,4 +165,55 @@ public class HtmlEncoderTest {
                 + "<tr><td>two</td><td>222</td></tr>" //
                 + "</table>"), result());
     }
+
+    @Data
+    @AllArgsConstructor
+    private static class PojoWithOneHtmlHead {
+        @HtmlHead
+        private String str;
+        private Integer i;
+    }
+
+    @Test
+    public void shouldWritePojoWithOneHtmlHead() throws Exception {
+        PojoWithOneHtmlHead pojo = new PojoWithOneHtmlHead("dummy", 123);
+
+        writer.write(pojo);
+
+        assertEquals("<html><head>dummy</head><body>" //
+                + "<div>" //
+                + "<label for='str-0'>str</label>" //
+                + "<input id='str-0' type='text' value='dummy' readonly/>" //
+                + "</div><div>" //
+                + "<label for='i-0'>i</label>" //
+                + "<input id='i-0' type='text' value='123' readonly/>" //
+                + "</div>" //
+                + "</body></html>", result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class PojoWithTwoHtmlHeads {
+        @HtmlHead
+        private String str0;
+        @HtmlHead
+        private String str1;
+    }
+
+    @Test
+    public void shouldWritePojoWithHtmlHead() throws Exception {
+        PojoWithTwoHtmlHeads pojo = new PojoWithTwoHtmlHeads("dummy0", "dummy1");
+
+        writer.write(pojo);
+
+        assertEquals("<html><head>dummy0 - dummy1</head><body>" //
+                + "<div>" //
+                + "<label for='str0-0'>str0</label>" //
+                + "<input id='str0-0' type='text' value='dummy0' readonly/>" //
+                + "</div><div>" //
+                + "<label for='str1-0'>str1</label>" //
+                + "<input id='str1-0' type='text' value='dummy1' readonly/>" //
+                + "</div>" //
+                + "</body></html>", result());
+    }
 }

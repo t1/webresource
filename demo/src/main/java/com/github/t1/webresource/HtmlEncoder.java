@@ -63,7 +63,16 @@ class HtmlEncoder {
     }
 
     private void writeHead(Object t) throws IOException {
-        // write title
+        if (t == null)
+            return;
+        Delimiter delim = new Delimiter(escaped, " - ");
+        for (Field field : t.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(HtmlHead.class)) {
+                field.setAccessible(true);
+                delim.write();
+                writeField(field, t);
+            }
+        }
     }
 
     private void writeBody(Object t) throws IOException {
