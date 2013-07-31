@@ -4,6 +4,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import lombok.Data;
 
 /** A helper class to write objects as an html string... without the actual binding */
@@ -200,7 +202,8 @@ class HtmlEncoder {
 
     private boolean isMarshallable(Field field) {
         int modifiers = field.getModifiers();
-        return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers);
+        return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
+                && !field.isAnnotationPresent(XmlTransient.class);
     }
 
     private void writeFields(List<Field> fields, Object t) throws ReflectiveOperationException, IOException {
