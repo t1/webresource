@@ -21,7 +21,7 @@ public class HtmlEncoderTest {
     }
 
     private String result() {
-        return out.toString().replaceAll("\n", "");
+        return out.toString().replaceAll("\n", "").replace('\"', '\'');
     }
 
     @Test
@@ -222,5 +222,23 @@ public class HtmlEncoderTest {
                 + "<input id='str1-0' type='text' value='dummy1' readonly/>" //
                 + "</div>" //
                 + "</body></html>", result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    @HtmlStyleSheet("/stylesheets/main.css")
+    private static class PojoWithCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldAddCssResource() throws Exception {
+        PojoWithCss pojo = new PojoWithCss("dummy");
+
+        writer.write(pojo);
+
+        assertEquals("<html><head>" //
+                + "<link rel='stylesheet' href='/stylesheets/main.css' type='text/css'/>" //
+                + "</head><body>dummy</body></html>", result());
     }
 }

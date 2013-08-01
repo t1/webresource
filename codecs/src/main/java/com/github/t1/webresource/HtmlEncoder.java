@@ -39,21 +39,17 @@ public class HtmlEncoder {
 
     public HtmlEncoder(Writer out) {
         this.unescaped = out;
-        this.escaped = escape(out);
+        this.escaped = new HtmlEscapeWriter(out);
     }
 
-    private Writer escape(Writer out) {
-        return new HtmlEscapeWriter(out);
-    }
-
-    public void write(Object t) throws IOException {
+    public void write(Object object) throws IOException {
         try (Tag html = new Tag("html")) {
             nl();
             try (Tag head = new Tag("head")) {
-                writeHead(t);
+                writeHead(object);
             }
             try (Tag body = new Tag("body")) {
-                writeBody(t);
+                writeBody(object);
             }
         }
     }
@@ -62,16 +58,30 @@ public class HtmlEncoder {
         unescaped.append('\n');
     }
 
-    private void writeHead(Object t) throws IOException {
-        if (t == null)
+    private void writeHead(Object object) throws IOException {
+        if (object == null)
             return;
+        writeTitle(object);
+        writeStyleSheets(object.getClass());
+    }
+
+    private void writeTitle(Object object) throws IOException {
+        Class<? extends Object> type = object.getClass();
         Delimiter delim = new Delimiter(escaped, " - ");
-        for (Field field : t.getClass().getDeclaredFields()) {
+        for (Field field : type.getDeclaredFields()) {
             if (field.isAnnotationPresent(HtmlHead.class)) {
                 field.setAccessible(true);
                 delim.write();
-                writeField(field, t);
+                writeField(field, object);
             }
+        }
+    }
+
+    private void writeStyleSheets(Class<?> type) throws IOException {
+        if (type.isAnnotationPresent(HtmlStyleSheet.class)) {
+            nl();
+            String styleSheet = type.getAnnotation(HtmlStyleSheet.class).value();
+            unescaped.write("<link rel='stylesheet' href='" + styleSheet + "' type='text/css'/>\n");
         }
     }
 
