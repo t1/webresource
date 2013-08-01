@@ -80,9 +80,18 @@ public class HtmlEncoder {
     private void writeStyleSheets(Class<?> type) throws IOException {
         if (type.isAnnotationPresent(HtmlStyleSheet.class)) {
             nl();
-            String styleSheet = type.getAnnotation(HtmlStyleSheet.class).value();
-            unescaped.write("<link rel='stylesheet' href='" + styleSheet + "' type='text/css'/>\n");
+            writeStyleSheet(type.getAnnotation(HtmlStyleSheet.class));
         }
+        if (type.isAnnotationPresent(HtmlStyleSheets.class)) {
+            nl();
+            for (HtmlStyleSheet styleSheet : type.getAnnotation(HtmlStyleSheets.class).value()) {
+                writeStyleSheet(styleSheet);
+            }
+        }
+    }
+
+    private void writeStyleSheet(HtmlStyleSheet styleSheet) throws IOException {
+        unescaped.write("<link rel='stylesheet' href='" + styleSheet.value() + "' type='text/css'/>\n");
     }
 
     private void writeBody(Object t) throws IOException {

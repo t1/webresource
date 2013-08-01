@@ -241,4 +241,23 @@ public class HtmlEncoderTest {
                 + "<link rel='stylesheet' href='/stylesheets/main.css' type='text/css'/>" //
                 + "</head><body>dummy</body></html>", result());
     }
+
+    @Data
+    @AllArgsConstructor
+    @HtmlStyleSheets({ @HtmlStyleSheet("a"), @HtmlStyleSheet("b") })
+    private static class PojoWithTwoCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldAddTwoCssResources() throws Exception {
+        PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
+
+        writer.write(pojo);
+
+        assertEquals("<html><head>" //
+                + "<link rel='stylesheet' href='a' type='text/css'/>" //
+                + "<link rel='stylesheet' href='b' type='text/css'/>" //
+                + "</head><body>dummy</body></html>", result());
+    }
 }
