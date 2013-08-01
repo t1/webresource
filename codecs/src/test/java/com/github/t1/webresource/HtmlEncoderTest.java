@@ -1,6 +1,7 @@
 package com.github.t1.webresource;
 
 import static java.util.Arrays.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
@@ -139,7 +140,7 @@ public class HtmlEncoderTest {
     @AllArgsConstructor
     private static class PojoWithXmlTransient {
         @XmlTransient
-        private String id;
+        private String idField;
         private String str;
         private Integer i;
     }
@@ -150,14 +151,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertEquals(wrapped("" //
-                + "<div>" //
-                + "<label for='str-0'>str</label>" //
-                + "<input id='str-0' type='text' value='dummy' readonly/>" //
-                + "</div><div>" //
-                + "<label for='i-0'>i</label>" //
-                + "<input id='i-0' type='text' value='123' readonly/>" //
-                + "</div>"), result());
+        assertThat(result(), not(containsString("idField")));
     }
 
     @Test
@@ -168,11 +162,7 @@ public class HtmlEncoderTest {
 
         writer.write(list);
 
-        assertEquals(wrapped("<table>" //
-                + "<tr><td>str</td><td>i</td></tr>" //
-                + "<tr><td>one</td><td>111</td></tr>" //
-                + "<tr><td>two</td><td>222</td></tr>" //
-                + "</table>"), result());
+        assertThat(result(), not(containsString("idField")));
     }
 
     @Data
@@ -189,15 +179,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertEquals("<html><head>dummy</head><body>" //
-                + "<div>" //
-                + "<label for='str-0'>str</label>" //
-                + "<input id='str-0' type='text' value='dummy' readonly/>" //
-                + "</div><div>" //
-                + "<label for='i-0'>i</label>" //
-                + "<input id='i-0' type='text' value='123' readonly/>" //
-                + "</div>" //
-                + "</body></html>", result());
+        assertThat(result(), startsWith("<html><head>dummy</head>"));
     }
 
     @Data
@@ -210,37 +192,47 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWritePojoWithHtmlHead() throws Exception {
+    public void shouldWritePojoWithTwoHtmlHead() throws Exception {
         PojoWithTwoHtmlHeads pojo = new PojoWithTwoHtmlHeads("dummy0", "dummy1");
 
         writer.write(pojo);
 
-        assertEquals("<html><head>dummy0 - dummy1</head><body>" //
-                + "<div>" //
-                + "<label for='str0-0'>str0</label>" //
-                + "<input id='str0-0' type='text' value='dummy0' readonly/>" //
-                + "</div><div>" //
-                + "<label for='str1-0'>str1</label>" //
-                + "<input id='str1-0' type='text' value='dummy1' readonly/>" //
-                + "</div>" //
-                + "</body></html>", result());
+        assertThat(result(), startsWith("<html><head>dummy0 - dummy1</head><body>"));
     }
 
     @Data
     @AllArgsConstructor
     @HtmlStyleSheet("/absolute")
-    private static class PojoWithCss {
+    private static class PojoWithAbsoluteCss {
         private String str;
     }
 
     @Test
-    public void shouldAddCssResource() throws Exception {
-        PojoWithCss pojo = new PojoWithCss("dummy");
+    public void shouldAddAbsoluteCssStyleSheet() throws Exception {
+        PojoWithAbsoluteCss pojo = new PojoWithAbsoluteCss("dummy");
 
         writer.write(pojo);
 
         assertEquals("<html><head>" //
                 + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
+                + "</head><body>dummy</body></html>", result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    @HtmlStyleSheet("relative")
+    private static class PojoWithRelativeCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldAddRelativeCssStyleSheet() throws Exception {
+        PojoWithRelativeCss pojo = new PojoWithRelativeCss("dummy");
+
+        writer.write(pojo);
+
+        assertEquals("<html><head>" //
+                + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
                 + "</head><body>dummy</body></html>", result());
     }
 
@@ -252,7 +244,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldAddTwoCssResources() throws Exception {
+    public void shouldAddTwoCssStyleSheets() throws Exception {
         PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
 
         writer.write(pojo);
