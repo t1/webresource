@@ -9,8 +9,6 @@ import lombok.*;
 
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
-
 public class UrlEncoderTest {
 
     private final Writer out = new StringWriter();
@@ -103,7 +101,7 @@ public class UrlEncoderTest {
 
     @Test
     public void shouldWriteEmptyMap() throws Exception {
-        Map<Integer, Double> map = Maps.newHashMap();
+        Map<Integer, Double> map = new HashMap<>();
 
         writer.write(map);
 
@@ -112,7 +110,7 @@ public class UrlEncoderTest {
 
     @Test
     public void shouldWriteOneElementMap() throws Exception {
-        Map<Integer, Double> map = Maps.newHashMap();
+        Map<Integer, Double> map = new HashMap<>();
         map.put(123, 4.5);
 
         writer.write(map);
@@ -122,7 +120,7 @@ public class UrlEncoderTest {
 
     @Test
     public void shouldWriteTwoElementMap() throws Exception {
-        Map<Integer, Double> map = Maps.newLinkedHashMap(); // stable ordering
+        Map<Integer, Double> map = new LinkedHashMap<>(); // stable ordering
         map.put(123, 4.5);
         map.put(67, 8.9);
 
@@ -133,7 +131,7 @@ public class UrlEncoderTest {
 
     @Test
     public void shouldWriteThreeElementMap() throws Exception {
-        Map<Integer, Double> map = Maps.newLinkedHashMap(); // stable ordering
+        Map<Integer, Double> map = new LinkedHashMap<>(); // stable ordering
         map.put(1, 2.3);
         map.put(4, 5.6);
         map.put(7, 8.9);

@@ -34,6 +34,7 @@
 
 	<modules>
 		<module>generator</module>
+		<module>codecs</module>
 		<module>demo</module>
 	</modules>
 </project>
