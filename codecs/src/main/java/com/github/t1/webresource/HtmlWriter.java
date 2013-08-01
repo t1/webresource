@@ -3,6 +3,7 @@ package com.github.t1.webresource;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.net.URI;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -15,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 @Provider
 @Produces("text/html")
 public class HtmlWriter implements MessageBodyWriter<Object> {
+
+    @Context
+    UriInfo uriInfo;
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -30,10 +34,11 @@ public class HtmlWriter implements MessageBodyWriter<Object> {
     public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException,
             WebApplicationException {
-        log.debug("start html-encoding");
+        URI baseUri = (uriInfo == null) ? null : uriInfo.getBaseUri();
+        log.debug("start html-encoding; baseUri = {}", baseUri);
         Writer out = new OutputStreamWriter(entityStream);
         try {
-            new HtmlEncoder(out).write(t);
+            new HtmlEncoder(out, baseUri).write(t);
         } catch (RuntimeException | IOException e) {
             log.error("error while encoding", e);
             throw e;

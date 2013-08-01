@@ -2,6 +2,8 @@ package com.github.t1.webresource;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URI;
+import java.nio.file.*;
 import java.util.*;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -35,11 +37,21 @@ public class HtmlEncoder {
 
     private final Writer escaped;
     private final Writer unescaped;
+    private final Path applicationPath;
     private final Map<String, Integer> ids = new HashMap<>();
 
-    public HtmlEncoder(Writer out) {
+    public HtmlEncoder(Writer out, URI baseUri) {
         this.unescaped = out;
+        this.applicationPath = applicationPath(baseUri);
         this.escaped = new HtmlEscapeWriter(out);
+    }
+
+    /**
+     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
+     * which is the first path element.
+     */
+    private Path applicationPath(URI baseUri) {
+        return Paths.get(baseUri.getPath()).getName(0);
     }
 
     public void write(Object object) throws IOException {
@@ -91,7 +103,10 @@ public class HtmlEncoder {
     }
 
     private void writeStyleSheet(HtmlStyleSheet styleSheet) throws IOException {
-        unescaped.write("<link rel='stylesheet' href='" + styleSheet.value() + "' type='text/css'/>\n");
+        String url = styleSheet.value();
+        if (!url.startsWith("/"))
+            url = "/" + applicationPath.resolve(url);
+        unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
     }
 
     private void writeBody(Object t) throws IOException {

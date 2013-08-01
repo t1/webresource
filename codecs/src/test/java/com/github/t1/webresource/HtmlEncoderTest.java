@@ -4,6 +4,7 @@ import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -13,8 +14,9 @@ import lombok.*;
 import org.junit.Test;
 
 public class HtmlEncoderTest {
+    private static final String BASE_URI = "base";
     private final Writer out = new StringWriter();
-    private final HtmlEncoder writer = new HtmlEncoder(out);
+    private final HtmlEncoder writer = new HtmlEncoder(out, URI.create(BASE_URI));
 
     private static String wrapped(String string) {
         return "<html><head></head><body>" + string + "</body></html>";
@@ -226,7 +228,7 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheet("/stylesheets/main.css")
+    @HtmlStyleSheet("/absolute")
     private static class PojoWithCss {
         private String str;
     }
@@ -238,13 +240,13 @@ public class HtmlEncoderTest {
         writer.write(pojo);
 
         assertEquals("<html><head>" //
-                + "<link rel='stylesheet' href='/stylesheets/main.css' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
                 + "</head><body>dummy</body></html>", result());
     }
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheets({ @HtmlStyleSheet("a"), @HtmlStyleSheet("b") })
+    @HtmlStyleSheets({ @HtmlStyleSheet("/absolute"), @HtmlStyleSheet("relative") })
     private static class PojoWithTwoCss {
         private String str;
     }
@@ -256,8 +258,8 @@ public class HtmlEncoderTest {
         writer.write(pojo);
 
         assertEquals("<html><head>" //
-                + "<link rel='stylesheet' href='a' type='text/css'/>" //
-                + "<link rel='stylesheet' href='b' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
                 + "</head><body>dummy</body></html>", result());
     }
 }
