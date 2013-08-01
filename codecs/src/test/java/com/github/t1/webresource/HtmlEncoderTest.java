@@ -39,6 +39,13 @@ public class HtmlEncoderTest {
     }
 
     @Test
+    public void shouldEscapeString() throws Exception {
+        writer.write("string & ampersand");
+
+        assertEquals(wrapped("string &amp; ampersand"), result());
+    }
+
+    @Test
     public void shouldEncodePrimitiveInteger() throws Exception {
         writer.write(1234);
 

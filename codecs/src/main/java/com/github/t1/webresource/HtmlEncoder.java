@@ -42,8 +42,8 @@ class HtmlEncoder {
         this.escaped = escape(out);
     }
 
-    private HexEscapeWriter escape(Writer out) {
-        return new HexEscapeWriter(out, '&', '<', '>');
+    private Writer escape(Writer out) {
+        return new HtmlEscapeWriter(out);
     }
 
     public void write(Object t) throws IOException {
