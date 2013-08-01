@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 /** A helper class to write objects as an url-form-encoded string... without the actual binding */
-class UrlEncoder {
+public class UrlEncoder {
     private Writer escaped;
     private Writer unescaped;
 

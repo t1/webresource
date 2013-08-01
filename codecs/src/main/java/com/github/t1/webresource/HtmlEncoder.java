@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import lombok.Data;
 
 /** A helper class to write objects as an html string... without the actual binding */
-class HtmlEncoder {
+public class HtmlEncoder {
     @Data
     private static class Attribute {
         private final String name;

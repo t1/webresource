@@ -2,7 +2,7 @@ package com.github.t1.webresource;
 
 import java.io.*;
 
-class HexEscapeWriter extends FilterWriter {
+public class HexEscapeWriter extends CodePointFilterWriter {
 
     private final int escapeCharacter;
     private final int[] escapees;
@@ -15,20 +15,6 @@ class HexEscapeWriter extends FilterWriter {
 
     public Writer getTargetWriter() {
         return out;
-    }
-
-    @Override
-    public void write(char[] cbuf, int off, int len) throws IOException {
-        for (int i = off; i < len; i++) {
-            write(cbuf[i]);
-        }
-    }
-
-    @Override
-    public void write(String str, int off, int len) throws IOException {
-        for (int i = off; i < len; i++) {
-            write(str.codePointAt(i));
-        }
     }
 
     @Override
