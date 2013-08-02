@@ -6,9 +6,9 @@ import java.util.*;
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
 
-import com.github.t1.webresource.*;
-
 import lombok.*;
+
+import com.github.t1.webresource.*;
 
 @Entity
 @WebResource
@@ -19,6 +19,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@HtmlStyleSheet("stylesheets/main.css")
 public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 
