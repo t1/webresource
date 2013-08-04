@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import lombok.Data;
 
+import com.github.t1.stereotypes.Annotations;
+
 /** A helper class to write objects as an html string... without the actual binding */
 public class HtmlEncoder {
     @Data
@@ -74,14 +76,15 @@ public class HtmlEncoder {
         if (object == null)
             return;
         writeTitle(object);
-        writeStyleSheets(object.getClass());
+        writeStyleSheets(Annotations.on(object.getClass()));
     }
 
     private void writeTitle(Object object) throws IOException {
         Class<? extends Object> type = object.getClass();
         Delimiter delim = new Delimiter(escaped, " - ");
         for (Field field : type.getDeclaredFields()) {
-            if (field.isAnnotationPresent(HtmlHead.class)) {
+            AnnotatedElement element = Annotations.on(field);
+            if (element.isAnnotationPresent(HtmlHead.class)) {
                 field.setAccessible(true);
                 delim.write();
                 writeField(field, object);
@@ -89,14 +92,14 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeStyleSheets(Class<?> type) throws IOException {
-        if (type.isAnnotationPresent(HtmlStyleSheet.class)) {
+    private void writeStyleSheets(AnnotatedElement element) throws IOException {
+        if (element.isAnnotationPresent(HtmlStyleSheet.class)) {
             nl();
-            writeStyleSheet(type.getAnnotation(HtmlStyleSheet.class));
+            writeStyleSheet(element.getAnnotation(HtmlStyleSheet.class));
         }
-        if (type.isAnnotationPresent(HtmlStyleSheets.class)) {
+        if (element.isAnnotationPresent(HtmlStyleSheets.class)) {
             nl();
-            for (HtmlStyleSheet styleSheet : type.getAnnotation(HtmlStyleSheets.class).value()) {
+            for (HtmlStyleSheet styleSheet : element.getAnnotation(HtmlStyleSheets.class).value()) {
                 writeStyleSheet(styleSheet);
             }
         }
@@ -246,7 +249,7 @@ public class HtmlEncoder {
     private boolean isMarshallable(Field field) {
         int modifiers = field.getModifiers();
         return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
-                && !field.isAnnotationPresent(XmlTransient.class);
+                && !Annotations.on(field).isAnnotationPresent(XmlTransient.class);
     }
 
     private void writeFields(List<Field> fields, Object t) throws ReflectiveOperationException, IOException {
