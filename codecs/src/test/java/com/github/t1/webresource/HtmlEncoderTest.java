@@ -179,7 +179,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertThat(result(), startsWith("<html><head>dummy</head>"));
+        assertThat(result(), containsString("<head>dummy</head>"));
     }
 
     @Data
@@ -197,7 +197,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertThat(result(), startsWith("<html><head>dummy0 - dummy1</head><body>"));
+        assertThat(result(), containsString("<head>dummy0 - dummy1</head>"));
     }
 
     @Data

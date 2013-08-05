@@ -80,14 +80,13 @@ public class HtmlEncoder {
     }
 
     private void writeTitle(Object object) throws IOException {
-        Class<? extends Object> type = object.getClass();
+        // TODO add title tag
         Delimiter delim = new Delimiter(escaped, " - ");
-        for (Field field : type.getDeclaredFields()) {
-            AnnotatedElement element = Annotations.on(field);
-            if (element.isAnnotationPresent(HtmlHead.class)) {
-                field.setAccessible(true);
+        PojoHolder pojo = new PojoHolder(object);
+        for (PojoProperty property : pojo.properties()) {
+            if (property.is(HtmlHead.class)) {
                 delim.write();
-                writeField(field, object);
+                escaped.append(property.get());
             }
         }
     }
