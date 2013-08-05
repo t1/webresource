@@ -80,15 +80,27 @@ public class HtmlEncoder {
     }
 
     private void writeTitle(Object object) throws IOException {
-        // TODO add title tag
-        Delimiter delim = new Delimiter(escaped, " - ");
+        if (isSimple(object))
+            return;
         PojoHolder pojo = new PojoHolder(object);
+        String titleString = titleString(pojo);
+        if (!titleString.isEmpty()) {
+            try (Tag title = new Tag("title")) {
+                escaped.append(titleString);
+            }
+        }
+    }
+
+    private String titleString(PojoHolder pojo) throws IOException {
+        StringWriter titleString = new StringWriter();
+        Delimiter delim = new Delimiter(titleString, " - ");
         for (PojoProperty property : pojo.properties()) {
             if (property.is(HtmlHead.class)) {
                 delim.write();
-                escaped.append(property.get());
+                titleString.append(property.get());
             }
         }
+        return titleString.toString();
     }
 
     private void writeStyleSheets(AnnotatedElement element) throws IOException {

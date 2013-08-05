@@ -179,7 +179,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertThat(result(), containsString("<head>dummy</head>"));
+        assertThat(result(), containsString("<head><title>dummy</title></head>"));
     }
 
     @Data
@@ -197,7 +197,7 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertThat(result(), containsString("<head>dummy0 - dummy1</head>"));
+        assertThat(result(), containsString("<head><title>dummy0 - dummy1</title></head>"));
     }
 
     @Data
@@ -231,9 +231,9 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertEquals("<html><head>" //
+        assertThat(result(), containsString("<head>" //
                 + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
-                + "</head><body>dummy</body></html>", result());
+                + "</head>"));
     }
 
     @Data
@@ -249,9 +249,9 @@ public class HtmlEncoderTest {
 
         writer.write(pojo);
 
-        assertEquals("<html><head>" //
+        assertThat(result(), containsString("<head>" //
                 + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
                 + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
-                + "</head><body>dummy</body></html>", result());
+                + "</head>"));
     }
 }
