@@ -121,49 +121,43 @@ public class HtmlEncoder {
             return;
         nl();
         if (pojo.isList()) {
-            writeList(pojo.getList());
-        } else if (pojo.isSimple()) {
-            escaped.write(pojo.get(PojoProperty.SIMPLE));
+            writeList(pojo);
         } else {
             writePojo(pojo);
         }
     }
 
-    private void writeList(List<?> list) throws IOException {
+    private void writeList(PojoHolder pojo) throws IOException {
+        List<PojoHolder> list = pojo.getList();
         if (list.isEmpty())
             return;
-        PojoHolder pojo = new PojoHolder(list.get(0));
-        if (pojo.isSimple()) {
-            writeOnePropertyList(list, PojoProperty.SIMPLE);
-        } else {
-            List<PojoProperty> properties = pojo.properties();
-            switch (properties.size()) {
-                case 0:
-                    break;
-                case 1:
-                    writeOnePropertyList(list, properties.get(0));
-                    break;
-                default:
-                    writeTable(properties, list);
-            }
+        List<PojoProperty> properties = list.get(0).properties();
+        switch (properties.size()) {
+            case 0:
+                break;
+            case 1:
+                writeOnePropertyList(list, properties.get(0));
+                break;
+            default:
+                writeTable(properties, list);
         }
     }
 
-    private void writeOnePropertyList(List<?> list, PojoProperty property) throws IOException {
+    private void writeOnePropertyList(List<PojoHolder> list, PojoProperty property) throws IOException {
         try (Tag ul = new Tag("ul")) {
-            for (Object object : list) {
+            for (PojoHolder element : list) {
                 try (Tag li = new Tag("li")) {
-                    escaped.append(new PojoHolder(object).get(property));
+                    escaped.append(element.get(property));
                 }
             }
         }
     }
 
-    private void writeTable(List<PojoProperty> properties, List<?> list) throws IOException {
+    private void writeTable(List<PojoProperty> properties, List<PojoHolder> list) throws IOException {
         try (Tag ul = new Tag("table")) {
             writeTableHead(properties);
-            for (Object object : list) {
-                writeTableRow(object, properties);
+            for (PojoHolder element : list) {
+                writeTableRow(element, properties);
             }
         }
     }
@@ -178,11 +172,11 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeTableRow(Object object, List<PojoProperty> properties) throws IOException {
+    private void writeTableRow(PojoHolder pojo, List<PojoProperty> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (PojoProperty property : properties) {
                 try (Tag td = new Tag("td")) {
-                    escaped.append(new PojoHolder(object).get(property));
+                    escaped.append(pojo.get(property));
                 }
             }
         }
@@ -194,7 +188,11 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                writeBody(new PojoHolder(pojo.get(properties.get(0))));
+                if (pojo.isSimple()) {
+                    escaped.write(pojo.get(PojoProperty.SIMPLE));
+                } else {
+                    writeBody(new PojoHolder(pojo.get(properties.get(0))));
+                }
                 break;
             default:
                 writeProperties(pojo, properties);

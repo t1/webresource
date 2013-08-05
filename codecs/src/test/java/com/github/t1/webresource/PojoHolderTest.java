@@ -2,6 +2,8 @@ package com.github.t1.webresource;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class PojoHolderTest {
@@ -11,7 +13,9 @@ public class PojoHolderTest {
         PojoHolder pojo = new PojoHolder(null);
 
         assertTrue(pojo.isNull());
+        assertTrue(pojo.isSimple());
         assertNull(pojo.get(PojoProperty.SIMPLE));
+        assertEquals(Arrays.asList(PojoProperty.SIMPLE), pojo.properties());
     }
 
     @Test
@@ -19,7 +23,9 @@ public class PojoHolderTest {
         PojoHolder pojo = new PojoHolder("dummy");
 
         assertFalse(pojo.isNull());
+        assertTrue(pojo.isSimple());
         assertEquals("dummy", pojo.get(PojoProperty.SIMPLE));
+        assertEquals(Arrays.asList(PojoProperty.SIMPLE), pojo.properties());
     }
 
     @Test
@@ -27,6 +33,8 @@ public class PojoHolderTest {
         PojoHolder pojo = new PojoHolder(1234L);
 
         assertFalse(pojo.isNull());
+        assertTrue(pojo.isSimple());
         assertEquals("1234", pojo.get(PojoProperty.SIMPLE));
+        assertEquals(Arrays.asList(PojoProperty.SIMPLE), pojo.properties());
     }
 }

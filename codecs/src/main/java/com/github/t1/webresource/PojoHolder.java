@@ -18,6 +18,8 @@ import com.github.t1.stereotypes.Annotations;
  */
 public class PojoHolder {
 
+    private static final List<PojoProperty> SIMPLE_PROPERTIES = Collections.singletonList(PojoProperty.SIMPLE);
+
     private final Object object;
     private List<PojoProperty> properties = null;
     private final AnnotatedElement annotations;
@@ -41,18 +43,26 @@ public class PojoHolder {
         return object instanceof List;
     }
 
-    public List<?> getList() {
-        return (List<?>) object;
+    public List<PojoHolder> getList() {
+        List<PojoHolder> result = new ArrayList<>();
+        for (Object element : ((List<?>) object)) {
+            result.add(new PojoHolder(element));
+        }
+        return result;
     }
 
     public List<PojoProperty> properties() {
         if (properties == null) {
-            properties = new ArrayList<>();
-            for (Field field : object.getClass().getDeclaredFields()) {
-                PojoProperty property = new PojoProperty(field);
-                if (property.isTransient())
-                    continue;
-                properties.add(property);
+            if (isSimple()) {
+                properties = SIMPLE_PROPERTIES;
+            } else {
+                properties = new ArrayList<>();
+                for (Field field : object.getClass().getDeclaredFields()) {
+                    PojoProperty property = new PojoProperty(field);
+                    if (property.isTransient())
+                        continue;
+                    properties.add(property);
+                }
             }
         }
         return properties;
