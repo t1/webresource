@@ -1,7 +1,10 @@
 package com.github.t1.webresource;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
+
+import com.github.t1.stereotypes.Annotations;
 
 /**
  * Holds a pojo and provides data and meta data to it by using reflection, i.e. you don't have to work with fields,
@@ -17,9 +20,11 @@ public class PojoHolder {
 
     private final Object object;
     private List<PojoProperty> properties = null;
+    private final AnnotatedElement annotations;
 
     public PojoHolder(Object object) {
         this.object = object;
+        this.annotations = Annotations.on(object.getClass());
     }
 
     public List<PojoProperty> properties() {
@@ -33,5 +38,13 @@ public class PojoHolder {
             }
         }
         return properties;
+    }
+
+    public <T extends Annotation> boolean is(Class<T> type) {
+        return annotations.isAnnotationPresent(type);
+    }
+
+    public <T extends Annotation> T get(Class<T> type) {
+        return annotations.getAnnotation(type);
     }
 }

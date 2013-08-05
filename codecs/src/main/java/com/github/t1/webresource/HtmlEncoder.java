@@ -73,16 +73,14 @@ public class HtmlEncoder {
     }
 
     private void writeHead(Object object) throws IOException {
-        if (object == null)
-            return;
-        writeTitle(object);
-        writeStyleSheets(Annotations.on(object.getClass()));
-    }
-
-    private void writeTitle(Object object) throws IOException {
-        if (isSimple(object))
+        if (object == null || isSimple(object))
             return;
         PojoHolder pojo = new PojoHolder(object);
+        writeTitle(pojo);
+        writeStyleSheets(pojo);
+    }
+
+    private void writeTitle(PojoHolder pojo) throws IOException {
         String titleString = titleString(pojo);
         if (!titleString.isEmpty()) {
             try (Tag title = new Tag("title")) {
@@ -103,14 +101,14 @@ public class HtmlEncoder {
         return titleString.toString();
     }
 
-    private void writeStyleSheets(AnnotatedElement element) throws IOException {
-        if (element.isAnnotationPresent(HtmlStyleSheet.class)) {
+    private void writeStyleSheets(PojoHolder pojo) throws IOException {
+        if (pojo.is(HtmlStyleSheet.class)) {
             nl();
-            writeStyleSheet(element.getAnnotation(HtmlStyleSheet.class));
+            writeStyleSheet(pojo.get(HtmlStyleSheet.class));
         }
-        if (element.isAnnotationPresent(HtmlStyleSheets.class)) {
+        if (pojo.is(HtmlStyleSheets.class)) {
             nl();
-            for (HtmlStyleSheet styleSheet : element.getAnnotation(HtmlStyleSheets.class).value()) {
+            for (HtmlStyleSheet styleSheet : pojo.get(HtmlStyleSheets.class).value()) {
                 writeStyleSheet(styleSheet);
             }
         }
