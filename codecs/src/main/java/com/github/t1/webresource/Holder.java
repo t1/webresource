@@ -13,22 +13,20 @@ import com.github.t1.stereotypes.Annotations;
  * Design Decision: This class tries to be quite generic, i.e. it should be easy to extract an interface and write
  * implementations that are not based on reflection, but, e.g., xml, json, csv, maps, or any other data structure with
  * some sort of meta data faciliy, internal or external to the data itself. Then it would be nice to use some
- * abstraction for meta data instead of annotations, but that would add an additional level of abstraction without
- * adding a lot of utility.
+ * abstraction for meta data instead of annotations, but that would add complexity without adding a lot of utility.
  */
-public class PojoHolder {
+public class Holder {
 
-    private static final List<PojoProperty> SIMPLE_PROPERTIES = Collections.singletonList(PojoProperty.SIMPLE);
+    private static final List<Property> SIMPLE_PROPERTIES = Collections.singletonList(Property.SIMPLE);
 
     private final Object object;
-    private List<PojoProperty> properties = null;
+    private List<Property> properties = null;
     private final AnnotatedElement annotations;
 
-    public PojoHolder(Object object) {
+    public Holder(Object object) {
         this.object = object;
         this.annotations = (object == null) ? null : Annotations.on(object.getClass());
     }
-
 
     public boolean isNull() {
         return object == null;
@@ -43,22 +41,22 @@ public class PojoHolder {
         return object instanceof List;
     }
 
-    public List<PojoHolder> getList() {
-        List<PojoHolder> result = new ArrayList<>();
+    public List<Holder> getList() {
+        List<Holder> result = new ArrayList<>();
         for (Object element : ((List<?>) object)) {
-            result.add(new PojoHolder(element));
+            result.add(new Holder(element));
         }
         return result;
     }
 
-    public List<PojoProperty> properties() {
+    public List<Property> properties() {
         if (properties == null) {
             if (isSimple()) {
                 properties = SIMPLE_PROPERTIES;
             } else {
                 properties = new ArrayList<>();
                 for (Field field : object.getClass().getDeclaredFields()) {
-                    PojoProperty property = new PojoProperty(field);
+                    Property property = new Property(field);
                     if (property.isTransient())
                         continue;
                     properties.add(property);
@@ -68,7 +66,7 @@ public class PojoHolder {
         return properties;
     }
 
-    public String get(PojoProperty property) {
+    public String get(Property property) {
         return property.of(this.object);
     }
 
@@ -80,8 +78,8 @@ public class PojoHolder {
         return annotations.getAnnotation(type);
     }
 
-    public PojoProperty property(String propertyName) {
-        for (PojoProperty property : properties()) {
+    public Property property(String propertyName) {
+        for (Property property : properties()) {
             if (propertyName.equals(property.getName())) {
                 return property;
             }

@@ -8,14 +8,14 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class PojoProperty {
+public class Property {
 
-    public static final PojoProperty SIMPLE = new PojoProperty(null);
+    public static final Property SIMPLE = new Property(null);
 
     private final Field field;
     private final AnnotatedElement annotations;
 
-    public PojoProperty(Field field) {
+    public Property(Field field) {
         this.field = field;
         this.annotations = Annotations.on(field);
     }
