@@ -1,16 +1,11 @@
 package com.github.t1.webresource;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 import lombok.Data;
-
-import com.github.t1.stereotypes.Annotations;
 
 /** A helper class to write objects as an html string... without the actual binding */
 public class HtmlEncoder {
@@ -60,11 +55,7 @@ public class HtmlEncoder {
         try (Tag html = new Tag("html")) {
             nl();
             PojoHolder pojo = new PojoHolder(object);
-            try (Tag head = new Tag("head")) {
-                if (!isSimple(object)) {
-                    writeHead(pojo);
-                }
-            }
+            writeHead(pojo);
             try (Tag body = new Tag("body")) {
                 writeBody(object);
             }
@@ -76,8 +67,12 @@ public class HtmlEncoder {
     }
 
     private void writeHead(PojoHolder pojo) throws IOException {
-        writeTitle(pojo);
-        writeStyleSheets(pojo);
+        try (Tag head = new Tag("head")) {
+            if (!pojo.isSimple()) {
+                writeTitle(pojo);
+                writeStyleSheets(pojo);
+            }
+        }
     }
 
     private void writeTitle(PojoHolder pojo) throws IOException {
@@ -95,7 +90,7 @@ public class HtmlEncoder {
         for (PojoProperty property : pojo.properties()) {
             if (property.is(HtmlHead.class)) {
                 delim.write();
-                titleString.append(property.get());
+                titleString.append(pojo.get(property));
             }
         }
         return titleString.toString();
@@ -122,36 +117,35 @@ public class HtmlEncoder {
     }
 
     private void writeBody(Object t) throws IOException {
-        if (t == null)
+        PojoHolder pojo = new PojoHolder(t);
+        if (pojo.isNull())
             return;
         nl();
-        if (t instanceof List) {
-            write((List<?>) t);
-        } else if (t instanceof Map) {
-            write((Map<?, ?>) t);
-        } else if (isSimple(t)) {
-            escaped.write(t.toString());
+        if (pojo.isList()) {
+            writeList((List<?>) t);
+        } else if (pojo.isSimple()) {
+            escaped.write(pojo.getSimple());
         } else {
-            writePojo(t);
+            writePojo(pojo);
         }
     }
 
-    private void write(List<?> list) throws IOException {
+    private void writeList(List<?> list) throws IOException {
         if (list.isEmpty())
             return;
         Object t = list.get(0);
-        if (isSimple(t)) {
+        if (new PojoHolder(t).isSimple()) {
             writeSimpleList(list);
         } else {
-            List<Field> fields = fields(t);
-            switch (fields.size()) {
+            List<PojoProperty> properties = new PojoHolder(t).properties();
+            switch (properties.size()) {
                 case 0:
                     break;
                 case 1:
-                    writeOneFieldList(list, fields.get(0));
+                    writeOnePropertyList(list, properties.get(0));
                     break;
                 default:
-                    writeTable(fields, list);
+                    writeTable(properties, list);
             }
         }
     }
@@ -166,110 +160,76 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeOneFieldList(List<?> list, Field field) throws IOException {
+    private void writeOnePropertyList(List<?> list, PojoProperty property) throws IOException {
         try (Tag ul = new Tag("ul")) {
             for (Object object : list) {
                 try (Tag li = new Tag("li")) {
-                    writeField(field, object);
+                    writeProperty(property, new PojoHolder(object));
                 }
             }
         }
     }
 
-    private void writeField(Field field, Object object) throws IOException {
-        try {
-            escaped.append(Objects.toString(field.get(object)));
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("can't get field " + field + " of " + object, e);
-        }
+    // TODO inline
+    private void writeProperty(PojoProperty property, PojoHolder pojo) throws IOException {
+        escaped.append(pojo.get(property));
     }
 
-    private void writeTable(List<Field> fields, List<?> list) throws IOException {
+    private void writeTable(List<PojoProperty> properties, List<?> list) throws IOException {
         try (Tag ul = new Tag("table")) {
-            writeTableHead(fields);
+            writeTableHead(properties);
             for (Object object : list) {
-                writeTableRow(object, fields);
+                writeTableRow(object, properties);
             }
         }
     }
 
-    private void writeTableHead(List<Field> fields) throws IOException {
+    private void writeTableHead(List<PojoProperty> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
-            for (Field field : fields) {
+            for (PojoProperty property : properties) {
                 try (Tag td = new Tag("td")) {
-                    escaped.append(field.getName());
+                    escaped.append(property.getName());
                 }
             }
         }
     }
 
-    private void writeTableRow(Object object, List<Field> fields) throws IOException {
+    private void writeTableRow(Object object, List<PojoProperty> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
-            for (Field field : fields) {
+            for (PojoProperty property : properties) {
                 try (Tag td = new Tag("td")) {
-                    writeField(field, object);
+                    writeProperty(property, new PojoHolder(object));
                 }
             }
         }
     }
 
-    private void write(Map<?, ?> map) throws IOException {
-        Delimiter delimiter = new Delimiter(unescaped, "&");
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            delimiter.write();
-            writeBody(entry.getKey());
-            unescaped.write("=");
-            writeBody(entry.getValue());
-        }
-    }
-
-    private boolean isSimple(Object t) {
-        return t == null || t instanceof String || t instanceof Number || t instanceof Boolean
-                || t.getClass().isPrimitive();
-    }
-
-    private void writePojo(Object t) throws IOException {
+    private void writePojo(PojoHolder pojo) throws IOException {
         try {
-            List<PojoProperty> properties = new PojoHolder(t).properties();
+            List<PojoProperty> properties = pojo.properties();
             switch (properties.size()) {
                 case 0:
                     break;
                 case 1:
-                    writeBody(properties.get(0).get());
+                    writeBody(pojo.get(properties.get(0)));
                     break;
                 default:
-                    writeFields(properties);
+                    writeProperties(pojo, properties);
             }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private List<Field> fields(Object t) {
-        List<Field> result = new ArrayList<>();
-        for (Field field : t.getClass().getDeclaredFields()) {
-            if (!isMarshallable(field))
-                continue;
-            field.setAccessible(true);
-            result.add(field);
-        }
-        return result;
-    }
-
-    private boolean isMarshallable(Field field) {
-        int modifiers = field.getModifiers();
-        return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
-                && !Annotations.on(field).isAnnotationPresent(XmlTransient.class);
-    }
-
-    private void writeFields(List<PojoProperty> fields) throws ReflectiveOperationException, IOException {
-        for (PojoProperty property : fields) {
+    private void writeProperties(PojoHolder pojo, List<PojoProperty> properties) throws ReflectiveOperationException,
+            IOException {
+        for (PojoProperty property : properties) {
             try (Tag div = new Tag("div")) {
                 String id = id(property.getName());
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
                     escaped.write(property.getName());
                 }
-                writeValue(id, property.get());
+                writeValue(id, pojo.get(property));
             }
         }
     }

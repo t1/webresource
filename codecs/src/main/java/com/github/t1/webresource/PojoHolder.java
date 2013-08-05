@@ -27,17 +27,39 @@ public class PojoHolder {
         this.annotations = (object == null) ? null : Annotations.on(object.getClass());
     }
 
+
+    public boolean isNull() {
+        return object == null;
+    }
+
+    public boolean isSimple() {
+        return isNull() || object instanceof String || object instanceof Number || object instanceof Boolean
+                || object.getClass().isPrimitive();
+    }
+
+    public boolean isList() {
+        return object instanceof List;
+    }
+
+    public String getSimple() {
+        return isNull() ? null : Objects.toString(object);
+    }
+
     public List<PojoProperty> properties() {
         if (properties == null) {
             properties = new ArrayList<>();
             for (Field field : object.getClass().getDeclaredFields()) {
-                PojoProperty property = new PojoProperty(object, field);
+                PojoProperty property = new PojoProperty(field);
                 if (property.isTransient())
                     continue;
                 properties.add(property);
             }
         }
         return properties;
+    }
+
+    public String get(PojoProperty property) {
+        return property.of(this.object);
     }
 
     public <T extends Annotation> boolean is(Class<T> type) {
@@ -48,7 +70,12 @@ public class PojoHolder {
         return annotations.getAnnotation(type);
     }
 
-    public boolean isList() {
-        return object instanceof List;
+    public PojoProperty property(String propertyName) {
+        for (PojoProperty property : properties()) {
+            if (propertyName.equals(property.getName())) {
+                return property;
+            }
+        }
+        throw new IllegalArgumentException("no property " + propertyName + " in " + object.getClass());
     }
 }

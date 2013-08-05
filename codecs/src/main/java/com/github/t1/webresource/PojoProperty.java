@@ -10,12 +10,10 @@ import com.github.t1.stereotypes.Annotations;
 
 public class PojoProperty {
 
-    private final Object object;
     private final Field field;
     private final AnnotatedElement annotations;
 
-    public PojoProperty(Object object, Field field) {
-        this.object = object;
+    public PojoProperty(Field field) {
         this.field = field;
         this.annotations = Annotations.on(field);
     }
@@ -24,13 +22,13 @@ public class PojoProperty {
         return annotations.isAnnotationPresent(type);
     }
 
-    public String get() {
+    public String of(Object object) {
         try {
             field.setAccessible(true);
             Object value = field.get(object);
             return (value == null) ? null : Objects.toString(value);
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("can't get " + field.getName(), e);
+            throw new RuntimeException("can't get " + field.getName() + " of " + object, e);
         }
     }
 
@@ -44,8 +42,6 @@ public class PojoProperty {
         StringBuilder out = new StringBuilder();
         out.append("field ");
         out.append(field.getName());
-        out.append(" of ");
-        out.append(object);
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
             for (Annotation annotation : annotations.getAnnotations()) {
