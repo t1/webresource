@@ -123,7 +123,7 @@ public class HtmlEncoder {
         if (pojo.isList()) {
             writeList(pojo.getList());
         } else if (pojo.isSimple()) {
-            escaped.write(pojo.getSimple());
+            escaped.write(pojo.get(PojoProperty.SIMPLE));
         } else {
             writePojo(pojo);
         }
@@ -134,7 +134,7 @@ public class HtmlEncoder {
             return;
         PojoHolder pojo = new PojoHolder(list.get(0));
         if (pojo.isSimple()) {
-            writeSimpleList(list);
+            writeOnePropertyList(list, PojoProperty.SIMPLE);
         } else {
             List<PojoProperty> properties = pojo.properties();
             switch (properties.size()) {
@@ -149,29 +149,14 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeSimpleList(List<?> list) throws IOException {
-        try (Tag ul = new Tag("ul")) {
-            for (Object object : list) {
-                try (Tag li = new Tag("li")) {
-                    escaped.append(Objects.toString(object));
-                }
-            }
-        }
-    }
-
     private void writeOnePropertyList(List<?> list, PojoProperty property) throws IOException {
         try (Tag ul = new Tag("ul")) {
             for (Object object : list) {
                 try (Tag li = new Tag("li")) {
-                    writeProperty(property, new PojoHolder(object));
+                    escaped.append(new PojoHolder(object).get(property));
                 }
             }
         }
-    }
-
-    // TODO inline
-    private void writeProperty(PojoProperty property, PojoHolder pojo) throws IOException {
-        escaped.append(pojo.get(property));
     }
 
     private void writeTable(List<PojoProperty> properties, List<?> list) throws IOException {
@@ -197,7 +182,7 @@ public class HtmlEncoder {
         try (Tag tr = new Tag("tr")) {
             for (PojoProperty property : properties) {
                 try (Tag td = new Tag("td")) {
-                    writeProperty(property, new PojoHolder(object));
+                    escaped.append(new PojoHolder(object).get(property));
                 }
             }
         }

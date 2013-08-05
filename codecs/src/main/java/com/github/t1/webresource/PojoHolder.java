@@ -37,10 +37,6 @@ public class PojoHolder {
                 || object.getClass().isPrimitive();
     }
 
-    public String getSimple() {
-        return isNull() ? null : Objects.toString(object);
-    }
-
     public boolean isList() {
         return object instanceof List;
     }

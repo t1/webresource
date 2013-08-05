@@ -10,6 +10,8 @@ import com.github.t1.stereotypes.Annotations;
 
 public class PojoProperty {
 
+    public static final PojoProperty SIMPLE = new PojoProperty(null);
+
     private final Field field;
     private final AnnotatedElement annotations;
 
@@ -23,10 +25,14 @@ public class PojoProperty {
     }
 
     public String of(Object object) {
+        Object value = (SIMPLE == this) ? object : getValue(object);
+        return (value == null) ? null : Objects.toString(value);
+    }
+
+    private Object getValue(Object object) {
         try {
             field.setAccessible(true);
-            Object value = field.get(object);
-            return (value == null) ? null : Objects.toString(value);
+            return field.get(object);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + field.getName() + " of " + object, e);
         }
