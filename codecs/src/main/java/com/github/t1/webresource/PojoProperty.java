@@ -27,7 +27,8 @@ public class PojoProperty {
     public String get() {
         try {
             field.setAccessible(true);
-            return Objects.toString(field.get(object));
+            Object value = field.get(object);
+            return (value == null) ? null : Objects.toString(value);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + field.getName(), e);
         }
@@ -52,5 +53,9 @@ public class PojoProperty {
             }
         }
         return out.toString();
+    }
+
+    public String getName() {
+        return field.getName();
     }
 }

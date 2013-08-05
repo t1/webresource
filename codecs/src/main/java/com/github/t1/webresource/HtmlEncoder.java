@@ -59,8 +59,11 @@ public class HtmlEncoder {
     public void write(Object object) throws IOException {
         try (Tag html = new Tag("html")) {
             nl();
+            PojoHolder pojo = new PojoHolder(object);
             try (Tag head = new Tag("head")) {
-                writeHead(object);
+                if (!isSimple(object)) {
+                    writeHead(pojo);
+                }
             }
             try (Tag body = new Tag("body")) {
                 writeBody(object);
@@ -72,10 +75,7 @@ public class HtmlEncoder {
         unescaped.append('\n');
     }
 
-    private void writeHead(Object object) throws IOException {
-        if (object == null || isSimple(object))
-            return;
-        PojoHolder pojo = new PojoHolder(object);
+    private void writeHead(PojoHolder pojo) throws IOException {
         writeTitle(pojo);
         writeStyleSheets(pojo);
     }
@@ -224,20 +224,21 @@ public class HtmlEncoder {
     }
 
     private boolean isSimple(Object t) {
-        return t instanceof String || t instanceof Number || t instanceof Boolean || t.getClass().isPrimitive();
+        return t == null || t instanceof String || t instanceof Number || t instanceof Boolean
+                || t.getClass().isPrimitive();
     }
 
     private void writePojo(Object t) throws IOException {
         try {
-            List<Field> fields = fields(t);
-            switch (fields.size()) {
+            List<PojoProperty> properties = new PojoHolder(t).properties();
+            switch (properties.size()) {
                 case 0:
                     break;
                 case 1:
-                    writeBody(fields.get(0).get(t));
+                    writeBody(properties.get(0).get());
                     break;
                 default:
-                    writeFields(fields, t);
+                    writeFields(properties);
             }
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -261,14 +262,14 @@ public class HtmlEncoder {
                 && !Annotations.on(field).isAnnotationPresent(XmlTransient.class);
     }
 
-    private void writeFields(List<Field> fields, Object t) throws ReflectiveOperationException, IOException {
-        for (Field field : fields) {
+    private void writeFields(List<PojoProperty> fields) throws ReflectiveOperationException, IOException {
+        for (PojoProperty property : fields) {
             try (Tag div = new Tag("div")) {
-                String id = id(field.getName());
+                String id = id(property.getName());
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
-                    escaped.write(field.getName());
+                    escaped.write(property.getName());
                 }
-                writeValue(id, field.get(t));
+                writeValue(id, property.get());
             }
         }
     }

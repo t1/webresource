@@ -24,7 +24,7 @@ public class PojoHolder {
 
     public PojoHolder(Object object) {
         this.object = object;
-        this.annotations = Annotations.on(object.getClass());
+        this.annotations = (object == null) ? null : Annotations.on(object.getClass());
     }
 
     public List<PojoProperty> properties() {
@@ -46,5 +46,9 @@ public class PojoHolder {
 
     public <T extends Annotation> T get(Class<T> type) {
         return annotations.getAnnotation(type);
+    }
+
+    public boolean isList() {
+        return object instanceof List;
     }
 }
