@@ -55,9 +55,11 @@ public class HtmlEncoder {
         try (Tag html = new Tag("html")) {
             nl();
             PojoHolder pojo = new PojoHolder(object);
-            writeHead(pojo);
+            try (Tag head = new Tag("head")) {
+                writeHead(pojo);
+            }
             try (Tag body = new Tag("body")) {
-                writeBody(object);
+                writeBody(pojo);
             }
         }
     }
@@ -67,11 +69,9 @@ public class HtmlEncoder {
     }
 
     private void writeHead(PojoHolder pojo) throws IOException {
-        try (Tag head = new Tag("head")) {
-            if (!pojo.isSimple()) {
-                writeTitle(pojo);
-                writeStyleSheets(pojo);
-            }
+        if (!pojo.isSimple()) {
+            writeTitle(pojo);
+            writeStyleSheets(pojo);
         }
     }
 
@@ -116,13 +116,12 @@ public class HtmlEncoder {
         unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
     }
 
-    private void writeBody(Object t) throws IOException {
-        PojoHolder pojo = new PojoHolder(t);
+    private void writeBody(PojoHolder pojo) throws IOException {
         if (pojo.isNull())
             return;
         nl();
         if (pojo.isList()) {
-            writeList((List<?>) t);
+            writeList(pojo.getList());
         } else if (pojo.isSimple()) {
             escaped.write(pojo.getSimple());
         } else {
@@ -133,11 +132,11 @@ public class HtmlEncoder {
     private void writeList(List<?> list) throws IOException {
         if (list.isEmpty())
             return;
-        Object t = list.get(0);
-        if (new PojoHolder(t).isSimple()) {
+        PojoHolder pojo = new PojoHolder(list.get(0));
+        if (pojo.isSimple()) {
             writeSimpleList(list);
         } else {
-            List<PojoProperty> properties = new PojoHolder(t).properties();
+            List<PojoProperty> properties = pojo.properties();
             switch (properties.size()) {
                 case 0:
                     break;
@@ -205,24 +204,19 @@ public class HtmlEncoder {
     }
 
     private void writePojo(PojoHolder pojo) throws IOException {
-        try {
-            List<PojoProperty> properties = pojo.properties();
-            switch (properties.size()) {
-                case 0:
-                    break;
-                case 1:
-                    writeBody(pojo.get(properties.get(0)));
-                    break;
-                default:
-                    writeProperties(pojo, properties);
-            }
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
+        List<PojoProperty> properties = pojo.properties();
+        switch (properties.size()) {
+            case 0:
+                break;
+            case 1:
+                writeBody(new PojoHolder(pojo.get(properties.get(0))));
+                break;
+            default:
+                writeProperties(pojo, properties);
         }
     }
 
-    private void writeProperties(PojoHolder pojo, List<PojoProperty> properties) throws ReflectiveOperationException,
-            IOException {
+    private void writeProperties(PojoHolder pojo, List<PojoProperty> properties) throws IOException {
         for (PojoProperty property : properties) {
             try (Tag div = new Tag("div")) {
                 String id = id(property.getName());
