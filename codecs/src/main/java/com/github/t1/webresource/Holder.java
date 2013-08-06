@@ -8,7 +8,9 @@ import com.github.t1.stereotypes.Annotations;
 
 /**
  * Holds a pojo and provides data and meta data to it by using reflection, i.e. you don't have to work with fields,
- * getters, setters, etc. but use properties and meta properties.
+ * getters, setters, etc. but use properties and meta properties. {@link #isSimple() Simple types} are represented as
+ * objects with one property. Maps are represented just like objects (note that for neither pojos nor maps, the order of
+ * the properties is generally guaranteed). {@link #isList() List} elements can be accessed with {@link #getList()}.
  * <p/>
  * Design Decision: This class tries to be quite generic, i.e. it should be easy to extract an interface and write
  * implementations that are not based on reflection, but, e.g., xml, json, csv, maps, or any other data structure with
@@ -17,7 +19,7 @@ import com.github.t1.stereotypes.Annotations;
  */
 public class Holder<T> {
 
-    private static final List<Property> SIMPLE_PROPERTIES = Collections.singletonList(Property.SIMPLE);
+    private static final List<Property> SIMPLE_PROPERTIES = Collections.<Property> singletonList(FieldProperty.SIMPLE);
 
     private final T object;
     private final Class<T> type;
@@ -27,7 +29,23 @@ public class Holder<T> {
     public Holder(Class<T> type, T object) {
         this.type = type;
         this.object = object;
-        this.annotations = (object == null) ? null : Annotations.on(type);
+        this.annotations = annotations(type);
+    }
+
+    private AnnotatedElement annotations(Class<T> type) {
+        return noMetaData(type) ? null : Annotations.on(type);
+    }
+
+    private boolean noMetaData(Class<T> type) {
+        return type == null || isMap(type) || isList(type);
+    }
+
+    private boolean isMap(Class<T> type) {
+        return Map.class.isAssignableFrom(type);
+    }
+
+    private boolean isList(Class<T> type) {
+        return List.class.isAssignableFrom(type);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,7 +67,7 @@ public class Holder<T> {
     }
 
     public boolean isList() {
-        return object instanceof List;
+        return isList(type);
     }
 
     public List<Holder<?>> getList() {
@@ -64,10 +82,17 @@ public class Holder<T> {
         if (properties == null) {
             if (isSimple()) {
                 properties = SIMPLE_PROPERTIES;
+            } else if (isMap(type)) {
+                properties = new ArrayList<>();
+                @SuppressWarnings("unchecked")
+                Map<String, ?> map = (Map<String, ?>) object;
+                for (String key : map.keySet()) {
+                    properties.add(new MapProperty(key));
+                }
             } else {
                 properties = new ArrayList<>();
                 for (Field field : type.getDeclaredFields()) {
-                    Property property = new Property(field);
+                    FieldProperty property = new FieldProperty(field);
                     if (property.isTransient())
                         continue;
                     properties.add(property);

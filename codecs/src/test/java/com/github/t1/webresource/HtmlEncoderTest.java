@@ -65,6 +65,59 @@ public class HtmlEncoderTest {
         assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
     }
 
+    @Test
+    public void shouldEncodeEmptyMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+
+        writer(map).write();
+
+        assertEquals(wrapped(""), result());
+    }
+
+    @Test
+    public void shouldEncodeOneKeyMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("one", "111");
+
+        writer(map).write();
+
+        assertEquals(wrapped("111"), result());
+    }
+
+    @Test
+    public void shouldEncodeMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("one", "111");
+        map.put("two", "222");
+        map.put("three", "333");
+
+        writer(map).write();
+
+        assertEquals(wrapped(div("one-0", "one", "111") + div("two-0", "two", "222") + div("three-0", "three", "333")),
+                result());
+    }
+
+    @Test
+    public void shouldEncodeListOfMapsAsTable() throws Exception {
+        Map<String, String> map0 = new LinkedHashMap<>();
+        map0.put("one", "111");
+        map0.put("two", "222");
+        map0.put("three", "333");
+
+        Map<String, String> map1 = new LinkedHashMap<>();
+        map1.put("one", "aaa");
+        map1.put("two", "bbb");
+        map1.put("three", "ccc");
+
+        writer(Arrays.asList(map0, map1)).write();
+
+        assertEquals(wrapped("<table>" //
+                + "<tr><td>one</td><td>two</td><td>three</td></tr>" //
+                + "<tr><td>111</td><td>222</td><td>333</td></tr>" //
+                + "<tr><td>aaa</td><td>bbb</td><td>ccc</td></tr>" //
+                + "</table>"), result());
+    }
+
     @Data
     @AllArgsConstructor
     private static class OneFieldPojo {
@@ -114,14 +167,14 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped("" //
-                + "<div>" //
-                + "<label for='str-0'>str</label>" //
-                + "<input id='str-0' type='text' value='dummy' readonly/>" //
-                + "</div><div>" //
-                + "<label for='i-0'>i</label>" //
-                + "<input id='i-0' type='text' value='123' readonly/>" //
-                + "</div>"), result());
+        assertEquals(wrapped(div("str-0", "str", "dummy") + div("i-0", "i", "123")), result());
+    }
+
+    private String div(String id, String name, String value) {
+        return "<div>" //
+                + "<label for='" + id + "'>" + name + "</label>" //
+                + "<input id='" + id + "' type='text' value='" + value + "' readonly/>" //
+                + "</div>";
     }
 
     @Test

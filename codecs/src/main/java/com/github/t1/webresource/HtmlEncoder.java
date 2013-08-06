@@ -115,7 +115,7 @@ public class HtmlEncoder {
         if (holder.isList()) {
             writeList();
         } else {
-            writeHolder();
+            writeMap();
         }
     }
 
@@ -174,14 +174,14 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeHolder() throws IOException {
+    private void writeMap() throws IOException {
         List<Property> properties = holder.properties();
         switch (properties.size()) {
             case 0:
                 break;
             case 1:
                 if (holder.isSimple()) {
-                    escaped.write(holder.get(Property.SIMPLE));
+                    escaped.write(holder.get(FieldProperty.SIMPLE));
                 } else {
                     String value = holder.get(properties.get(0));
                     new HtmlEncoder(value, unescaped, applicationPath).writeBody();
