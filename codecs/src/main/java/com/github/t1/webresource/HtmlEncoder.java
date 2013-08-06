@@ -1,8 +1,7 @@
 package com.github.t1.webresource;
 
 import java.io.*;
-import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.Path;
 import java.util.*;
 
 import lombok.Data;
@@ -32,34 +31,27 @@ public class HtmlEncoder {
         }
     }
 
+    private final Holder holder;
     private final Writer escaped;
     private final Writer unescaped;
     private final Path applicationPath;
     private final Map<String, Integer> ids = new HashMap<>();
 
-    public HtmlEncoder(Writer out, URI baseUri) {
-        this.unescaped = out;
-        this.applicationPath = applicationPath(baseUri);
+    public HtmlEncoder(Object t, Writer out, Path applicationPath) {
+        this.holder = new Holder(t);
         this.escaped = new HtmlEscapeWriter(out);
+        this.unescaped = out;
+        this.applicationPath = applicationPath;
     }
 
-    /**
-     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
-     * which is the first path element.
-     */
-    private Path applicationPath(URI baseUri) {
-        return Paths.get(baseUri.getPath()).getName(0);
-    }
-
-    public void write(Object object) throws IOException {
+    public void write() throws IOException {
         try (Tag html = new Tag("html")) {
             nl();
-            Holder holder = new Holder(object);
             try (Tag head = new Tag("head")) {
-                writeHead(holder);
+                writeHead();
             }
             try (Tag body = new Tag("body")) {
-                writeBody(holder);
+                writeBody();
             }
         }
     }
@@ -68,15 +60,15 @@ public class HtmlEncoder {
         unescaped.append('\n');
     }
 
-    private void writeHead(Holder holder) throws IOException {
+    private void writeHead() throws IOException {
         if (!holder.isSimple()) {
-            writeTitle(holder);
-            writeStyleSheets(holder);
+            writeTitle();
+            writeStyleSheets();
         }
     }
 
-    private void writeTitle(Holder holder) throws IOException {
-        String titleString = titleString(holder);
+    private void writeTitle() throws IOException {
+        String titleString = titleString();
         if (!titleString.isEmpty()) {
             try (Tag title = new Tag("title")) {
                 escaped.append(titleString);
@@ -84,7 +76,7 @@ public class HtmlEncoder {
         }
     }
 
-    private String titleString(Holder holder) throws IOException {
+    private String titleString() throws IOException {
         StringWriter titleString = new StringWriter();
         Delimiter delim = new Delimiter(titleString, " - ");
         for (Property property : holder.properties()) {
@@ -96,7 +88,7 @@ public class HtmlEncoder {
         return titleString.toString();
     }
 
-    private void writeStyleSheets(Holder holder) throws IOException {
+    private void writeStyleSheets() throws IOException {
         if (holder.is(HtmlStyleSheet.class)) {
             nl();
             writeStyleSheet(holder.get(HtmlStyleSheet.class));
@@ -116,18 +108,18 @@ public class HtmlEncoder {
         unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
     }
 
-    private void writeBody(Holder holder) throws IOException {
+    private void writeBody() throws IOException {
         if (holder.isNull())
             return;
         nl();
         if (holder.isList()) {
-            writeList(holder);
+            writeList();
         } else {
-            writeHolder(holder);
+            writeHolder();
         }
     }
 
-    private void writeList(Holder holder) throws IOException {
+    private void writeList() throws IOException {
         List<Holder> list = holder.getList();
         if (list.isEmpty())
             return;
@@ -157,7 +149,7 @@ public class HtmlEncoder {
         try (Tag ul = new Tag("table")) {
             writeTableHead(properties);
             for (Holder element : list) {
-                writeTableRow(element, properties);
+                new HtmlEncoder(element.target(), unescaped, applicationPath).writeTableRow(properties);
             }
         }
     }
@@ -172,7 +164,7 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeTableRow(Holder holder, List<Property> properties) throws IOException {
+    private void writeTableRow(List<Property> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Property property : properties) {
                 try (Tag td = new Tag("td")) {
@@ -182,7 +174,7 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeHolder(Holder holder) throws IOException {
+    private void writeHolder() throws IOException {
         List<Property> properties = holder.properties();
         switch (properties.size()) {
             case 0:
@@ -191,15 +183,16 @@ public class HtmlEncoder {
                 if (holder.isSimple()) {
                     escaped.write(holder.get(Property.SIMPLE));
                 } else {
-                    writeBody(new Holder(holder.get(properties.get(0))));
+                    String value = holder.get(properties.get(0));
+                    new HtmlEncoder(value, unescaped, applicationPath).writeBody();
                 }
                 break;
             default:
-                writeProperties(holder, properties);
+                writeProperties(properties);
         }
     }
 
-    private void writeProperties(Holder holder, List<Property> properties) throws IOException {
+    private void writeProperties(List<Property> properties) throws IOException {
         for (Property property : properties) {
             try (Tag div = new Tag("div")) {
                 String id = id(property.getName());

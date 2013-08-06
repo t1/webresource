@@ -5,7 +5,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
-import java.net.URI;
+import java.nio.file.Paths;
 import java.util.*;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -17,7 +17,10 @@ import org.junit.Test;
 public class HtmlEncoderTest {
     private static final String BASE_URI = "base";
     private final Writer out = new StringWriter();
-    private final HtmlEncoder writer = new HtmlEncoder(out, URI.create(BASE_URI));
+
+    private HtmlEncoder writer(Object object) {
+        return new HtmlEncoder(object, out, Paths.get(BASE_URI));
+    }
 
     private static String wrapped(String string) {
         return "<html><head></head><body>" + string + "</body></html>";
@@ -29,35 +32,35 @@ public class HtmlEncoderTest {
 
     @Test
     public void shouldEncodeNullObject() throws Exception {
-        writer.write(null);
+        writer(null).write();
 
         assertEquals(wrapped(""), result());
     }
 
     @Test
     public void shouldEncodePrimitiveString() throws Exception {
-        writer.write("dummy");
+        writer("dummy").write();
 
         assertEquals(wrapped("dummy"), result());
     }
 
     @Test
     public void shouldEscapeString() throws Exception {
-        writer.write("string & ampersand");
+        writer("string & ampersand").write();
 
         assertEquals(wrapped("string &amp; ampersand"), result());
     }
 
     @Test
     public void shouldEncodePrimitiveInteger() throws Exception {
-        writer.write(1234);
+        writer(1234).write();
 
         assertEquals(wrapped("1234"), result());
     }
 
     @Test
     public void shouldEncodeList() throws Exception {
-        writer.write(asList("one", "two", "three"));
+        writer(asList("one", "two", "three")).write();
 
         assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
     }
@@ -72,7 +75,7 @@ public class HtmlEncoderTest {
     public void shouldWriteOneFieldPojoWithoutKey() throws Exception {
         OneFieldPojo pojo = new OneFieldPojo("str");
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertEquals(wrapped("str"), result());
     }
@@ -81,7 +84,7 @@ public class HtmlEncoderTest {
     public void shouldWriteOneFieldPojoNullValue() throws Exception {
         OneFieldPojo pojo = new OneFieldPojo(null);
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertEquals(wrapped(""), result());
     }
@@ -93,7 +96,7 @@ public class HtmlEncoderTest {
         OneFieldPojo pojo3 = new OneFieldPojo("three");
         List<OneFieldPojo> list = asList(pojo1, pojo2, pojo3);
 
-        writer.write(list);
+        writer(list).write();
 
         assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
     }
@@ -109,7 +112,7 @@ public class HtmlEncoderTest {
     public void shouldWriteTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertEquals(wrapped("" //
                 + "<div>" //
@@ -127,7 +130,7 @@ public class HtmlEncoderTest {
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
 
-        writer.write(list);
+        writer(list).write();
 
         assertEquals(wrapped("<table>" //
                 + "<tr><td>str</td><td>i</td></tr>" //
@@ -149,7 +152,7 @@ public class HtmlEncoderTest {
     public void shouldWritePojoWithXmlTransient() throws Exception {
         PojoWithXmlTransient pojo = new PojoWithXmlTransient("id", "dummy", 123);
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertThat(result(), not(containsString("idField")));
     }
@@ -160,7 +163,7 @@ public class HtmlEncoderTest {
         PojoWithXmlTransient pojo2 = new PojoWithXmlTransient("b", "two", 222);
         List<PojoWithXmlTransient> list = Arrays.asList(pojo1, pojo2);
 
-        writer.write(list);
+        writer(list).write();
 
         assertThat(result(), not(containsString("idField")));
     }
@@ -177,7 +180,7 @@ public class HtmlEncoderTest {
     public void shouldWritePojoWithOneHtmlHead() throws Exception {
         PojoWithOneHtmlHead pojo = new PojoWithOneHtmlHead("dummy", 123);
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertThat(result(), containsString("<head><title>dummy</title></head>"));
     }
@@ -195,7 +198,7 @@ public class HtmlEncoderTest {
     public void shouldWritePojoWithTwoHtmlHead() throws Exception {
         PojoWithTwoHtmlHeads pojo = new PojoWithTwoHtmlHeads("dummy0", "dummy1");
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertThat(result(), containsString("<head><title>dummy0 - dummy1</title></head>"));
     }
@@ -211,7 +214,7 @@ public class HtmlEncoderTest {
     public void shouldAddAbsoluteCssStyleSheet() throws Exception {
         PojoWithAbsoluteCss pojo = new PojoWithAbsoluteCss("dummy");
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertEquals("<html><head>" //
                 + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
@@ -229,7 +232,7 @@ public class HtmlEncoderTest {
     public void shouldAddRelativeCssStyleSheet() throws Exception {
         PojoWithRelativeCss pojo = new PojoWithRelativeCss("dummy");
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertThat(result(), containsString("<head>" //
                 + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
@@ -247,7 +250,7 @@ public class HtmlEncoderTest {
     public void shouldAddTwoCssStyleSheets() throws Exception {
         PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
 
-        writer.write(pojo);
+        writer(pojo).write();
 
         assertThat(result(), containsString("<head>" //
                 + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //

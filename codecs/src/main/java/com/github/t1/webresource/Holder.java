@@ -8,7 +8,7 @@ import com.github.t1.stereotypes.Annotations;
 
 /**
  * Holds a pojo and provides data and meta data to it by using reflection, i.e. you don't have to work with fields,
- * getters, setters, etc. but use properties and features.
+ * getters, setters, etc. but use properties and meta properties.
  * <p/>
  * Design Decision: This class tries to be quite generic, i.e. it should be easy to extract an interface and write
  * implementations that are not based on reflection, but, e.g., xml, json, csv, maps, or any other data structure with
@@ -26,6 +26,10 @@ public class Holder {
     public Holder(Object object) {
         this.object = object;
         this.annotations = (object == null) ? null : Annotations.on(object.getClass());
+    }
+
+    public Object target() {
+        return object;
     }
 
     public boolean isNull() {
@@ -71,11 +75,11 @@ public class Holder {
     }
 
     public <T extends Annotation> boolean is(Class<T> type) {
-        return annotations.isAnnotationPresent(type);
+        return (annotations == null) ? false : annotations.isAnnotationPresent(type);
     }
 
     public <T extends Annotation> T get(Class<T> type) {
-        return annotations.getAnnotation(type);
+        return (annotations == null) ? null : annotations.getAnnotation(type);
     }
 
     public Property property(String propertyName) {
@@ -85,5 +89,10 @@ public class Holder {
             }
         }
         throw new IllegalArgumentException("no property " + propertyName + " in " + object.getClass());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + object.getClass().getName() + "]";
     }
 }

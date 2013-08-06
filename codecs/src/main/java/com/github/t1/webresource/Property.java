@@ -46,8 +46,8 @@ public class Property {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("field ");
-        out.append(field.getName());
+        out.append("field ").append(field.getName());
+        out.append(" of ").append(field.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
             for (Annotation annotation : annotations.getAnnotations()) {
