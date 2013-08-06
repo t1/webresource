@@ -98,6 +98,19 @@ public class HtmlEncoderTest {
     }
 
     @Test
+    public void shouldEncodeListOfOneElementMapsAsList() throws Exception {
+        Map<String, String> map0 = new LinkedHashMap<>();
+        map0.put("one", "111");
+
+        Map<String, String> map1 = new LinkedHashMap<>();
+        map1.put("one", "aaa");
+
+        writer(Arrays.asList(map0, map1)).write();
+
+        assertEquals(wrapped("<ul><li>111</li><li>aaa</li></ul>"), result());
+    }
+
+    @Test
     public void shouldEncodeListOfMapsAsTable() throws Exception {
         Map<String, String> map0 = new LinkedHashMap<>();
         map0.put("one", "111");

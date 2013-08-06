@@ -10,8 +10,6 @@ import com.github.t1.stereotypes.Annotations;
 
 public class FieldProperty implements Property {
 
-    public static final FieldProperty SIMPLE = new FieldProperty(null);
-
     private final Field field;
     private final AnnotatedElement annotations;
 
@@ -27,7 +25,7 @@ public class FieldProperty implements Property {
 
     @Override
     public String of(Object object) {
-        Object value = (SIMPLE == this) ? object : getValue(object);
+        Object value = getValue(object);
         return (value == null) ? null : Objects.toString(value);
     }
 

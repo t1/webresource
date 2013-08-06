@@ -19,7 +19,8 @@ import com.github.t1.stereotypes.Annotations;
  */
 public class Holder<T> {
 
-    private static final List<Property> SIMPLE_PROPERTIES = Collections.<Property> singletonList(FieldProperty.SIMPLE);
+    public static final Property SIMPLE = new SimpleProperty();
+    private static final List<Property> SIMPLE_PROPERTIES = Collections.<Property> singletonList(SIMPLE);
 
     private final T object;
     private final Class<T> type;

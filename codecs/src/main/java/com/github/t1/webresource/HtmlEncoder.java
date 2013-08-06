@@ -181,7 +181,7 @@ public class HtmlEncoder {
                 break;
             case 1:
                 if (holder.isSimple()) {
-                    escaped.write(holder.get(FieldProperty.SIMPLE));
+                    escaped.write(holder.get(Holder.SIMPLE));
                 } else {
                     String value = holder.get(properties.get(0));
                     new HtmlEncoder(value, unescaped, applicationPath).writeBody();

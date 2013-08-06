@@ -16,8 +16,8 @@ public class HolderTest {
 
         assertTrue(holder.isNull());
         assertTrue(holder.isSimple());
-        assertNull(holder.get(FieldProperty.SIMPLE));
-        assertEquals(Arrays.asList(FieldProperty.SIMPLE), holder.properties());
+        assertNull(holder.get(Holder.SIMPLE));
+        assertEquals(Arrays.asList(Holder.SIMPLE), holder.properties());
 
         assertFalse(holder.is(XmlRootElement.class));
         assertNull(holder.get(XmlRootElement.class));
@@ -29,8 +29,8 @@ public class HolderTest {
 
         assertFalse(holder.isNull());
         assertTrue(holder.isSimple());
-        assertEquals("dummy", holder.get(FieldProperty.SIMPLE));
-        assertEquals(Arrays.asList(FieldProperty.SIMPLE), holder.properties());
+        assertEquals("dummy", holder.get(Holder.SIMPLE));
+        assertEquals(Arrays.asList(Holder.SIMPLE), holder.properties());
 
         assertFalse(holder.is(XmlRootElement.class));
         assertNull(holder.get(XmlRootElement.class));
@@ -42,8 +42,8 @@ public class HolderTest {
 
         assertFalse(holder.isNull());
         assertTrue(holder.isSimple());
-        assertEquals("1234", holder.get(FieldProperty.SIMPLE));
-        assertEquals(Arrays.asList(FieldProperty.SIMPLE), holder.properties());
+        assertEquals("1234", holder.get(Holder.SIMPLE));
+        assertEquals(Arrays.asList(Holder.SIMPLE), holder.properties());
 
         assertFalse(holder.is(XmlRootElement.class));
         assertNull(holder.get(XmlRootElement.class));
