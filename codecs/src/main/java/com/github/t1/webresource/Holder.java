@@ -15,20 +15,27 @@ import com.github.t1.stereotypes.Annotations;
  * some sort of meta data faciliy, internal or external to the data itself. Then it would be nice to use some
  * abstraction for meta data instead of annotations, but that would add complexity without adding a lot of utility.
  */
-public class Holder {
+public class Holder<T> {
 
     private static final List<Property> SIMPLE_PROPERTIES = Collections.singletonList(Property.SIMPLE);
 
-    private final Object object;
+    private final T object;
+    private final Class<T> type;
     private List<Property> properties = null;
     private final AnnotatedElement annotations;
 
-    public Holder(Object object) {
+    public Holder(Class<T> type, T object) {
+        this.type = type;
         this.object = object;
-        this.annotations = (object == null) ? null : Annotations.on(object.getClass());
+        this.annotations = (object == null) ? null : Annotations.on(type);
     }
 
-    public Object target() {
+    @SuppressWarnings("unchecked")
+    public Holder(T object) {
+        this((Class<T>) ((object == null) ? null : object.getClass()), object);
+    }
+
+    public T target() {
         return object;
     }
 
@@ -37,18 +44,18 @@ public class Holder {
     }
 
     public boolean isSimple() {
-        return isNull() || object instanceof String || object instanceof Number || object instanceof Boolean
-                || object.getClass().isPrimitive();
+        return isNull() || type == String.class || Number.class.isAssignableFrom(type) || type == Boolean.class
+                || type.isPrimitive();
     }
 
     public boolean isList() {
         return object instanceof List;
     }
 
-    public List<Holder> getList() {
-        List<Holder> result = new ArrayList<>();
+    public List<Holder<?>> getList() {
+        List<Holder<?>> result = new ArrayList<>();
         for (Object element : ((List<?>) object)) {
-            result.add(new Holder(element));
+            result.add(new Holder<>(element));
         }
         return result;
     }
@@ -59,7 +66,7 @@ public class Holder {
                 properties = SIMPLE_PROPERTIES;
             } else {
                 properties = new ArrayList<>();
-                for (Field field : object.getClass().getDeclaredFields()) {
+                for (Field field : type.getDeclaredFields()) {
                     Property property = new Property(field);
                     if (property.isTransient())
                         continue;
@@ -74,11 +81,11 @@ public class Holder {
         return property.of(this.object);
     }
 
-    public <T extends Annotation> boolean is(Class<T> type) {
+    public <A extends Annotation> boolean is(Class<A> type) {
         return (annotations == null) ? false : annotations.isAnnotationPresent(type);
     }
 
-    public <T extends Annotation> T get(Class<T> type) {
+    public <A extends Annotation> A get(Class<A> type) {
         return (annotations == null) ? null : annotations.getAnnotation(type);
     }
 
@@ -88,11 +95,11 @@ public class Holder {
                 return property;
             }
         }
-        throw new IllegalArgumentException("no property " + propertyName + " in " + object.getClass());
+        throw new IllegalArgumentException("no property " + propertyName + " in " + type);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + object.getClass().getName() + "]";
+        return getClass().getSimpleName() + "[" + type.getName() + "]";
     }
 }

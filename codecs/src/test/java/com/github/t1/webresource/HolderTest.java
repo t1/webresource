@@ -12,7 +12,7 @@ public class HolderTest {
 
     @Test
     public void shouldHoldNull() throws Exception {
-        Holder holder = new Holder(null);
+        Holder<?> holder = new Holder<>(null);
 
         assertTrue(holder.isNull());
         assertTrue(holder.isSimple());
@@ -25,7 +25,7 @@ public class HolderTest {
 
     @Test
     public void shouldHoldString() throws Exception {
-        Holder holder = new Holder("dummy");
+        Holder<String> holder = new Holder<>("dummy");
 
         assertFalse(holder.isNull());
         assertTrue(holder.isSimple());
@@ -38,7 +38,7 @@ public class HolderTest {
 
     @Test
     public void shouldHoldLong() throws Exception {
-        Holder holder = new Holder(1234L);
+        Holder<Long> holder = new Holder<>(1234L);
 
         assertFalse(holder.isNull());
         assertTrue(holder.isSimple());

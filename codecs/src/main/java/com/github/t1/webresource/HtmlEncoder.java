@@ -31,14 +31,14 @@ public class HtmlEncoder {
         }
     }
 
-    private final Holder holder;
+    private final Holder<?> holder;
     private final Writer escaped;
     private final Writer unescaped;
     private final Path applicationPath;
     private final Map<String, Integer> ids = new HashMap<>();
 
     public HtmlEncoder(Object t, Writer out, Path applicationPath) {
-        this.holder = new Holder(t);
+        this.holder = new Holder<>(t);
         this.escaped = new HtmlEscapeWriter(out);
         this.unescaped = out;
         this.applicationPath = applicationPath;
@@ -120,7 +120,7 @@ public class HtmlEncoder {
     }
 
     private void writeList() throws IOException {
-        List<Holder> list = holder.getList();
+        List<Holder<?>> list = holder.getList();
         if (list.isEmpty())
             return;
         List<Property> properties = list.get(0).properties();
@@ -135,9 +135,9 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeBulletList(List<Holder> list, Property property) throws IOException {
+    private void writeBulletList(List<Holder<?>> list, Property property) throws IOException {
         try (Tag ul = new Tag("ul")) {
-            for (Holder element : list) {
+            for (Holder<?> element : list) {
                 try (Tag li = new Tag("li")) {
                     escaped.append(element.get(property));
                 }
@@ -145,10 +145,10 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeTable(List<Holder> list, List<Property> properties) throws IOException {
+    private void writeTable(List<Holder<?>> list, List<Property> properties) throws IOException {
         try (Tag ul = new Tag("table")) {
             writeTableHead(properties);
-            for (Holder element : list) {
+            for (Holder<?> element : list) {
                 new HtmlEncoder(element.target(), unescaped, applicationPath).writeTableRow(properties);
             }
         }
