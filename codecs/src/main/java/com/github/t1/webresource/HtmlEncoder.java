@@ -149,7 +149,7 @@ public class HtmlEncoder {
         try (Tag ul = new Tag("table")) {
             writeTableHead(properties);
             for (Holder<?> element : list) {
-                new HtmlEncoder(element.target(), unescaped, applicationPath).writeTableRow(properties);
+                writeTableRow(element, properties);
             }
         }
     }
@@ -164,11 +164,12 @@ public class HtmlEncoder {
         }
     }
 
-    private void writeTableRow(List<Property> properties) throws IOException {
+    // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
+    private void writeTableRow(Holder<?> element, List<Property> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Property property : properties) {
                 try (Tag td = new Tag("td")) {
-                    escaped.append(holder.get(property));
+                    escaped.append(element.get(property));
                 }
             }
         }
@@ -180,7 +181,7 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                if (holder.isSimple()) {
+                if (holder.isSimple()) { // prevent recursion
                     escaped.write(holder.get(Holder.SIMPLE));
                 } else {
                     String value = holder.get(properties.get(0));
@@ -199,7 +200,7 @@ public class HtmlEncoder {
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
                     escaped.write(property.getName());
                 }
-                writeValue(id, holder.get(property));
+                writeInputField(id, holder.get(property));
             }
         }
     }
@@ -212,7 +213,7 @@ public class HtmlEncoder {
         return name + "-" + i;
     }
 
-    private void writeValue(String id, Object value) throws IOException {
+    private void writeInputField(String id, Object value) throws IOException {
         unescaped.append("<input id='" + id + "' type='text'");
         if (value != null)
             unescaped.append(" value='" + value + "' readonly");

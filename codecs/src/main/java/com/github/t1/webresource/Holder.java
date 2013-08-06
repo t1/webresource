@@ -8,14 +8,17 @@ import com.github.t1.stereotypes.Annotations;
 
 /**
  * Holds a pojo and provides data and meta data to it by using reflection, i.e. you don't have to work with fields,
- * getters, setters, etc. but use properties and meta properties. {@link #isSimple() Simple types} are represented as
- * objects with one property. Maps are represented just like objects (note that for neither pojos nor maps, the order of
- * the properties is generally guaranteed). {@link #isList() List} elements can be accessed with {@link #getList()}.
+ * getters, setters, etc. but use properties and meta properties. {@link #isSimple() Simple types} (incl.
+ * <code>null</code>) are represented as objects with one property. Maps are represented just like objects (note that
+ * for pojos and maps, the order of the properties is generally <i>not</i> guaranteed). {@link #isList() List} elements
+ * can be accessed with {@link #getList()}.
  * <p/>
- * Design Decision: This class tries to be quite generic, i.e. it should be easy to extract an interface and write
- * implementations that are not based on reflection, but, e.g., xml, json, csv, maps, or any other data structure with
- * some sort of meta data faciliy, internal or external to the data itself. Then it would be nice to use some
- * abstraction for meta data instead of annotations, but that would add complexity without adding a lot of utility.
+ * Design Decision: This class tries to be quite generic, so it should be easy to extract an interface and write
+ * implementations that are not based on reflection on pojos, but, e.g., xml, json, csv, maps, or any other data
+ * structure with some sort of meta data facility, internal or external to the data itself. Then it would be nice to use
+ * some abstraction for meta data instead of annotations, but that would add complexity without adding a lot of utility:
+ * Annotations are convenient to represent other meta data as well in a typesafe way, e.g. by using
+ * <code>javax.enterprise.util.AnnotationLiteral</code>.
  */
 public class Holder<T> {
 
