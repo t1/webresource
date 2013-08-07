@@ -42,7 +42,7 @@ public class HolderTest {
 
         assertFalse(holder.isNull());
         assertTrue(holder.isSimple());
-        assertEquals("1234", holder.get(Holder.SIMPLE));
+        assertEquals(1234L, holder.get(Holder.SIMPLE));
         assertEquals(Arrays.asList(Holder.SIMPLE), holder.properties());
 
         assertFalse(holder.is(XmlRootElement.class));

@@ -82,7 +82,7 @@ public class HtmlEncoder {
         for (Property property : holder.properties()) {
             if (property.is(HtmlHead.class)) {
                 delim.write();
-                titleString.append(holder.get(property));
+                titleString.append(Objects.toString(holder.get(property)));
             }
         }
         return titleString.toString();
@@ -139,7 +139,7 @@ public class HtmlEncoder {
         try (Tag ul = new Tag("ul")) {
             for (Holder<?> element : list) {
                 try (Tag li = new Tag("li")) {
-                    escaped.append(element.get(property));
+                    escaped.append(new HtmlField(element, property));
                 }
             }
         }
@@ -169,7 +169,7 @@ public class HtmlEncoder {
         try (Tag tr = new Tag("tr")) {
             for (Property property : properties) {
                 try (Tag td = new Tag("td")) {
-                    escaped.append(element.get(property));
+                    escaped.append(new HtmlField(element, property));
                 }
             }
         }
@@ -182,9 +182,9 @@ public class HtmlEncoder {
                 break;
             case 1:
                 if (holder.isSimple()) { // prevent recursion
-                    escaped.write(holder.get(Holder.SIMPLE));
+                    escaped.append(new HtmlField(holder, Holder.SIMPLE));
                 } else {
-                    String value = holder.get(properties.get(0));
+                    Object value = holder.get(properties.get(0));
                     new HtmlEncoder(value, unescaped, applicationPath).writeBody();
                 }
                 break;
@@ -200,7 +200,7 @@ public class HtmlEncoder {
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
                     escaped.write(property.getName());
                 }
-                writeInputField(id, holder.get(property));
+                unescaped.append(new HtmlField(holder, property).id(id));
             }
         }
     }
@@ -211,12 +211,5 @@ public class HtmlEncoder {
             i = 0;
         ids.put(name, i + 1);
         return name + "-" + i;
-    }
-
-    private void writeInputField(String id, Object value) throws IOException {
-        unescaped.append("<input id='" + id + "' type='text'");
-        if (value != null)
-            unescaped.append(" value='" + value + "' readonly");
-        unescaped.append("/>\n");
     }
 }

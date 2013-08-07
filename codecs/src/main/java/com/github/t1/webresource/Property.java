@@ -7,7 +7,7 @@ public interface Property {
 
     public abstract <T extends Annotation> boolean is(Class<T> type);
 
-    public abstract String of(Object object);
+    public abstract Object of(Object object);
 
     public abstract boolean isTransient();
 

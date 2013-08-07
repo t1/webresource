@@ -97,6 +97,17 @@ public class HtmlEncoderTest {
                 result());
     }
 
+    private String div(String id, String name, String value) {
+        return div(id, name, value, "text");
+    }
+
+    private String div(String id, String name, String value, String type) {
+        return "<div>" //
+                + "<label for='" + id + "'>" + name + "</label>" //
+                + "<input id='" + id + "' type='" + type + "' value='" + value + "' readonly/>" //
+                + "</div>";
+    }
+
     @Test
     public void shouldEncodeListOfOneElementMapsAsList() throws Exception {
         Map<String, String> map0 = new LinkedHashMap<>();
@@ -133,13 +144,13 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    private static class OneFieldPojo {
+    private static class OneStringPojo {
         private String string;
     }
 
     @Test
-    public void shouldWriteOneFieldPojoWithoutKey() throws Exception {
-        OneFieldPojo pojo = new OneFieldPojo("str");
+    public void shouldWriteOneStringPojoWithoutKey() throws Exception {
+        OneStringPojo pojo = new OneStringPojo("str");
 
         writer(pojo).write();
 
@@ -147,8 +158,8 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteOneFieldPojoNullValue() throws Exception {
-        OneFieldPojo pojo = new OneFieldPojo(null);
+    public void shouldWriteOneStringPojoNullValue() throws Exception {
+        OneStringPojo pojo = new OneStringPojo(null);
 
         writer(pojo).write();
 
@@ -156,11 +167,11 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteOneFieldPojoListAsUnorderedList() throws Exception {
-        OneFieldPojo pojo1 = new OneFieldPojo("one");
-        OneFieldPojo pojo2 = new OneFieldPojo("two");
-        OneFieldPojo pojo3 = new OneFieldPojo("three");
-        List<OneFieldPojo> list = asList(pojo1, pojo2, pojo3);
+    public void shouldWriteOneStringPojoListAsUnorderedList() throws Exception {
+        OneStringPojo pojo1 = new OneStringPojo("one");
+        OneStringPojo pojo2 = new OneStringPojo("two");
+        OneStringPojo pojo3 = new OneStringPojo("three");
+        List<OneStringPojo> list = asList(pojo1, pojo2, pojo3);
 
         writer(list).write();
 
@@ -183,13 +194,6 @@ public class HtmlEncoderTest {
         assertEquals(wrapped(div("str-0", "str", "dummy") + div("i-0", "i", "123")), result());
     }
 
-    private String div(String id, String name, String value) {
-        return "<div>" //
-                + "<label for='" + id + "'>" + name + "</label>" //
-                + "<input id='" + id + "' type='text' value='" + value + "' readonly/>" //
-                + "</div>";
-    }
-
     @Test
     public void shouldWriteTwoFieldPojoListAsTables() throws Exception {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
@@ -203,6 +207,22 @@ public class HtmlEncoderTest {
                 + "<tr><td>one</td><td>111</td></tr>" //
                 + "<tr><td>two</td><td>222</td></tr>" //
                 + "</table>"), result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class TwoFieldsOneBooleanPojo {
+        private boolean b;
+        private String str;
+    }
+
+    @Test
+    public void shouldWriteOneBooleanPojoWithoutKey() throws Exception {
+        TwoFieldsOneBooleanPojo pojo = new TwoFieldsOneBooleanPojo(true, "dummy");
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(div("b-0", "b", "true", "checkbox") + div("str-0", "str", "dummy")), result());
     }
 
     @Data

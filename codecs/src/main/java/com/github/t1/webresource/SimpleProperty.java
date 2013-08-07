@@ -1,7 +1,6 @@
 package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
-import java.util.Objects;
 
 public class SimpleProperty implements Property {
 
@@ -11,8 +10,8 @@ public class SimpleProperty implements Property {
     }
 
     @Override
-    public String of(Object object) {
-        return Objects.toString(object, null);
+    public Object of(Object object) {
+        return object;
     }
 
     @Override

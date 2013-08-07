@@ -106,7 +106,7 @@ public class Holder<T> {
         return properties;
     }
 
-    public String get(Property property) {
+    public Object get(Property property) {
         return property.of(this.object);
     }
 

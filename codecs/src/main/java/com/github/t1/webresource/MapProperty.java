@@ -23,9 +23,9 @@ public class MapProperty implements Property {
     }
 
     @Override
-    public String of(Object object) {
+    public Object of(Object object) {
         @SuppressWarnings("unchecked")
-        Map<String, String> map = (Map<String, String>) object;
+        Map<String, Object> map = (Map<String, Object>) object;
         return map.get(key);
     }
 

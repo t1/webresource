@@ -2,7 +2,6 @@ package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -24,9 +23,8 @@ public class FieldProperty implements Property {
     }
 
     @Override
-    public String of(Object object) {
-        Object value = getValue(object);
-        return (value == null) ? null : Objects.toString(value);
+    public Object of(Object object) {
+        return getValue(object);
     }
 
     private Object getValue(Object object) {
