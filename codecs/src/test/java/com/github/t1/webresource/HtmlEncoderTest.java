@@ -307,6 +307,19 @@ public class HtmlEncoderTest {
                 + "</head><body>dummy</body></html>", result());
     }
 
+    @Test
+    public void shouldWritePojoListWithAbsoluteCssStyleSheet() throws Exception {
+        PojoWithAbsoluteCss pojo1 = new PojoWithAbsoluteCss("a");
+        PojoWithAbsoluteCss pojo2 = new PojoWithAbsoluteCss("b");
+        List<PojoWithAbsoluteCss> list = Arrays.asList(pojo1, pojo2);
+
+        writer(list).write();
+
+        assertEquals("<html><head>" //
+                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
+                + "</head><body><ul><li>a</li><li>b</li></ul></body></html>", result());
+    }
+
     @Data
     @AllArgsConstructor
     @HtmlStyleSheet("relative")

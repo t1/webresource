@@ -30,31 +30,33 @@ public class Holder<T> {
     private List<Property> properties = null;
     private final AnnotatedElement annotations;
 
-    public Holder(Class<T> type, T object) {
-        this.type = type;
-        this.object = object;
-        this.annotations = annotations(type);
-    }
-
-    private AnnotatedElement annotations(Class<T> type) {
-        return noMetaData(type) ? null : Annotations.on(type);
-    }
-
-    private boolean noMetaData(Class<T> type) {
-        return type == null || isMap(type) || isList(type);
-    }
-
-    private boolean isMap(Class<T> type) {
-        return Map.class.isAssignableFrom(type);
-    }
-
-    private boolean isList(Class<T> type) {
-        return List.class.isAssignableFrom(type);
-    }
-
     @SuppressWarnings("unchecked")
     public Holder(T object) {
         this((Class<T>) ((object == null) ? null : object.getClass()), object);
+    }
+
+    public Holder(Class<T> type, T object) {
+        this.type = type;
+        this.object = object;
+        this.annotations = annotations(type, object);
+    }
+
+    private static <T> boolean isList(Class<T> type) {
+        return List.class.isAssignableFrom(type);
+    }
+
+    private static <T> AnnotatedElement annotations(Class<T> type, T object) {
+        if (type == null)
+            return null;
+        if (isMap(type))
+            return null;
+        if (isList(type) && !((List<?>) object).isEmpty())
+            return Annotations.on(((List<?>) object).get(0).getClass());
+        return Annotations.on(type);
+    }
+
+    private static boolean isMap(Class<?> type) {
+        return Map.class.isAssignableFrom(type);
     }
 
     public T target() {
