@@ -2,7 +2,7 @@ Add @WebResource to your @Entity to generate a standard REST binding.
 
 This is similar to what EclipseLink provides (http://wiki.eclipse.org/EclipseLink/Release/2.4.0/JPA-RS/REST-API), but IMHO hides technology better (e.g. why should a client care about the name of the persistence unit).
 
-TODO:
+TODO generator:
 Use stereotype-helper (as soon as it supports annotation processors), so class annotations are inherited to the fields.
 Linked resources.
 Request-quota, or 429 Too many requests.
@@ -14,3 +14,6 @@ TRACE (if it's necessary; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.h
 Binding for DAOs
 Timestamp as lastModified.
 Dynamic generation at runtime?
+
+TODO codec:
+Provide favicons: <link rel="icon" type="image/png" href="/images/icon.png">
