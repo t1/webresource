@@ -146,10 +146,14 @@ public class HtmlEncoder {
     }
 
     private void writeTable(List<Holder<?>> list, List<Property> properties) throws IOException {
-        try (Tag ul = new Tag("table")) {
-            writeTableHead(properties);
-            for (Holder<?> element : list) {
-                writeTableRow(element, properties);
+        try (Tag table = new Tag("table")) {
+            try (Tag thead = new Tag("thead")) {
+                writeTableHead(properties);
+            }
+            try (Tag tbody = new Tag("tbody")) {
+                for (Holder<?> element : list) {
+                    writeTableRow(element, properties);
+                }
             }
         }
     }
@@ -157,7 +161,7 @@ public class HtmlEncoder {
     private void writeTableHead(List<Property> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Property property : properties) {
-                try (Tag td = new Tag("td")) {
+                try (Tag th = new Tag("th")) {
                     escaped.append(property.getName());
                 }
             }

@@ -136,9 +136,12 @@ public class HtmlEncoderTest {
         writer(Arrays.asList(map0, map1)).write();
 
         assertEquals(wrapped("<table>" //
-                + "<tr><td>one</td><td>two</td><td>three</td></tr>" //
+                + "<thead>" //
+                + "<tr><th>one</th><th>two</th><th>three</th></tr>" //
+                + "</thead><tbody>" //
                 + "<tr><td>111</td><td>222</td><td>333</td></tr>" //
                 + "<tr><td>aaa</td><td>bbb</td><td>ccc</td></tr>" //
+                + "</tbody>" //
                 + "</table>"), result());
     }
 
@@ -203,9 +206,12 @@ public class HtmlEncoderTest {
         writer(list).write();
 
         assertEquals(wrapped("<table>" //
-                + "<tr><td>str</td><td>i</td></tr>" //
+                + "<thead>" //
+                + "<tr><th>str</th><th>i</th></tr>" //
+                + "</thead><tbody>" //
                 + "<tr><td>one</td><td>111</td></tr>" //
                 + "<tr><td>two</td><td>222</td></tr>" //
+                + "</tbody>" //
                 + "</table>"), result());
     }
 
