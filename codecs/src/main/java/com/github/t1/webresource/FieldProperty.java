@@ -2,18 +2,22 @@ package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.github.t1.stereotypes.Annotations;
 
 public class FieldProperty implements Property {
-    public static FieldProperty of(Field field) {
-        int modifiers = field.getModifiers();
-        if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)
-                || field.isAnnotationPresent(XmlTransient.class))
-            return null;
-        return new FieldProperty(field);
+
+    public static void addTo(List<Property> properties, Class<?> type) {
+        for (Field field : type.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)
+                    || field.isAnnotationPresent(XmlTransient.class))
+                continue;
+            properties.add(new FieldProperty(field));
+        }
     }
 
     private final Field field;

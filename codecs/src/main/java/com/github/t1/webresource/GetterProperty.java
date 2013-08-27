@@ -2,16 +2,19 @@ package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.github.t1.stereotypes.Annotations;
 
 public class GetterProperty implements Property {
-    public static GetterProperty of(Method method) {
-        if (isTransient(method) || isPublic(method) || !isGetter(method))
-            return null;
-        return new GetterProperty(method);
+    public static void addTo(List<Property> properties, Class<?> type) {
+        for (Method method : type.getDeclaredMethods()) {
+            if (isTransient(method) || isPublic(method) || !isGetter(method))
+                continue;
+            properties.add(new GetterProperty(method));
+        }
     }
 
     private static boolean isTransient(Method method) {

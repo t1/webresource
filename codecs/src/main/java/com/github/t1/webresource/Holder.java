@@ -1,7 +1,7 @@
 package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
@@ -109,33 +109,9 @@ public class Holder<T> {
 
     private List<Property> pojoProperties() {
         List<Property> properties = new ArrayList<>();
-        addFieldProperties(properties);
-        addGetterProperties(properties);
+        FieldProperty.addTo(properties, type);
+        GetterProperty.addTo(properties, type);
         return properties;
-    }
-
-    private void addFieldProperties(List<Property> properties) {
-        for (Field field : type.getDeclaredFields()) {
-            FieldProperty property = FieldProperty.of(field);
-            if (property != null) {
-                properties.add(property);
-            }
-        }
-    }
-
-    private void addGetterProperties(List<Property> properties) {
-        for (Method method : type.getDeclaredMethods()) {
-            if (!isGetter(method))
-                continue;
-            GetterProperty property = GetterProperty.of(method);
-            if (property != null) {
-                properties.add(property);
-            }
-        }
-    }
-
-    private boolean isGetter(Method method) {
-        return false;
     }
 
     public Object get(Property property) {
