@@ -185,15 +185,19 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                if (holder.isSimple()) { // prevent recursion
-                    escaped.append(new HtmlField(holder, Holder.SIMPLE));
-                } else {
-                    Object value = holder.get(properties.get(0));
-                    new HtmlEncoder(value, unescaped, applicationPath).writeBody();
-                }
+                writeProperty(properties.get(0));
                 break;
             default:
                 writeProperties(properties);
+        }
+    }
+
+    private void writeProperty(Property property) throws IOException {
+        if (holder.isSimple()) { // prevent recursion
+            escaped.append(new HtmlField(holder, Holder.SIMPLE));
+        } else {
+            Object value = holder.get(property);
+            new HtmlEncoder(value, unescaped, applicationPath).writeBody();
         }
     }
 

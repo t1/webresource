@@ -14,6 +14,8 @@ import lombok.*;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 public class HtmlEncoderTest {
     private static final String BASE_URI = "base";
     private final Writer out = new StringWriter();
@@ -361,5 +363,21 @@ public class HtmlEncoderTest {
                 + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
                 + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
                 + "</head>"));
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class NestedListPojo {
+        private String str;
+        private List<String> list;
+    }
+
+    @Test
+    public void shouldWriteNestedListPojo() throws Exception {
+        NestedListPojo pojo = new NestedListPojo("dummy", ImmutableList.of("one", "two", "three"));
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(div("str-0", "str", "dummy") + div("list-0", "list", "[one, two, three]")), result());
     }
 }
