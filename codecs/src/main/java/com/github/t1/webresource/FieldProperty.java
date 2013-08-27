@@ -18,11 +18,6 @@ public class FieldProperty implements Property {
     }
 
     @Override
-    public <T extends Annotation> boolean is(Class<T> type) {
-        return annotations.isAnnotationPresent(type);
-    }
-
-    @Override
     public Object of(Object object) {
         return getValue(object);
     }
@@ -34,6 +29,16 @@ public class FieldProperty implements Property {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + field.getName() + " of " + object, e);
         }
+    }
+
+    @Override
+    public <T extends Annotation> boolean is(Class<T> type) {
+        return annotations.isAnnotationPresent(type);
+    }
+
+    @Override
+    public <T extends Annotation> T get(Class<T> type) {
+        return annotations.getAnnotation(type);
     }
 
     @Override

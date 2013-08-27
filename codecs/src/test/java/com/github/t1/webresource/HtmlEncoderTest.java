@@ -14,7 +14,7 @@ import lombok.*;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 
 public class HtmlEncoderTest {
     private static final String BASE_URI = "base";
@@ -105,9 +105,13 @@ public class HtmlEncoderTest {
 
     private String div(String id, String name, String value, String type) {
         return "<div>" //
-                + "<label for='" + id + "'>" + name + "</label>" //
+                + label(id, name) //
                 + "<input id='" + id + "' type='" + type + "' value='" + value + "' readonly/>" //
                 + "</div>";
+    }
+
+    private String label(String id, String name) {
+        return "<label for='" + id + "'>" + name + "</label>";
     }
 
     @Test
@@ -367,6 +371,22 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
+    private static class NestedSetPojo {
+        private String str;
+        private Set<String> set;
+    }
+
+    @Test
+    public void shouldWriteNestedSetPojo() throws Exception {
+        NestedSetPojo pojo = new NestedSetPojo("dummy", ImmutableSet.of("one", "two", "three"));
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(div("str-0", "str", "dummy") + div("set-0", "set", "[one, two, three]")), result());
+    }
+
+    @Data
+    @AllArgsConstructor
     private static class NestedListPojo {
         private String str;
         private List<String> list;
@@ -378,6 +398,13 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div("str-0", "str", "dummy") + div("list-0", "list", "[one, two, three]")), result());
+        assertEquals(wrapped(div("str-0", "str", "dummy") + "<div>" //
+                + label("list-0", "list") //
+                + "<ul>" //
+                + "<li>one</li>" //
+                + "<li>two</li>" //
+                + "<li>three</li>" //
+                + "</ul>" //
+                + "</div>"), result());
     }
 }

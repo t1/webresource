@@ -5,12 +5,13 @@ import java.lang.annotation.Annotation;
 
 public interface Property {
 
-    public abstract <T extends Annotation> boolean is(Class<T> type);
-
     public abstract Object of(Object object);
-
-    public abstract boolean isTransient();
 
     public abstract String getName();
 
+    public abstract boolean isTransient();
+
+    public abstract <T extends Annotation> boolean is(Class<T> annotation);
+
+    public abstract <T extends Annotation> T get(Class<T> annotation);
 }

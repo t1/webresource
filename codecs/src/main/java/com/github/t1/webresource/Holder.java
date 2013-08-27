@@ -15,10 +15,10 @@ import com.github.t1.stereotypes.Annotations;
  * <p/>
  * Design Decision: This class tries to be quite generic, so it should be easy to extract an interface and write
  * implementations that are not based on reflection on pojos, but, e.g., xml, json, csv, maps, or any other data
- * structure with some sort of meta data facility, internal or external to the data itself. Then it would be nice to use
- * some abstraction for meta data instead of annotations, but that would add complexity without adding a lot of utility:
- * Annotations are convenient to represent other meta data as well in a typesafe way, e.g. by using
- * <code>javax.enterprise.util.AnnotationLiteral</code>.
+ * structure, ideally with some sort of meta data facility, internal or external to the data itself. Then it would be
+ * consequential to use some abstraction for meta data instead of annotations, but that would add complexity without
+ * adding a lot of utility: Annotations are convenient to represent other meta data as well in a typesafe way, e.g. by
+ * using <code>javax.enterprise.util.AnnotationLiteral</code>.
  */
 public class Holder<T> {
 

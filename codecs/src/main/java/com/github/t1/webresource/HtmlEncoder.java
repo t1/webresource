@@ -208,7 +208,22 @@ public class HtmlEncoder {
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
                     escaped.write(property.getName());
                 }
-                unescaped.append(new HtmlField(holder, property).id(id));
+                Object value = holder.get(property);
+                if (value instanceof List) {
+                    writeBulletList((List<?>) value);
+                } else {
+                    unescaped.append(new HtmlField(holder, property).id(id));
+                }
+            }
+        }
+    }
+
+    private void writeBulletList(List<?> list) throws IOException {
+        try (Tag ul = new Tag("ul")) {
+            for (Object element : list) {
+                try (Tag li = new Tag("li")) {
+                    escaped.append(Objects.toString(element));
+                }
             }
         }
     }

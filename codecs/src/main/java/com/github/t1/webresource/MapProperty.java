@@ -18,8 +18,8 @@ public class MapProperty implements Property {
     }
 
     @Override
-    public <T extends Annotation> boolean is(Class<T> type) {
-        return false;
+    public String getName() {
+        return key;
     }
 
     @Override
@@ -35,7 +35,12 @@ public class MapProperty implements Property {
     }
 
     @Override
-    public String getName() {
-        return key;
+    public <T extends Annotation> boolean is(Class<T> type) {
+        return false;
+    }
+
+    @Override
+    public <T extends Annotation> T get(Class<T> type) {
+        return null;
     }
 }

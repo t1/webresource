@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.*;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+
+import lombok.*;
 
 import org.junit.Test;
 
@@ -59,13 +61,65 @@ public class HolderTest {
 
         assertFalse(holder.isNull());
         assertFalse(holder.isSimple());
-        List<Property> properties = holder.properties();
-        assertEquals(3, properties.size());
-        assertEquals("one", properties.get(0).getName());
-        assertEquals("two", properties.get(1).getName());
-        assertEquals("three", properties.get(2).getName());
+
+        assertOneTwoThree(holder);
 
         assertFalse(holder.is(XmlRootElement.class));
         assertNull(holder.get(XmlRootElement.class));
+
+        Property one = holder.properties().get(0);
+        assertFalse(one.is(XmlAttribute.class));
+        assertNull(one.get(XmlAttribute.class));
+
+        Property two = holder.properties().get(1);
+        assertFalse(two.is(XmlAttribute.class));
+        assertNull(two.get(XmlAttribute.class));
+    }
+
+    private void assertOneTwoThree(Holder<?> holder) {
+        List<Property> properties = holder.properties();
+        assertEquals(3, properties.size());
+        Property one = properties.get(0);
+        Property two = properties.get(1);
+        Property three = properties.get(2);
+
+        assertEquals("one", one.getName());
+        assertEquals("two", two.getName());
+        assertEquals("three", three.getName());
+
+        assertEquals("111", holder.get(one));
+        assertEquals("222", holder.get(two));
+        assertEquals("333", holder.get(three));
+    }
+
+    @Data
+    @AllArgsConstructor
+    @XmlRootElement
+    public static class Pojo {
+        @XmlAttribute
+        private String one;
+        private String two;
+        private String three;
+    }
+
+    @Test
+    public void shouldHoldPojo() throws Exception {
+        Holder<Pojo> holder = new Holder<>(new Pojo("111", "222", "333"));
+
+        assertFalse(holder.isNull());
+        assertFalse(holder.isSimple());
+
+        assertOneTwoThree(holder);
+
+        assertTrue(holder.is(XmlRootElement.class));
+        assertNotNull(holder.get(XmlRootElement.class));
+
+        Property one = holder.properties().get(0);
+        assertTrue(one.is(XmlAttribute.class));
+        assertNotNull(one.get(XmlAttribute.class));
+
+        Property two = holder.properties().get(1);
+        assertFalse(two.is(XmlAttribute.class));
+        assertNull(two.get(XmlAttribute.class));
     }
 }
