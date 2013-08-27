@@ -8,11 +8,18 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.github.t1.stereotypes.Annotations;
 
 public class FieldProperty implements Property {
+    public static FieldProperty of(Field field) {
+        int modifiers = field.getModifiers();
+        if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)
+                || field.isAnnotationPresent(XmlTransient.class))
+            return null;
+        return new FieldProperty(field);
+    }
 
     private final Field field;
     private final AnnotatedElement annotations;
 
-    public FieldProperty(Field field) {
+    private FieldProperty(Field field) {
         this.field = field;
         this.annotations = Annotations.on(field);
     }
@@ -39,12 +46,6 @@ public class FieldProperty implements Property {
     @Override
     public <T extends Annotation> T get(Class<T> type) {
         return annotations.getAnnotation(type);
-    }
-
-    @Override
-    public boolean isTransient() {
-        int modifiers = field.getModifiers();
-        return Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) || is(XmlTransient.class);
     }
 
     @Override

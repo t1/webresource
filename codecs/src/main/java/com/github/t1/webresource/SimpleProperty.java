@@ -15,11 +15,6 @@ public class SimpleProperty implements Property {
     }
 
     @Override
-    public boolean isTransient() {
-        return false;
-    }
-
-    @Override
     public <T extends Annotation> boolean is(Class<T> type) {
         return false;
     }

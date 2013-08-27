@@ -87,25 +87,55 @@ public class Holder<T> {
     public List<Property> properties() {
         if (properties == null) {
             if (isSimple()) {
-                properties = SIMPLE_PROPERTIES;
+                this.properties = SIMPLE_PROPERTIES;
             } else if (isMap(type)) {
-                properties = new ArrayList<>();
-                @SuppressWarnings("unchecked")
-                Map<String, ?> map = (Map<String, ?>) object;
-                for (String key : map.keySet()) {
-                    properties.add(new MapProperty(key));
-                }
+                this.properties = mapProperties();
             } else {
-                properties = new ArrayList<>();
-                for (Field field : type.getDeclaredFields()) {
-                    FieldProperty property = new FieldProperty(field);
-                    if (property.isTransient())
-                        continue;
-                    properties.add(property);
-                }
+                this.properties = pojoProperties();
             }
         }
         return properties;
+    }
+
+    private List<Property> mapProperties() {
+        List<Property> properties = new ArrayList<>();
+        @SuppressWarnings("unchecked")
+        Map<String, ?> map = (Map<String, ?>) object;
+        for (String key : map.keySet()) {
+            properties.add(new MapProperty(key));
+        }
+        return properties;
+    }
+
+    private List<Property> pojoProperties() {
+        List<Property> properties = new ArrayList<>();
+        addFieldProperties(properties);
+        addGetterProperties(properties);
+        return properties;
+    }
+
+    private void addFieldProperties(List<Property> properties) {
+        for (Field field : type.getDeclaredFields()) {
+            FieldProperty property = FieldProperty.of(field);
+            if (property != null) {
+                properties.add(property);
+            }
+        }
+    }
+
+    private void addGetterProperties(List<Property> properties) {
+        for (Method method : type.getDeclaredMethods()) {
+            if (!isGetter(method))
+                continue;
+            GetterProperty property = GetterProperty.of(method);
+            if (property != null) {
+                properties.add(property);
+            }
+        }
+    }
+
+    private boolean isGetter(Method method) {
+        return false;
     }
 
     public Object get(Property property) {

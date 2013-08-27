@@ -4,12 +4,9 @@ import java.lang.annotation.Annotation;
 
 
 public interface Property {
-
     public abstract Object of(Object object);
 
     public abstract String getName();
-
-    public abstract boolean isTransient();
 
     public abstract <T extends Annotation> boolean is(Class<T> annotation);
 
