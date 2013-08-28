@@ -2,42 +2,23 @@ package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlTransient;
 
 import com.github.t1.stereotypes.Annotations;
 
 public class GetterProperty implements Property {
-    public static void addTo(List<Property> properties, Class<?> type) {
-        for (Method method : type.getDeclaredMethods()) {
-            if (isTransient(method) || isPublic(method) || !isGetter(method))
-                continue;
-            properties.add(new GetterProperty(method));
-        }
-    }
-
-    private static boolean isTransient(Method method) {
-        int modifiers = method.getModifiers();
-        return Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)
-                || method.isAnnotationPresent(XmlTransient.class);
-    }
-
-    private static boolean isPublic(Method method) {
-        return Modifier.isPublic(method.getModifiers());
-    }
-
-    private static boolean isGetter(Method method) {
-        return method.getParameterTypes().length == 0 && method.getReturnType() != void.class
-                && method.getName().startsWith("get");
-    }
-
     private final Method method;
+    private final String name;
     private final AnnotatedElement annotations;
 
-    private GetterProperty(Method method) {
+    public GetterProperty(Method method) {
         this.method = method;
+        this.name = name(method);
         this.annotations = Annotations.on(method);
+    }
+
+    private String name(Method method) {
+        String name = method.getName().substring(3);
+        return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 
     @Override
@@ -67,7 +48,7 @@ public class GetterProperty implements Property {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("method ").append(method.getName());
+        out.append("getter ").append(getName());
         out.append(" of ").append(method.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
@@ -80,6 +61,6 @@ public class GetterProperty implements Property {
 
     @Override
     public String getName() {
-        return method.getName();
+        return name;
     }
 }

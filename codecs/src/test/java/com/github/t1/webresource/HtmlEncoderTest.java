@@ -237,13 +237,12 @@ public class HtmlEncoderTest {
         assertEquals(wrapped(div("b-0", "b", "true", "checkbox") + div("str-0", "str", "dummy")), result());
     }
 
-    @Data
     @AllArgsConstructor
     private static class PojoWithXmlTransient {
         @XmlTransient
-        private String idField;
-        private String str;
-        private Integer i;
+        private final String idField;
+        private final String str;
+        private final Integer i;
     }
 
     @Test
@@ -253,6 +252,8 @@ public class HtmlEncoderTest {
         writer(pojo).write();
 
         assertThat(result(), not(containsString("idField")));
+        assertThat(result(), containsString(pojo.str));
+        assertThat(result(), containsString("" + pojo.i));
     }
 
     @Test

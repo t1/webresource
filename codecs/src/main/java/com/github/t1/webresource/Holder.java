@@ -91,7 +91,7 @@ public class Holder<T> {
             } else if (isMap(type)) {
                 this.properties = mapProperties();
             } else {
-                this.properties = pojoProperties();
+                this.properties = new PojoProperties(type);
             }
         }
         return properties;
@@ -104,13 +104,6 @@ public class Holder<T> {
         for (String key : map.keySet()) {
             properties.add(new MapProperty(key));
         }
-        return properties;
-    }
-
-    private List<Property> pojoProperties() {
-        List<Property> properties = new ArrayList<>();
-        FieldProperty.addTo(properties, type);
-        GetterProperty.addTo(properties, type);
         return properties;
     }
 
