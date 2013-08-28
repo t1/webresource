@@ -1,42 +1,27 @@
 package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class FieldProperty implements Property {
+public class FieldProperty extends PojoProperty {
 
     private final Field field;
-    private final AnnotatedElement annotations;
 
     public FieldProperty(Field field) {
+        super(Annotations.on(field));
         this.field = field;
-        this.annotations = Annotations.on(field);
     }
 
     @Override
     public Object of(Object object) {
-        return getValue(object);
-    }
-
-    private Object getValue(Object object) {
         try {
             field.setAccessible(true);
             return field.get(object);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + field.getName() + " of " + object, e);
         }
-    }
-
-    @Override
-    public <T extends Annotation> boolean is(Class<T> type) {
-        return annotations.isAnnotationPresent(type);
-    }
-
-    @Override
-    public <T extends Annotation> T get(Class<T> type) {
-        return annotations.getAnnotation(type);
     }
 
     @Override

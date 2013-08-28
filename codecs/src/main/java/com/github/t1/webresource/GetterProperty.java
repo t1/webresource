@@ -1,19 +1,18 @@
 package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class GetterProperty implements Property {
+public class GetterProperty extends PojoProperty {
     private final Method method;
     private final String name;
-    private final AnnotatedElement annotations;
 
     public GetterProperty(Method method) {
+        super(Annotations.on(method));
         this.method = method;
         this.name = name(method);
-        this.annotations = Annotations.on(method);
     }
 
     private String name(Method method) {
@@ -23,26 +22,12 @@ public class GetterProperty implements Property {
 
     @Override
     public Object of(Object object) {
-        return getValue(object);
-    }
-
-    private Object getValue(Object object) {
         try {
             method.setAccessible(true);
             return method.invoke(object);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + method.getName() + " of " + object, e);
         }
-    }
-
-    @Override
-    public <T extends Annotation> boolean is(Class<T> type) {
-        return annotations.isAnnotationPresent(type);
-    }
-
-    @Override
-    public <T extends Annotation> T get(Class<T> type) {
-        return annotations.getAnnotation(type);
     }
 
     @Override
