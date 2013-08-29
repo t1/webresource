@@ -3,11 +3,15 @@ package com.github.t1.webresource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import lombok.*;
+
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoGetterProperty extends PojoProperty {
     final Method method;
-    private final String name;
+    @Getter
+    @Setter
+    private String name;
 
     /**
      * Note that the name of the method does not have to match the name of the property... not only that the "get"
@@ -17,6 +21,11 @@ public class PojoGetterProperty extends PojoProperty {
         super(Annotations.on(method));
         this.method = method;
         this.name = name;
+    }
+
+    @Override
+    protected Method member() {
+        return method;
     }
 
     @Override
@@ -41,10 +50,5 @@ public class PojoGetterProperty extends PojoProperty {
             }
         }
         return out.toString();
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 }

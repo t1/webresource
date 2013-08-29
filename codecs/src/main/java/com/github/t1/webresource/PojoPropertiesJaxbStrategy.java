@@ -1,7 +1,6 @@
 package com.github.t1.webresource;
 
-import java.lang.reflect.Method;
-
+import javax.xml.bind.annotation.*;
 
 public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
     public PojoPropertiesJaxbStrategy(Class<?> type, PojoProperties target) {
@@ -10,16 +9,20 @@ public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
 
     @Override
     protected boolean pass(PojoFieldProperty field) {
-        return true;
+        return isXmlVisible(field);
     }
 
     @Override
     protected boolean pass(PojoGetterProperty getter) {
+        if (isXmlVisible(getter)) {
+            if (getter.is(XmlAttribute.class))
+                getter.setName(getter.get(XmlAttribute.class).name());
+            return true;
+        }
         return false;
     }
 
-    @Override
-    protected String name(Method method) {
-        return method.getName();
+    private boolean isXmlVisible(Property property) {
+        return property.is(XmlAttribute.class) || property.is(XmlElement.class);
     }
 }

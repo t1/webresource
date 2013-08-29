@@ -185,11 +185,11 @@ public class HtmlEncoderTest {
         assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
     }
 
-    @Data
     @AllArgsConstructor
+    @SuppressWarnings("unused")
     private static class TwoFieldPojo {
-        private String str;
-        private Integer i;
+        public String str;
+        public Integer i;
     }
 
     @Test

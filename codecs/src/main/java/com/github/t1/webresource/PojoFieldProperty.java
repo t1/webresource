@@ -7,11 +7,16 @@ import com.github.t1.stereotypes.Annotations;
 
 public class PojoFieldProperty extends PojoProperty {
 
-    final Field field;
+    private final Field field;
 
     public PojoFieldProperty(Field field) {
         super(Annotations.on(field));
         this.field = field;
+    }
+
+    @Override
+    protected Field member() {
+        return field;
     }
 
     @Override
