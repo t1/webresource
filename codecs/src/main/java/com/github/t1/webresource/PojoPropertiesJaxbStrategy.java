@@ -15,7 +15,9 @@ public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
     @Override
     protected boolean pass(PojoGetterProperty getter) {
         if (isXmlVisible(getter)) {
-            if (getter.is(XmlAttribute.class))
+            if (getter.is(XmlElement.class))
+                getter.setName(getter.get(XmlElement.class).name());
+            else if (getter.is(XmlAttribute.class))
                 getter.setName(getter.get(XmlAttribute.class).name());
             return true;
         }

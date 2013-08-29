@@ -138,11 +138,11 @@ public class HolderTest {
         assertEquals("111", holder.get(one));
 
         Property two = properties.get(1);
-        assertEquals("two", two.getName());
+        assertEquals("yyy", two.getName());
         assertEquals("222", holder.get(two));
 
         Property three = properties.get(2);
-        assertEquals("three", three.getName());
+        assertEquals("zzz", three.getName());
         assertEquals("333", holder.get(three));
     }
 }
