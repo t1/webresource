@@ -21,6 +21,7 @@ public abstract class PojoPropertiesAbstractStrategy {
         for (Field field : type.getDeclaredFields()) {
             PojoFieldProperty property = new PojoFieldProperty(field);
             if (property.isPublicMember() && pass(property)) {
+                init(property);
                 target.add(property);
             }
         }
@@ -28,32 +29,20 @@ public abstract class PojoPropertiesAbstractStrategy {
 
     protected abstract boolean pass(PojoFieldProperty field);
 
+    protected abstract boolean pass(PojoGetterProperty getter);
+
+    /** esp. for overwriting the name after it was decided to add this property */
+    protected void init(PojoProperty property) {}
+
     private void addGetters() {
         for (Method method : type.getDeclaredMethods()) {
-            PojoGetterProperty getter = new PojoGetterProperty(method, name(method));
+            PojoGetterProperty getter = new PojoGetterProperty(method);
             if (getter.isPublicMember() && pass(getter)) {
+                init(getter);
                 target.add(getter);
             }
         }
     }
-
-    /** This is only the default name, subclasses can call {@link PojoGetterProperty#setName(String)} */
-    private String name(Method method) {
-        String name = method.getName();
-        if (name.startsWith("get"))
-            name = uncapitalize(name.substring(3));
-        else if (name.startsWith("is"))
-            name = uncapitalize(name.substring(2));
-        return name;
-    }
-
-    private String uncapitalize(String name) {
-        if (name.length() < 1)
-            return name;
-        return name.substring(0, 1).toLowerCase() + name.substring(1);
-    }
-
-    protected abstract boolean pass(PojoGetterProperty getter);
 
     protected boolean hasProperty(String name) {
         for (Property property : target) {

@@ -3,25 +3,32 @@ package com.github.t1.webresource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import lombok.*;
-
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoGetterProperty extends PojoProperty {
     final Method method;
-    @Getter
-    @Setter
-    private String name;
 
-    /**
-     * Note that the name of the method does not have to match the name of the property... not only that the "get"
-     * prefix has to be removed, in JAXB there are annotations to set the name explicitly.
-     */
-    public PojoGetterProperty(Method method, String name) {
-        super(Annotations.on(method));
+    public PojoGetterProperty(Method method) {
+        super(Annotations.on(method), name(method));
         this.method = method;
-        this.name = name;
     }
+
+    /** This is only the default name, subclasses can call {@link PojoGetterProperty#setName(String)} */
+    private static String name(Method method) {
+        String name = method.getName();
+        if (name.startsWith("get"))
+            name = uncapitalize(name.substring(3));
+        else if (name.startsWith("is"))
+            name = uncapitalize(name.substring(2));
+        return name;
+    }
+
+    private static String uncapitalize(String name) {
+        if (name.length() < 1)
+            return name;
+        return name.substring(0, 1).toLowerCase() + name.substring(1);
+    }
+
 
     @Override
     protected Method member() {

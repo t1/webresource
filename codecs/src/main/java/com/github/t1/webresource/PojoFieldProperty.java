@@ -10,7 +10,7 @@ public class PojoFieldProperty extends PojoProperty {
     private final Field field;
 
     public PojoFieldProperty(Field field) {
-        super(Annotations.on(field));
+        super(Annotations.on(field), field.getName());
         this.field = field;
     }
 

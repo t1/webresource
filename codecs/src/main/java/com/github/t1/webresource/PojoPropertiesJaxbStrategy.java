@@ -22,6 +22,7 @@ public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
             return true;
         }
         return false;
+        // @XmlAccessorType(NONE)
     }
 
     private boolean isXmlVisible(Property property) {
