@@ -92,10 +92,39 @@ public class HolderTest {
         assertEquals("333", holder.get(three));
     }
 
+    @AllArgsConstructor
+    public static class Pojo {
+        @XmlAttribute
+        public String one;
+        public String two;
+        public String three;
+    }
+
+    @Test
+    public void shouldHoldPojo() throws Exception {
+        Holder<Pojo> holder = new Holder<>(new Pojo("111", "222", "333"));
+
+        assertFalse(holder.isNull());
+        assertFalse(holder.isSimple());
+
+        assertOneTwoThree(holder);
+
+        assertFalse(holder.is(XmlRootElement.class));
+        assertNull(holder.get(XmlRootElement.class));
+
+        Property one = holder.properties().get(0);
+        assertTrue(one.is(XmlAttribute.class));
+        assertNotNull(one.get(XmlAttribute.class));
+
+        Property two = holder.properties().get(1);
+        assertFalse(two.is(XmlAttribute.class));
+        assertNull(two.get(XmlAttribute.class));
+    }
+
     @Data
     @AllArgsConstructor
     @XmlRootElement
-    public static class Pojo {
+    public static class JaxbPojo {
         @XmlAttribute
         private String one;
         private String two;
@@ -103,8 +132,8 @@ public class HolderTest {
     }
 
     @Test
-    public void shouldHoldPojo() throws Exception {
-        Holder<Pojo> holder = new Holder<>(new Pojo("111", "222", "333"));
+    public void shouldHoldJaxbPojo() throws Exception {
+        Holder<JaxbPojo> holder = new Holder<>(new JaxbPojo("111", "222", "333"));
 
         assertFalse(holder.isNull());
         assertFalse(holder.isSimple());

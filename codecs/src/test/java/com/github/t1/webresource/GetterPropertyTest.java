@@ -17,7 +17,7 @@ public class GetterPropertyTest {
     public void shouldFindStringGetter() throws Exception {
         Method method = OneGetter.class.getMethod("getName");
 
-        Property property = new GetterProperty(method);
+        Property property = new PojoGetterProperty(method, "name");
 
         assertEquals("name", property.getName());
     }

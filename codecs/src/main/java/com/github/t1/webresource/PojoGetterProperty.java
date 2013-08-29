@@ -5,19 +5,18 @@ import java.lang.reflect.Method;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class GetterProperty extends PojoProperty {
-    private final Method method;
+public class PojoGetterProperty extends PojoProperty {
+    final Method method;
     private final String name;
 
-    public GetterProperty(Method method) {
+    /**
+     * Note that the name of the method does not have to match the name of the property... not only that the "get"
+     * prefix has to be removed, in JAXB there are annotations to set the name explicitly.
+     */
+    public PojoGetterProperty(Method method, String name) {
         super(Annotations.on(method));
         this.method = method;
-        this.name = name(method);
-    }
-
-    private String name(Method method) {
-        String name = method.getName().substring(3);
-        return name.substring(0, 1).toLowerCase() + name.substring(1);
+        this.name = name;
     }
 
     @Override

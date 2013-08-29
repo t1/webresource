@@ -5,11 +5,11 @@ import java.lang.reflect.Field;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class FieldProperty extends PojoProperty {
+public class PojoFieldProperty extends PojoProperty {
 
-    private final Field field;
+    final Field field;
 
-    public FieldProperty(Field field) {
+    public PojoFieldProperty(Field field) {
         super(Annotations.on(field));
         this.field = field;
     }

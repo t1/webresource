@@ -8,8 +8,6 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 import lombok.*;
 
 import org.junit.Test;
@@ -200,7 +198,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div("str-0", "str", "dummy") + div("i-0", "i", "123")), result());
+        assertThat(result(), containsString(div("i-0", "i", "123")));
+        assertThat(result(), containsString(div("str-0", "str", "dummy")));
     }
 
     @Test
@@ -234,63 +233,33 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div("b-0", "b", "true", "checkbox") + div("str-0", "str", "dummy")), result());
+        assertThat(result(), containsString(div("b-0", "b", "true", "checkbox")));
+        assertThat(result(), containsString(div("str-0", "str", "dummy")));
     }
 
-    @AllArgsConstructor
-    private static class PojoWithXmlTransient {
-        @XmlTransient
-        private final String idField;
-        private final String str;
-        private final Integer i;
-    }
-
-    @Test
-    public void shouldWritePojoWithXmlTransient() throws Exception {
-        PojoWithXmlTransient pojo = new PojoWithXmlTransient("id", "dummy", 123);
-
-        writer(pojo).write();
-
-        assertThat(result(), not(containsString("idField")));
-        assertThat(result(), containsString(pojo.str));
-        assertThat(result(), containsString("" + pojo.i));
-    }
-
-    @Test
-    public void shouldWritePojoWithTransientList() throws Exception {
-        PojoWithXmlTransient pojo1 = new PojoWithXmlTransient("a", "one", 111);
-        PojoWithXmlTransient pojo2 = new PojoWithXmlTransient("b", "two", 222);
-        List<PojoWithXmlTransient> list = Arrays.asList(pojo1, pojo2);
-
-        writer(list).write();
-
-        assertThat(result(), not(containsString("idField")));
-    }
-
-    @Data
     @AllArgsConstructor
     private static class PojoWithOneHtmlHead {
         @HtmlHead
-        private String str;
-        private Integer i;
+        public String str;
+        public Integer i;
     }
 
     @Test
     public void shouldWritePojoWithOneHtmlHead() throws Exception {
         PojoWithOneHtmlHead pojo = new PojoWithOneHtmlHead("dummy", 123);
+        assertEquals(123, (int) pojo.i); // cover
 
         writer(pojo).write();
 
         assertThat(result(), containsString("<head><title>dummy</title></head>"));
     }
 
-    @Data
     @AllArgsConstructor
     private static class PojoWithTwoHtmlHeads {
         @HtmlHead
-        private String str0;
+        public String str0;
         @HtmlHead
-        private String str1;
+        public String str1;
     }
 
     @Test
@@ -383,7 +352,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div("str-0", "str", "dummy") + div("set-0", "set", "[one, two, three]")), result());
+        assertThat(result(), containsString(div("str-0", "str", "dummy")));
+        assertThat(result(), containsString(div("set-0", "set", "[one, two, three]")));
     }
 
     @Data
@@ -399,13 +369,14 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div("str-0", "str", "dummy") + "<div>" //
+        assertThat(result(), containsString(div("str-0", "str", "dummy")));
+        assertThat(result(), containsString("<div>" //
                 + label("list-0", "list") //
                 + "<ul>" //
                 + "<li>one</li>" //
                 + "<li>two</li>" //
                 + "<li>three</li>" //
                 + "</ul>" //
-                + "</div>"), result());
+                + "</div>"));
     }
 }
