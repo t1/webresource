@@ -27,15 +27,15 @@ import java.lang.annotation.Retention;
  * <tr>
  * <td>root-path</td>
  * <td>No scheme, but starting with a slash</td>
- * <td>Relative to the host</td>
+ * <td>Local to the host</td>
  * <td>/stylesheet.css</td>
  * <td>/stylesheet.css</td>
  * <td>in a different app or static on the same host</td>
  * </tr>
  * <tr>
- * <td>relative-path</td>
+ * <td>local-path</td>
  * <td>No scheme and not starting with a slash</td>
- * <td>Relative to the app, i.e.</td>
+ * <td>Local to the app, i.e.</td>
  * <td>stylesheets/main.css</td>
  * <td>/myapp/stylesheets/main.css</td>
  * <td>within the app</td>

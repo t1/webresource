@@ -1,7 +1,8 @@
 package com.github.t1.webresource;
 
 import java.io.*;
-import java.nio.file.Path;
+import java.net.*;
+import java.nio.file.*;
 import java.util.*;
 
 import lombok.Data;
@@ -34,14 +35,14 @@ public class HtmlEncoder {
     private final Holder<?> holder;
     private final Writer escaped;
     private final Writer unescaped;
-    private final Path applicationPath;
     private final Map<String, Integer> ids = new HashMap<>();
+    private final URI baseUri;
 
-    public HtmlEncoder(Object t, Writer out, Path applicationPath) {
+    public HtmlEncoder(Object t, Writer out, URI baseUri) {
         this.holder = new Holder<>(t);
         this.escaped = new HtmlEscapeWriter(out);
         this.unescaped = out;
-        this.applicationPath = applicationPath;
+        this.baseUri = baseUri;
     }
 
     public void write() throws IOException {
@@ -102,20 +103,62 @@ public class HtmlEncoder {
     }
 
     private void writeStyleSheet(HtmlStyleSheet styleSheet) throws IOException {
-        String url = styleSheet.value();
-        if (!url.startsWith("/"))
-            url = "/" + applicationPath.resolve(url);
+        URI uri = URI.create(styleSheet.value());
         if (styleSheet.inline()) {
             try (Tag style = new Tag("style")) {
-                writeResource(url);
+                nl();
+                writeResource(uri);
             }
         } else {
-            unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
+            if (!isRootPath(uri))
+                uri = insertApplicationPath(uri);
+            unescaped.write("<link rel='stylesheet' href='" + uri + "' type='text/css'/>\n");
         }
     }
 
-    private void writeResource(String url) throws IOException {
-        unescaped.write(url);
+    private void writeResource(URI uri) throws IOException {
+        if (!uri.isAbsolute() && uri.getPath() != null && uri.getPath().startsWith("/")) {
+            uri = baseUri.resolve(uri.getPath().substring(1));
+        }
+        try (InputStream inputStream = stream(uri)) {
+            write(inputStream);
+        }
+    }
+
+    private InputStream stream(URI uri) throws IOException, MalformedURLException {
+        if (uri.isAbsolute())
+            return uri.toURL().openStream();
+        InputStream inputStream = ClassLoader.getSystemResourceAsStream(uri.getPath());
+        if (inputStream == null)
+            throw new FileNotFoundException(uri.getPath());
+        return inputStream;
+    }
+
+    private void write(InputStream inputStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        while (true) {
+            String line = reader.readLine();
+            if (line == null)
+                break;
+            unescaped.write(line);
+            nl();
+        }
+    }
+
+    private boolean isRootPath(URI uri) {
+        return uri.isAbsolute() || uri.getPath() == null || uri.getPath().startsWith("/");
+    }
+
+    private URI insertApplicationPath(URI uri) {
+        return uri.resolve("/" + applicationPath().resolve(uri.getPath()));
+    }
+
+    /**
+     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
+     * which is the first path element.
+     */
+    private Path applicationPath() {
+        return Paths.get(baseUri.getPath()).getName(0);
     }
 
     private void writeBody() throws IOException {
@@ -207,7 +250,7 @@ public class HtmlEncoder {
             escaped.append(new HtmlField(holder, Holder.SIMPLE));
         } else {
             Object value = holder.get(property);
-            new HtmlEncoder(value, unescaped, applicationPath).writeBody();
+            new HtmlEncoder(value, unescaped, baseUri).writeBody();
         }
     }
 

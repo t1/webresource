@@ -5,7 +5,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.*;
 
 import lombok.*;
@@ -19,7 +19,11 @@ public class HtmlEncoderTest {
     private final Writer out = new StringWriter();
 
     private HtmlEncoder writer(Object object) {
-        return new HtmlEncoder(object, out, Paths.get(BASE_URI));
+        return writer(object, BASE_URI);
+    }
+
+    private HtmlEncoder writer(Object object, String baseUri) {
+        return new HtmlEncoder(object, out, URI.create(baseUri));
     }
 
     private static String wrapped(String string) {
@@ -273,89 +277,122 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheet("/absolute")
-    private static class PojoWithAbsoluteCss {
+    @HtmlStyleSheet("/root-path")
+    private static class PojoWithRootPathCss {
         private String str;
     }
 
     @Test
-    public void shouldAddAbsoluteCssStyleSheet() throws Exception {
-        PojoWithAbsoluteCss pojo = new PojoWithAbsoluteCss("dummy");
+    public void shouldLinkRootPathCssStyleSheet() throws Exception {
+        PojoWithRootPathCss pojo = new PojoWithRootPathCss("dummy");
 
         writer(pojo).write();
 
         assertEquals("<html><head>" //
-                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
                 + "</head><body>dummy</body></html>", result());
     }
 
     @Test
-    public void shouldWritePojoListWithAbsoluteCssStyleSheet() throws Exception {
-        PojoWithAbsoluteCss pojo1 = new PojoWithAbsoluteCss("a");
-        PojoWithAbsoluteCss pojo2 = new PojoWithAbsoluteCss("b");
-        List<PojoWithAbsoluteCss> list = Arrays.asList(pojo1, pojo2);
+    public void shouldWritePojoListWithRootPathCssStyleSheet() throws Exception {
+        PojoWithRootPathCss pojo1 = new PojoWithRootPathCss("a");
+        PojoWithRootPathCss pojo2 = new PojoWithRootPathCss("b");
+        List<PojoWithRootPathCss> list = Arrays.asList(pojo1, pojo2);
 
         writer(list).write();
 
         assertEquals("<html><head>" //
-                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
                 + "</head><body><ul><li>a</li><li>b</li></ul></body></html>", result());
     }
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheet(value = "/absolute", inline = true)
-    private static class PojoWithInlineCss {
+    @HtmlStyleSheet(value = "file:src/test/resources/testfile.txt", inline = true)
+    private static class PojoWithInlineFileCss {
         private String str;
     }
 
     @Test
-    public void shouldAddInlineCssStyleSheet() throws Exception {
-        PojoWithInlineCss pojo = new PojoWithInlineCss("dummy");
+    public void shouldInlineFileCssStyleSheet() throws Exception {
+        PojoWithInlineFileCss pojo = new PojoWithInlineFileCss("dummy");
 
         writer(pojo).write();
 
         assertEquals("<html><head>" //
                 + "<style>" //
-                + "/absolute" //
+                + "test-file-contents" //
                 + "</style>" //
                 + "</head><body>dummy</body></html>", result());
     }
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheet("relative")
-    private static class PojoWithRelativeCss {
+    @HtmlStyleSheet(value = "/src/test/resources/testfile.txt", inline = true)
+    private static class PojoWithInlineRootResourceCss {
         private String str;
     }
 
     @Test
-    public void shouldAddRelativeCssStyleSheet() throws Exception {
-        PojoWithRelativeCss pojo = new PojoWithRelativeCss("dummy");
+    public void shouldInlineRootResourceCssStyleSheet() throws Exception {
+        PojoWithInlineRootResourceCss pojo = new PojoWithInlineRootResourceCss("dummy");
+
+        String baseUri = "file:" + System.getProperty("user.dir") + "/";
+        writer(pojo, baseUri).write();
+
+        assertThat(result(), containsString("<head><style>test-file-contents</style></head>"));
+    }
+
+    @Data
+    @AllArgsConstructor
+    @HtmlStyleSheet(value = "testfile.txt", inline = true)
+    private static class PojoWithInlineLocalResourceCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldInlineLocalResourceCssStyleSheet() throws Exception {
+        PojoWithInlineLocalResourceCss pojo = new PojoWithInlineLocalResourceCss("dummy");
+
+        writer(pojo).write();
+
+        assertThat(result(), containsString("<head><style>test-file-contents</style></head>"));
+    }
+
+    @Data
+    @AllArgsConstructor
+    @HtmlStyleSheet("local-path")
+    private static class PojoWithLocalCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldLinkLocalCssStyleSheet() throws Exception {
+        PojoWithLocalCss pojo = new PojoWithLocalCss("dummy");
 
         writer(pojo).write();
 
         assertThat(result(), containsString("<head>" //
-                + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/base/local-path' type='text/css'/>" //
                 + "</head>"));
     }
 
     @Data
     @AllArgsConstructor
-    @HtmlStyleSheets({ @HtmlStyleSheet("/absolute"), @HtmlStyleSheet("relative") })
+    @HtmlStyleSheets({ @HtmlStyleSheet("/root-path"), @HtmlStyleSheet("local-path") })
     private static class PojoWithTwoCss {
         private String str;
     }
 
     @Test
-    public void shouldAddTwoCssStyleSheets() throws Exception {
+    public void shouldLinkTwoCssStyleSheets() throws Exception {
         PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
 
         writer(pojo).write();
 
         assertThat(result(), containsString("<head>" //
-                + "<link rel='stylesheet' href='/absolute' type='text/css'/>" //
-                + "<link rel='stylesheet' href='/base/relative' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
+                + "<link rel='stylesheet' href='/base/local-path' type='text/css'/>" //
                 + "</head>"));
     }
 

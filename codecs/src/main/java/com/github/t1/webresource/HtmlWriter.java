@@ -3,9 +3,6 @@ package com.github.t1.webresource;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.nio.file.*;
-import java.nio.file.Path;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -39,7 +36,7 @@ public class HtmlWriter implements MessageBodyWriter<Object> {
         log.debug("start html-encoding");
         Writer out = new OutputStreamWriter(entityStream);
         try {
-            new HtmlEncoder(t, out, applicationPath()).write();
+            new HtmlEncoder(t, out, (uriInfo == null) ? null : uriInfo.getBaseUri()).write();
         } catch (RuntimeException | IOException e) {
             log.error("error while encoding", e);
             throw e;
@@ -47,14 +44,5 @@ public class HtmlWriter implements MessageBodyWriter<Object> {
             out.flush(); // doesn't work without this :-(
             log.debug("done html-encoding");
         }
-    }
-
-    /**
-     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
-     * which is the first path element.
-     */
-    private Path applicationPath() {
-        URI baseUri = (uriInfo == null) ? null : uriInfo.getBaseUri();
-        return Paths.get(baseUri.getPath()).getName(0);
     }
 }
