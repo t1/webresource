@@ -105,7 +105,17 @@ public class HtmlEncoder {
         String url = styleSheet.value();
         if (!url.startsWith("/"))
             url = "/" + applicationPath.resolve(url);
-        unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
+        if (styleSheet.inline()) {
+            try (Tag style = new Tag("style")) {
+                writeResource(url);
+            }
+        } else {
+            unescaped.write("<link rel='stylesheet' href='" + url + "' type='text/css'/>\n");
+        }
+    }
+
+    private void writeResource(String url) throws IOException {
+        unescaped.write(url);
     }
 
     private void writeBody() throws IOException {

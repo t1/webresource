@@ -30,7 +30,7 @@ import java.lang.annotation.Retention;
  * <td>Relative to the host</td>
  * <td>/stylesheet.css</td>
  * <td>/stylesheet.css</td>
- * <td>in a different app</td>
+ * <td>in a different app or static on the same host</td>
  * </tr>
  * <tr>
  * <td>relative-path</td>
@@ -44,5 +44,12 @@ import java.lang.annotation.Retention;
  */
 @Retention(RUNTIME)
 public @interface HtmlStyleSheet {
+    /** The name of the style sheet resource */
     public String value();
+
+    /**
+     * By default the resource is included as a <code>link</code>. By setting this property to <code>true</code>, the
+     * resource is copied and inlined in a <code>style</code> element.
+     */
+    public boolean inline() default false;
 }

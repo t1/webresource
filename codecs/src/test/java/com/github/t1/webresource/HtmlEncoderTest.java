@@ -304,6 +304,26 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
+    @HtmlStyleSheet(value = "/absolute", inline = true)
+    private static class PojoWithInlineCss {
+        private String str;
+    }
+
+    @Test
+    public void shouldAddInlineCssStyleSheet() throws Exception {
+        PojoWithInlineCss pojo = new PojoWithInlineCss("dummy");
+
+        writer(pojo).write();
+
+        assertEquals("<html><head>" //
+                + "<style>" //
+                + "/absolute" //
+                + "</style>" //
+                + "</head><body>dummy</body></html>", result());
+    }
+
+    @Data
+    @AllArgsConstructor
     @HtmlStyleSheet("relative")
     private static class PojoWithRelativeCss {
         private String str;
