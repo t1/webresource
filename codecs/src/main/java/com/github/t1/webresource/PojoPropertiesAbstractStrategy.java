@@ -1,6 +1,9 @@
 package com.github.t1.webresource;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+
+import com.github.t1.stereotypes.Annotations;
 
 public abstract class PojoPropertiesAbstractStrategy {
 
@@ -12,6 +15,18 @@ public abstract class PojoPropertiesAbstractStrategy {
         this.target = target;
     }
 
+    protected boolean typeIs(Class<? extends Annotation> annotationType) {
+        return typeAnnotations().isAnnotationPresent(annotationType);
+    }
+
+    protected <T extends Annotation> T typeAnnotation(Class<T> annotationType) {
+        return typeAnnotations().getAnnotation(annotationType);
+    }
+
+    private AnnotatedElement typeAnnotations() {
+        return Annotations.on(type);
+    }
+
     public void run() {
         addFields();
         addGetters();
@@ -20,9 +35,8 @@ public abstract class PojoPropertiesAbstractStrategy {
     private void addFields() {
         for (Field field : type.getDeclaredFields()) {
             PojoFieldProperty property = new PojoFieldProperty(field);
-            if (property.isPublicMember() && pass(property)) {
-                init(property);
-                target.add(property);
+            if (pass(property)) {
+                add(property);
             }
         }
     }
@@ -37,10 +51,16 @@ public abstract class PojoPropertiesAbstractStrategy {
     private void addGetters() {
         for (Method method : type.getDeclaredMethods()) {
             PojoGetterProperty getter = new PojoGetterProperty(method);
-            if (getter.isPublicMember() && pass(getter)) {
-                init(getter);
-                target.add(getter);
+            if (pass(getter)) {
+                add(getter);
             }
+        }
+    }
+
+    private void add(PojoProperty getter) {
+        init(getter);
+        if (!hasProperty(getter.getName())) {
+            target.add(getter);
         }
     }
 

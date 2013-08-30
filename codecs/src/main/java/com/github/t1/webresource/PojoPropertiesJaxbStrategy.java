@@ -1,5 +1,7 @@
 package com.github.t1.webresource;
 
+import static javax.xml.bind.annotation.XmlAccessType.*;
+
 import javax.xml.bind.annotation.*;
 
 public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
@@ -9,13 +11,28 @@ public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
 
     @Override
     protected boolean pass(PojoFieldProperty field) {
-        return isXmlVisible(field);
+        return !xmlTransient(field) && isVisible(FIELD, field);
     }
 
     @Override
     protected boolean pass(PojoGetterProperty getter) {
-        // @XmlAccessorType(NONE)
-        return isXmlVisible(getter);
+        return getter.isGetter() && !xmlTransient(getter) && isVisible(PROPERTY, getter);
+    }
+
+    private boolean xmlTransient(PojoProperty getter) {
+        return getter.is(XmlTransient.class);
+    }
+
+    private boolean isVisible(XmlAccessType accessType, PojoProperty property) {
+        return isAccessorVisible(accessType) || isPublicVisible(property) || isXmlVisible(property);
+    }
+
+    private boolean isAccessorVisible(XmlAccessType type) {
+        return typeIs(XmlAccessorType.class) && typeAnnotation(XmlAccessorType.class).value() == type;
+    }
+
+    private boolean isPublicVisible(PojoProperty property) {
+        return property.isPublicMember() && isAccessorVisible(PUBLIC_MEMBER);
     }
 
     private boolean isXmlVisible(Property property) {
@@ -25,9 +42,19 @@ public class PojoPropertiesJaxbStrategy extends PojoPropertiesAbstractStrategy {
     @Override
     protected void init(PojoProperty property) {
         if (property.is(XmlElement.class)) {
-            property.setName(property.get(XmlElement.class).name());
+            setName(property, property.get(XmlElement.class).name());
         } else if (property.is(XmlAttribute.class)) {
-            property.setName(property.get(XmlAttribute.class).name());
+            setName(property, property.get(XmlAttribute.class).name());
         }
+    }
+
+    private void setName(PojoProperty property, String name) {
+        if (!invalid(name)) {
+            property.setName(name);
+        }
+    }
+
+    private boolean invalid(String name) {
+        return null == name || name.isEmpty() || "##default".equals(name);
     }
 }

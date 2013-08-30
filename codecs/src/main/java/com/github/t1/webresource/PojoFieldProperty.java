@@ -25,14 +25,14 @@ public class PojoFieldProperty extends PojoProperty {
             field.setAccessible(true);
             return field.get(object);
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("can't get " + field.getName() + " of " + object, e);
+            throw new RuntimeException("can't get " + getName() + " of " + object, e);
         }
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("field ").append(field.getName());
+        out.append("field ").append(getName());
         out.append(" of ").append(field.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
@@ -41,10 +41,5 @@ public class PojoFieldProperty extends PojoProperty {
             }
         }
         return out.toString();
-    }
-
-    @Override
-    public String getName() {
-        return field.getName();
     }
 }

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoGetterProperty extends PojoProperty {
-    final Method method;
+    private final Method method;
 
     public PojoGetterProperty(Method method) {
         super(Annotations.on(method), name(method));
@@ -41,7 +41,7 @@ public class PojoGetterProperty extends PojoProperty {
             method.setAccessible(true);
             return method.invoke(object);
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("can't get " + method.getName() + " of " + object, e);
+            throw new RuntimeException("can't get " + getName() + " of " + object, e);
         }
     }
 
@@ -57,5 +57,18 @@ public class PojoGetterProperty extends PojoProperty {
             }
         }
         return out.toString();
+    }
+
+    /**
+     * Is this method a getter? I.e. the name starts with <code>get</code> (or <code>is</code> for booleans), returns a
+     * type, and takes no arguments.
+     */
+    public boolean isGetter() {
+        return method.getParameterTypes().length == 0 && method.getReturnType() != void.class
+                && isGetterMethodName(method.getName());
+    }
+
+    private boolean isGetterMethodName(String name) {
+        return name.startsWith("get") || name.startsWith("is");
     }
 }
