@@ -395,14 +395,14 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    private static class NestedSetPojo {
+    private static class SetPojo {
         private String str;
         private Set<String> set;
     }
 
     @Test
-    public void shouldWriteNestedSetPojo() throws Exception {
-        NestedSetPojo pojo = new NestedSetPojo("dummy", ImmutableSet.of("one", "two", "three"));
+    public void shouldWriteSetPojo() throws Exception {
+        SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
 
         writer(pojo).write();
 
@@ -412,14 +412,14 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    private static class NestedListPojo {
+    private static class ListPojo {
         private String str;
         private List<String> list;
     }
 
     @Test
-    public void shouldWriteNestedListPojo() throws Exception {
-        NestedListPojo pojo = new NestedListPojo("dummy", ImmutableList.of("one", "two", "three"));
+    public void shouldWriteListPojo() throws Exception {
+        ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
 
         writer(pojo).write();
 
@@ -432,5 +432,21 @@ public class HtmlEncoderTest {
                 + "<li>three</li>" //
                 + "</ul>" //
                 + "</div>"));
+    }
+
+    @Test
+    public void shouldWriteTableWithListPojo() throws Exception {
+        ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
+        ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
+        List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
+
+        writer(list).write();
+
+        assertEquals("<html><head></head><body><table><thead>" //
+                + "<tr><th>list</th><th>str</th></tr></thead>" //
+                + "<tbody>" //
+                + "<tr><td><ul><li>one1</li><li>two1</li><li>three1</li></ul></td><td>dummy1</td></tr>" //
+                + "<tr><td><ul><li>one2</li><li>two2</li><li>three2</li></ul></td><td>dummy2</td></tr>" //
+                + "</tbody></table></body></html>", result());
     }
 }

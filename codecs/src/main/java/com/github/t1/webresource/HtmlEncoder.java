@@ -225,13 +225,25 @@ public class HtmlEncoder {
     }
 
     // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
-    private void writeTableRow(Holder<?> element, List<Property> properties) throws IOException {
+    private void writeTableRow(Holder<?> rowItem, List<Property> properties) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Property property : properties) {
                 try (Tag td = new Tag("td")) {
-                    escaped.append(new HtmlField(element, property));
+                    writeItem(rowItem, property, null);
                 }
             }
+        }
+    }
+
+    private void writeItem(Holder<?> item, Property property, String id) throws IOException {
+        Object cellItem = item.get(property);
+        if (cellItem instanceof List) {
+            writeBulletList((List<?>) cellItem);
+        } else {
+            HtmlField field = new HtmlField(item, property);
+            if (id != null)
+                field.id(id);
+            unescaped.append(field);
         }
     }
 
@@ -264,12 +276,7 @@ public class HtmlEncoder {
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
                     escaped.write(property.getName());
                 }
-                Object value = holder.get(property);
-                if (value instanceof List) {
-                    writeBulletList((List<?>) value);
-                } else {
-                    unescaped.append(new HtmlField(holder, property).id(id));
-                }
+                writeItem(holder, property, id);
             }
         }
     }
