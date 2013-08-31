@@ -15,7 +15,7 @@ import org.junit.*;
 import com.google.common.collect.*;
 
 public class HtmlEncoderTest {
-    private static final String BASE_URI = "http://localhost:8080/demo";
+    private static final String BASE_URI = "http://localhost:8080/demo/resource";
     private final Writer out = new StringWriter();
 
     private HtmlEncoder writer(Object object) {
@@ -330,7 +330,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    @Ignore("needs a running service and I don't know how to map that to a file-url")
+    @Ignore("needs a running service and I have no idea how to map that to a file-url")
     public void shouldInlineRootResourceCssStyleSheet() throws Exception {
         PojoWithInlineRootResourceCss pojo = new PojoWithInlineRootResourceCss("dummy");
 
@@ -347,7 +347,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    @Ignore("needs a running service and I don't know how to map that to a file-url")
+    @Ignore("needs a running service and I have no idea how to map that to a file-url")
     public void shouldInlineLocalResourceCssStyleSheet() throws Exception {
         PojoWithInlineLocalResourceCss pojo = new PojoWithInlineLocalResourceCss("dummy");
 

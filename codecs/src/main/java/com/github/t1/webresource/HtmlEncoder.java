@@ -128,9 +128,8 @@ public class HtmlEncoder {
             if (uri.getPath().startsWith("/")) {
                 uri = baseUri.resolve(uri.getPath());
             } else {
-                Path path = Paths.get(baseUri.getPath());
-                path = path.resolve(uri.getPath());
-                uri = baseUri.resolve(path.toString());
+                Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
+                uri = baseUri.resolve("/" + path);
             }
         }
         try (InputStream inputStream = uri.toURL().openStream()) {
