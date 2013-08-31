@@ -50,8 +50,13 @@ public class Holder<T> {
             return null;
         if (isMap(type))
             return null;
-        if (isList(type) && !((List<?>) object).isEmpty())
-            return Annotations.on(((List<?>) object).get(0).getClass());
+        if (isList(type)) {
+            if (((List<?>) object).isEmpty()) {
+                return new NullAnnotatedElement();
+            } else {
+                return Annotations.on(((List<?>) object).get(0).getClass());
+            }
+        }
         return Annotations.on(type);
     }
 
