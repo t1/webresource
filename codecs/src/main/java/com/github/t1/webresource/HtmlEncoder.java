@@ -1,7 +1,7 @@
 package com.github.t1.webresource;
 
 import java.io.*;
-import java.net.*;
+import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
@@ -54,6 +54,11 @@ public class HtmlEncoder {
             try (Tag body = new Tag("body")) {
                 writeBody();
             }
+        } catch (Exception e) {
+            unescaped.write("<!-- ............................................................\n");
+            e.printStackTrace(new PrintWriter(unescaped));
+            unescaped.write("............................................................ -->\n");
+            throw e;
         }
     }
 
@@ -117,21 +122,20 @@ public class HtmlEncoder {
     }
 
     private void writeResource(URI uri) throws IOException {
-        if (!uri.isAbsolute() && uri.getPath() != null && uri.getPath().startsWith("/")) {
-            uri = baseUri.resolve(uri.getPath().substring(1));
+        if (!uri.isAbsolute()) {
+            if (uri.getPath() == null)
+                throw new IllegalArgumentException("the given uri has no path: " + uri);
+            if (uri.getPath().startsWith("/")) {
+                uri = baseUri.resolve(uri.getPath());
+            } else {
+                Path path = Paths.get(baseUri.getPath());
+                path = path.resolve(uri.getPath());
+                uri = baseUri.resolve(path.toString());
+            }
         }
-        try (InputStream inputStream = stream(uri)) {
+        try (InputStream inputStream = uri.toURL().openStream()) {
             write(inputStream);
         }
-    }
-
-    private InputStream stream(URI uri) throws IOException, MalformedURLException {
-        if (uri.isAbsolute())
-            return uri.toURL().openStream();
-        InputStream inputStream = ClassLoader.getSystemResourceAsStream(uri.getPath());
-        if (inputStream == null)
-            throw new FileNotFoundException(uri.getPath());
-        return inputStream;
     }
 
     private void write(InputStream inputStream) throws IOException {
