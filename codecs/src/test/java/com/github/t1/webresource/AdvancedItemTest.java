@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 import java.io.Serializable;
 import java.util.*;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
@@ -15,40 +15,28 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-public class PersonTest {
+public class AdvancedItemTest {
     @Getter
     @Setter
     @ToString
     @XmlRootElement
     @XmlAccessorType(NONE)
-    public static class Person implements Serializable {
+    public static class AdvancedItem implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @XmlTransient
         private Long id;
 
         @XmlElement
-        @NotNull
         @Size(min = 1, max = 100)
-        @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
         private String first;
 
         @XmlElement(name = "lastName")
-        @NotNull
         @Size(min = 1, max = 50)
-        @Pattern(regexp = "\\p{Alpha}*", message = "must contain only alphabetical characters")
         private String last;
 
         @XmlTransient
         private Set<String> tags = new HashSet<>();
-
-        /** required by JAXB */
-        Person() {}
-
-        public Person(String first, String last) {
-            this.first = first;
-            this.last = last;
-        }
 
         @XmlList
         @XmlElement(name = "tags")
@@ -63,7 +51,7 @@ public class PersonTest {
 
     @Test
     public void shouldGetProperties() throws Exception {
-        Item<Person> item = new Item<>(new Person());
+        Item<AdvancedItem> item = new Item<>(new AdvancedItem());
 
         assertEquals(100, item.trait("first").get(Size.class).max());
         assertEquals(50, item.trait("lastName").get(Size.class).max());
