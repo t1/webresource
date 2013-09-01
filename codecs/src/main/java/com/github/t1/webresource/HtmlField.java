@@ -3,17 +3,17 @@ package com.github.t1.webresource;
 import java.util.Objects;
 
 /**
- * Renders a {@link Property}... eventually as an <code>input</code>.
+ * Renders a {@link Trait}... eventually as an <code>input</code>.
  */
 public class HtmlField implements CharSequence {
 
-    private final Holder<?> holder;
-    private final Property property;
+    private final Item<?> item;
+    private final Trait trait;
     private String id;
 
-    public HtmlField(Holder<?> holder, Property property) {
-        this.holder = holder;
-        this.property = property;
+    public HtmlField(Item<?> item, Trait trait) {
+        this.item = item;
+        this.trait = trait;
     }
 
     public HtmlField id(String id) {
@@ -39,9 +39,9 @@ public class HtmlField implements CharSequence {
     @Override
     public String toString() {
         if (id == null)
-            return Objects.toString(holder.get(property));
+            return Objects.toString(item.get(trait));
         StringBuilder result = new StringBuilder();
-        Object value = holder.get(property);
+        Object value = item.get(trait);
         result.append("<input");
         if (id != null)
             result.append(" id='" + id + "'");

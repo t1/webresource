@@ -63,11 +63,11 @@ public class PersonTest {
 
     @Test
     public void shouldGetProperties() throws Exception {
-        Holder<Person> holder = new Holder<>(new Person());
+        Item<Person> item = new Item<>(new Person());
 
-        assertEquals(100, holder.property("first").get(Size.class).max());
-        assertEquals(50, holder.property("lastName").get(Size.class).max());
-        assertTrue(holder.property("tags").is(XmlList.class));
-        assertEquals(3, holder.properties().size());
+        assertEquals(100, item.trait("first").get(Size.class).max());
+        assertEquals(50, item.trait("lastName").get(Size.class).max());
+        assertTrue(item.trait("tags").is(XmlList.class));
+        assertEquals(3, item.traits().size());
     }
 }

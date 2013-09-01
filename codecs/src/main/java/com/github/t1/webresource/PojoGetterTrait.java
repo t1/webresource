@@ -5,15 +5,15 @@ import java.lang.reflect.Method;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class PojoGetterProperty extends PojoProperty {
+public class PojoGetterTrait extends PojoTrait {
     private final Method method;
 
-    public PojoGetterProperty(Method method) {
+    public PojoGetterTrait(Method method) {
         super(Annotations.on(method), name(method));
         this.method = method;
     }
 
-    /** This is only the default name, subclasses can call {@link PojoGetterProperty#setName(String)} */
+    /** This is only the default name, subclasses can call {@link PojoGetterTrait#setName(String)} */
     private static String name(Method method) {
         String name = method.getName();
         if (name.startsWith("get"))

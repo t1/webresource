@@ -7,35 +7,35 @@ import java.util.*;
 import com.github.t1.stereotypes.Annotations;
 
 /**
- * Holds a pojo and provides data and meta data to it by using reflection, i.e. you don't have to work with fields,
- * getters, setters, etc. but use properties and meta properties. {@link #isSimple() Simple types} (incl.
- * <code>null</code>) are represented as objects with one property. Maps are represented just like objects (note that
- * for pojos and maps, the order of the properties is generally <i>not</i> guaranteed). {@link #isList() List} elements
- * can be accessed with {@link #getList()}.
+ * POJO meta object that provides data as {@link Trait}s and meta data as {@link Annotation}s, i.e. you don't have to
+ * work with fields, getters, setters, etc. but work on a meta level. {@link #isSimple() Simple types} (incl.
+ * <code>null</code>) are represented as items with one trait. Maps are represented just like objects (note that for
+ * pojos and maps, the order of the traits is generally <i>not</i> guaranteed). {@link #isList() List} elements can be
+ * accessed with {@link #getList()} that returns a list of Items.
  * <p/>
- * Design Decision: This class tries to be quite generic, so it should be easy to extract an interface and write
- * implementations that are not based on reflection on pojos, but, e.g., xml, json, csv, maps, or any other data
- * structure, ideally with some sort of meta data facility, internal or external to the data itself. Then it would be
+ * Design Decision: This class is currently based on reflection on POJOs, but the API is quite generic, so it should be
+ * easy to extract an interface and write implementations that are based on e.g., xml, json, csv, maps, or any other
+ * data structure with some sort of meta data facility, internal or external to the data itself. It would be
  * consequential to use some abstraction for meta data instead of annotations, but that would add complexity without
  * adding a lot of utility: Annotations are convenient to represent other meta data as well in a typesafe way, e.g. by
  * using <code>javax.enterprise.util.AnnotationLiteral</code>.
  */
-public class Holder<T> {
+public class Item<T> {
 
-    public static final Property SIMPLE = new SimpleProperty();
-    private static final List<Property> SIMPLE_PROPERTIES = Collections.<Property> singletonList(SIMPLE);
+    public static final Trait SIMPLE = new SimpleTrait();
+    private static final List<Trait> SIMPLE_TRAITS = Collections.<Trait> singletonList(SIMPLE);
 
     private final T object;
     private final Class<T> type;
-    private List<Property> properties = null;
+    private List<Trait> traits = null;
     private final AnnotatedElement annotations;
 
     @SuppressWarnings("unchecked")
-    public Holder(T object) {
+    public Item(T object) {
         this((Class<T>) ((object == null) ? null : object.getClass()), object);
     }
 
-    public Holder(Class<T> type, T object) {
+    public Item(Class<T> type, T object) {
         this.type = type;
         this.object = object;
         this.annotations = annotations(type, object);
@@ -81,39 +81,39 @@ public class Holder<T> {
         return isList(type);
     }
 
-    public List<Holder<?>> getList() {
-        List<Holder<?>> result = new ArrayList<>();
+    public List<Item<?>> getList() {
+        List<Item<?>> result = new ArrayList<>();
         for (Object element : ((List<?>) object)) {
-            result.add(new Holder<>(element));
+            result.add(new Item<>(element));
         }
         return result;
     }
 
-    public List<Property> properties() {
-        if (properties == null) {
+    public List<Trait> traits() {
+        if (traits == null) {
             if (isSimple()) {
-                this.properties = SIMPLE_PROPERTIES;
+                this.traits = SIMPLE_TRAITS;
             } else if (isMap(type)) {
-                this.properties = mapProperties();
+                this.traits = mapTraits();
             } else {
-                this.properties = new PojoProperties(type);
+                this.traits = new PojoTraits(type);
             }
         }
-        return properties;
+        return traits;
     }
 
-    private List<Property> mapProperties() {
-        List<Property> properties = new ArrayList<>();
+    private List<Trait> mapTraits() {
+        List<Trait> traits = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Map<String, ?> map = (Map<String, ?>) object;
         for (String key : map.keySet()) {
-            properties.add(new MapProperty(key));
+            traits.add(new MapTrait(key));
         }
-        return properties;
+        return traits;
     }
 
-    public Object get(Property property) {
-        return property.of(this.object);
+    public Object get(Trait trait) {
+        return trait.of(this.object);
     }
 
     public <A extends Annotation> boolean is(Class<A> type) {
@@ -124,13 +124,13 @@ public class Holder<T> {
         return (annotations == null) ? null : annotations.getAnnotation(type);
     }
 
-    public Property property(String propertyName) {
-        for (Property property : properties()) {
-            if (propertyName.equals(property.getName())) {
-                return property;
+    public Trait trait(String traitName) {
+        for (Trait trait : traits()) {
+            if (traitName.equals(trait.getName())) {
+                return trait;
             }
         }
-        throw new IllegalArgumentException("no property " + propertyName + " in " + type);
+        throw new IllegalArgumentException("no trait " + traitName + " in " + type);
     }
 
     @Override

@@ -8,16 +8,16 @@ import com.github.t1.stereotypes.Annotations;
 
 /**
  * Although I generally prefer composition over inheritance, in this case I prefer the concise and intuitive syntax for
- * the client: <code>new PojoProperties(type)</code>
+ * the client: <code>new PojoTraits(type)</code>
  */
-public class PojoProperties extends ArrayList<Property> {
+public class PojoTraits extends ArrayList<Trait> {
     private static final long serialVersionUID = 1L;
 
-    public PojoProperties(Class<?> type) {
+    public PojoTraits(Class<?> type) {
         if (Annotations.on(type).isAnnotationPresent(XmlRootElement.class)) {
-            new PojoPropertiesJaxbStrategy(type, this).run();
+            new JaxbTraitProvider(type, this).run();
         } else {
-            new PojoPropertiesDefaultStrategy(type, this).run();
+            new DefaultTraitProvider(type, this).run();
         }
     }
 }

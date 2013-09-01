@@ -32,14 +32,14 @@ public class HtmlEncoder {
         }
     }
 
-    private final Holder<?> holder;
+    private final Item<?> item;
     private final Writer escaped;
     private final Writer unescaped;
     private final Map<String, Integer> ids = new HashMap<>();
     private final URI baseUri;
 
     public HtmlEncoder(Object t, Writer out, URI baseUri) {
-        this.holder = new Holder<>(t);
+        this.item = new Item<>(t);
         this.escaped = new HtmlEscapeWriter(out);
         this.unescaped = out;
         this.baseUri = baseUri;
@@ -67,7 +67,7 @@ public class HtmlEncoder {
     }
 
     private void writeHead() throws IOException {
-        if (!holder.isSimple()) {
+        if (!item.isSimple()) {
             writeTitle();
             writeStyleSheets();
         }
@@ -85,23 +85,23 @@ public class HtmlEncoder {
     private String titleString() throws IOException {
         StringWriter titleString = new StringWriter();
         Delimiter delim = new Delimiter(titleString, " - ");
-        for (Property property : holder.properties()) {
-            if (property.is(HtmlHead.class)) {
+        for (Trait trait : item.traits()) {
+            if (trait.is(HtmlHead.class)) {
                 delim.write();
-                titleString.append(Objects.toString(holder.get(property)));
+                titleString.append(Objects.toString(item.get(trait)));
             }
         }
         return titleString.toString();
     }
 
     private void writeStyleSheets() throws IOException {
-        if (holder.is(HtmlStyleSheet.class)) {
+        if (item.is(HtmlStyleSheet.class)) {
             nl();
-            writeStyleSheet(holder.get(HtmlStyleSheet.class));
+            writeStyleSheet(item.get(HtmlStyleSheet.class));
         }
-        if (holder.is(HtmlStyleSheets.class)) {
+        if (item.is(HtmlStyleSheets.class)) {
             nl();
-            for (HtmlStyleSheet styleSheet : holder.get(HtmlStyleSheets.class).value()) {
+            for (HtmlStyleSheet styleSheet : item.get(HtmlStyleSheets.class).value()) {
                 writeStyleSheet(styleSheet);
             }
         }
@@ -165,10 +165,10 @@ public class HtmlEncoder {
     }
 
     private void writeBody() throws IOException {
-        if (holder.isNull())
+        if (item.isNull())
             return;
         nl();
-        if (holder.isList()) {
+        if (item.isList()) {
             writeList();
         } else {
             writeMap();
@@ -176,71 +176,71 @@ public class HtmlEncoder {
     }
 
     private void writeList() throws IOException {
-        List<Holder<?>> list = holder.getList();
+        List<Item<?>> list = item.getList();
         if (list.isEmpty())
             return;
-        List<Property> properties = list.get(0).properties();
-        switch (properties.size()) {
+        List<Trait> traits = list.get(0).traits();
+        switch (traits.size()) {
             case 0:
                 break;
             case 1:
-                writeBulletList(list, properties.get(0));
+                writeBulletList(list, traits.get(0));
                 break;
             default:
-                writeTable(list, properties);
+                writeTable(list, traits);
         }
     }
 
-    private void writeBulletList(List<Holder<?>> list, Property property) throws IOException {
+    private void writeBulletList(List<Item<?>> list, Trait trait) throws IOException {
         try (Tag ul = new Tag("ul")) {
-            for (Holder<?> element : list) {
+            for (Item<?> element : list) {
                 try (Tag li = new Tag("li")) {
-                    escaped.append(new HtmlField(element, property));
+                    escaped.append(new HtmlField(element, trait));
                 }
             }
         }
     }
 
-    private void writeTable(List<Holder<?>> list, List<Property> properties) throws IOException {
+    private void writeTable(List<Item<?>> list, List<Trait> traits) throws IOException {
         try (Tag table = new Tag("table")) {
             try (Tag thead = new Tag("thead")) {
-                writeTableHead(properties);
+                writeTableHead(traits);
             }
             try (Tag tbody = new Tag("tbody")) {
-                for (Holder<?> element : list) {
-                    writeTableRow(element, properties);
+                for (Item<?> element : list) {
+                    writeTableRow(element, traits);
                 }
             }
         }
     }
 
-    private void writeTableHead(List<Property> properties) throws IOException {
+    private void writeTableHead(List<Trait> traits) throws IOException {
         try (Tag tr = new Tag("tr")) {
-            for (Property property : properties) {
+            for (Trait trait : traits) {
                 try (Tag th = new Tag("th")) {
-                    escaped.append(property.getName());
+                    escaped.append(trait.getName());
                 }
             }
         }
     }
 
     // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
-    private void writeTableRow(Holder<?> rowItem, List<Property> properties) throws IOException {
+    private void writeTableRow(Item<?> rowItem, List<Trait> traits) throws IOException {
         try (Tag tr = new Tag("tr")) {
-            for (Property property : properties) {
+            for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
-                    writeItem(rowItem, property, null);
+                    writeItem(rowItem, trait, null);
                 }
             }
         }
     }
 
-    private void writeItem(Holder<?> item, Property property, String id) throws IOException {
-        Object cellItem = item.get(property);
+    private void writeItem(Item<?> item, Trait trait, String id) throws IOException {
+        Object cellItem = item.get(trait);
         if (cellItem instanceof List) {
             writeBulletList((List<?>) cellItem);
         } else {
-            HtmlField field = new HtmlField(item, property);
+            HtmlField field = new HtmlField(item, trait);
             if (id != null)
                 field.id(id);
             unescaped.append(field);
@@ -248,35 +248,35 @@ public class HtmlEncoder {
     }
 
     private void writeMap() throws IOException {
-        List<Property> properties = holder.properties();
-        switch (properties.size()) {
+        List<Trait> traits = item.traits();
+        switch (traits.size()) {
             case 0:
                 break;
             case 1:
-                writeProperty(properties.get(0));
+                writeTrait(traits.get(0));
                 break;
             default:
-                writeProperties(properties);
+                writeTraits(traits);
         }
     }
 
-    private void writeProperty(Property property) throws IOException {
-        if (holder.isSimple()) { // prevent recursion
-            escaped.append(new HtmlField(holder, Holder.SIMPLE));
+    private void writeTrait(Trait trait) throws IOException {
+        if (item.isSimple()) { // prevent recursion
+            escaped.append(new HtmlField(item, Item.SIMPLE));
         } else {
-            Object value = holder.get(property);
+            Object value = item.get(trait);
             new HtmlEncoder(value, unescaped, baseUri).writeBody();
         }
     }
 
-    private void writeProperties(List<Property> properties) throws IOException {
-        for (Property property : properties) {
+    private void writeTraits(List<Trait> traits) throws IOException {
+        for (Trait trait : traits) {
             try (Tag div = new Tag("div")) {
-                String id = id(property.getName());
+                String id = id(trait.getName());
                 try (Tag label = new Tag("label", new Attribute("for", id))) {
-                    escaped.write(property.getName());
+                    escaped.write(trait.getName());
                 }
-                writeItem(holder, property, id);
+                writeItem(item, trait, id);
             }
         }
     }

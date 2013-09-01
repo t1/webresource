@@ -2,7 +2,7 @@ package com.github.t1.webresource;
 
 import java.lang.annotation.Annotation;
 
-public class SimpleProperty implements Property {
+public class SimpleTrait implements Trait {
 
     @Override
     public String getName() {

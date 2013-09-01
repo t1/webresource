@@ -3,7 +3,7 @@ package com.github.t1.webresource;
 import java.lang.annotation.Annotation;
 
 
-public interface Property {
+public interface Trait {
     public abstract Object of(Object object);
 
     public abstract String getName();

@@ -5,12 +5,12 @@ import java.lang.reflect.*;
 
 import com.github.t1.stereotypes.Annotations;
 
-public abstract class PojoPropertiesAbstractStrategy {
+public abstract class AbstractTraitProvider {
 
     protected final Class<?> type;
-    protected final PojoProperties target;
+    protected final PojoTraits target;
 
-    public PojoPropertiesAbstractStrategy(Class<?> type, PojoProperties target) {
+    public AbstractTraitProvider(Class<?> type, PojoTraits target) {
         this.type = type;
         this.target = target;
     }
@@ -34,39 +34,39 @@ public abstract class PojoPropertiesAbstractStrategy {
 
     private void addFields() {
         for (Field field : type.getDeclaredFields()) {
-            PojoFieldProperty property = new PojoFieldProperty(field);
-            if (pass(property)) {
-                add(property);
+            PojoFieldTrait trait = new PojoFieldTrait(field);
+            if (pass(trait)) {
+                add(trait);
             }
         }
     }
 
-    protected abstract boolean pass(PojoFieldProperty field);
+    protected abstract boolean pass(PojoFieldTrait field);
 
-    protected abstract boolean pass(PojoGetterProperty getter);
+    protected abstract boolean pass(PojoGetterTrait getter);
 
-    /** esp. for overwriting the name after it was decided to add this property */
-    protected void init(PojoProperty property) {}
+    /** esp. for overwriting the name after it was decided to add this trait */
+    protected void init(PojoTrait trait) {}
 
     private void addGetters() {
         for (Method method : type.getDeclaredMethods()) {
-            PojoGetterProperty getter = new PojoGetterProperty(method);
+            PojoGetterTrait getter = new PojoGetterTrait(method);
             if (pass(getter)) {
                 add(getter);
             }
         }
     }
 
-    private void add(PojoProperty getter) {
+    private void add(PojoTrait getter) {
         init(getter);
-        if (!hasProperty(getter.getName())) {
+        if (!hasTrait(getter.getName())) {
             target.add(getter);
         }
     }
 
-    protected boolean hasProperty(String name) {
-        for (Property property : target) {
-            if (property.getName().equals(name)) {
+    protected boolean hasTrait(String name) {
+        for (Trait trait : target) {
+            if (trait.getName().equals(name)) {
                 return true;
             }
         }

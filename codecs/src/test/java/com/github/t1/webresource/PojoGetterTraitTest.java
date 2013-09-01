@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-public class GetterPropertyTest {
+public class PojoGetterTraitTest {
     public static class OneGetter {
         public String getName() {
             return null;
@@ -17,8 +17,8 @@ public class GetterPropertyTest {
     public void shouldFindStringGetter() throws Exception {
         Method method = OneGetter.class.getMethod("getName");
 
-        Property property = new PojoGetterProperty(method);
+        Trait trait = new PojoGetterTrait(method);
 
-        assertEquals("name", property.getName());
+        assertEquals("name", trait.getName());
     }
 }

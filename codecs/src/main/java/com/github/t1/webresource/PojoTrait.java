@@ -6,11 +6,11 @@ import java.lang.reflect.*;
 import lombok.*;
 
 
-public abstract class PojoProperty implements Property {
+public abstract class PojoTrait implements Trait {
 
     /**
-     * Note that the name of a property does not have to match the name of the field or method... not only that the
-     * "get" prefix of a method has to be removed, in JAXB there are annotations to set the name explicitly.
+     * Note that the name of a trait does not have to match the name of the field or method... not only that the "get"
+     * prefix of a method has to be removed, in JAXB there are annotations to set the name explicitly.
      */
     @Getter
     @Setter
@@ -26,7 +26,7 @@ public abstract class PojoProperty implements Property {
 
     protected final AnnotatedElement annotations;
 
-    public PojoProperty(AnnotatedElement annotations, String name) {
+    public PojoTrait(AnnotatedElement annotations, String name) {
         this.annotations = annotations;
         this.name = name;
     }

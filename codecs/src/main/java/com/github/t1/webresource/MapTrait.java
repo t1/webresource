@@ -4,11 +4,11 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 
-public class MapProperty implements Property {
+public class MapTrait implements Trait {
 
     private final String key;
 
-    public MapProperty(String key) {
+    public MapTrait(String key) {
         this.key = key;
     }
 
