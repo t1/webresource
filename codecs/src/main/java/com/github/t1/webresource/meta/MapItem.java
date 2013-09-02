@@ -4,8 +4,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
 class MapItem extends AbstractPojoItem {
-    public <T> MapItem(Class<T> type, T object) {
-        super(type, object);
+    public MapItem(Object object) {
+        super(object);
     }
 
     @Override

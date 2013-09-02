@@ -5,8 +5,8 @@ import java.util.*;
 class SimplePojoItem extends AbstractPojoItem {
     private static final List<Trait> SIMPLE_TRAITS = Collections.<Trait> singletonList(SimpleTrait.SIMPLE);
 
-    public <T> SimplePojoItem(Class<T> type, T object) {
-        super(type, object);
+    public SimplePojoItem(Object object) {
+        super(object);
     }
 
     @Override

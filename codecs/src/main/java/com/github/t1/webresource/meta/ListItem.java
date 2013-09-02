@@ -7,8 +7,8 @@ import com.github.t1.stereotypes.Annotations;
 
 class ListItem extends AbstractPojoItem {
 
-    public <T> ListItem(Class<T> type, T object) {
-        super(type, object);
+    public <T> ListItem(T object) {
+        super(object);
     }
 
     @Override

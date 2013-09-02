@@ -2,33 +2,30 @@ package com.github.t1.webresource.meta;
 
 import java.util.*;
 
-public class Items<T> {
+public class Items {
     public static Item newItem(Object object) {
-        return new Items<>(object).create();
+        return new Items(object).create();
     }
 
-    private final Class<T> type;
-    private final T object;
+    private final Object object;
 
-    @SuppressWarnings("unchecked")
-    public Items(T object) {
+    public Items(Object object) {
         this.object = object;
-        this.type = (Class<T>) (isNull() ? null : object.getClass());
     }
 
     private Item create() {
         if (isSimple())
-            return new SimplePojoItem(type, object);
+            return new SimplePojoItem(object);
         if (isMap())
-            return new MapItem(type, object);
+            return new MapItem(object);
         if (isList())
-            return new ListItem(type, object);
-        return new PojoItem(type, object);
+            return new ListItem(object);
+        return new PojoItem(object);
     }
 
     private boolean isSimple() {
-        return isNull() || type == String.class || Number.class.isAssignableFrom(type) || type == Boolean.class
-                || type.isPrimitive();
+        return isNull() || object instanceof String || object instanceof Number || object instanceof Boolean
+                || object instanceof Character || object.getClass().isPrimitive();
     }
 
     private boolean isNull() {
@@ -36,10 +33,10 @@ public class Items<T> {
     }
 
     private boolean isMap() {
-        return Map.class.isAssignableFrom(type);
+        return object instanceof Map;
     }
 
     private boolean isList() {
-        return List.class.isAssignableFrom(type);
+        return object instanceof List;
     }
 }

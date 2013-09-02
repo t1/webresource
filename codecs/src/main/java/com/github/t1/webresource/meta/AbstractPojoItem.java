@@ -16,9 +16,9 @@ abstract class AbstractPojoItem implements Item {
     protected Map<String, Trait> traitMap = null;
     protected final AnnotatedElement annotations;
 
-    public <T> AbstractPojoItem(Class<T> type, T object) {
-        this.type = type;
+    public AbstractPojoItem(Object object) {
         this.object = object;
+        this.type = (object == null) ? null : object.getClass();
         this.annotations = annotations();
     }
 
