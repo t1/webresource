@@ -3,7 +3,7 @@ package com.github.t1.webresource.meta;
 import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
-public class MapItem extends PojoItem {
+class MapItem extends AbstractPojoItem {
     public <T> MapItem(Class<T> type, T object) {
         super(type, object);
     }

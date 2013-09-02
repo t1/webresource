@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class ListItem extends PojoItem {
+class ListItem extends AbstractPojoItem {
 
     public <T> ListItem(Class<T> type, T object) {
         super(type, object);

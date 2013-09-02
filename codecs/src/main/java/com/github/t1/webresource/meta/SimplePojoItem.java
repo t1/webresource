@@ -2,7 +2,7 @@ package com.github.t1.webresource.meta;
 
 import java.util.*;
 
-public class SimplePojoItem extends PojoItem {
+class SimplePojoItem extends AbstractPojoItem {
     private static final List<Trait> SIMPLE_TRAITS = Collections.<Trait> singletonList(SimpleTrait.SIMPLE);
 
     public <T> SimplePojoItem(Class<T> type, T object) {
