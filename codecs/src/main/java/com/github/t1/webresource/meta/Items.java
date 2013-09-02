@@ -1,23 +1,26 @@
 package com.github.t1.webresource.meta;
 
+import java.util.Map;
+
 public class Items<T> {
-    @SuppressWarnings("unchecked")
-    public static <T> Item newItem(T object) {
-        Class<T> type = (Class<T>) ((object == null) ? null : object.getClass());
-        return new Items<>(type, object).create();
+    public static Item newItem(Object object) {
+        return new Items<>(object).create();
     }
 
     private final Class<T> type;
     private final T object;
 
-    public Items(Class<T> type, T object) {
-        this.type = type;
+    @SuppressWarnings("unchecked")
+    public Items(T object) {
         this.object = object;
+        this.type = (Class<T>) (isNull() ? null : object.getClass());
     }
 
     private Item create() {
         if (isSimple())
             return new SimplePojoItem(type, object);
+        if (isMap())
+            return new MapItem(type, object);
         return new PojoItem(type, object);
     }
 
@@ -29,4 +32,9 @@ public class Items<T> {
     private boolean isNull() {
         return object == null;
     }
+
+    private boolean isMap() {
+        return Map.class.isAssignableFrom(type);
+    }
+
 }

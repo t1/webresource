@@ -18,4 +18,9 @@ public class SimplePojoItem extends PojoItem {
     public boolean isSimple() {
         return true;
     }
+
+    @Override
+    public boolean isNull() {
+        return object == null;
+    }
 }

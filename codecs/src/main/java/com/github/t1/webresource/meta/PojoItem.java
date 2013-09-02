@@ -7,25 +7,23 @@ import java.util.*;
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoItem implements Item {
-    private final Object object;
+    protected final Object object;
     private final Class<?> type;
-    private List<Trait> traits = null;
+    protected List<Trait> traits = null;
     private final AnnotatedElement annotations;
 
     public <T> PojoItem(Class<T> type, T object) {
         this.type = type;
         this.object = object;
-        this.annotations = annotations(type, object);
+        this.annotations = annotations();
     }
 
     private static <T> boolean isList(Class<T> type) {
         return List.class.isAssignableFrom(type);
     }
 
-    private static <T> AnnotatedElement annotations(Class<T> type, T object) {
+    protected <T> AnnotatedElement annotations() {
         if (type == null)
-            return null;
-        if (isMap(type))
             return null;
         if (isList(type)) {
             if (((List<?>) object).isEmpty()) {
@@ -35,10 +33,6 @@ public class PojoItem implements Item {
             }
         }
         return Annotations.on(type);
-    }
-
-    private static boolean isMap(Class<?> type) {
-        return Map.class.isAssignableFrom(type);
     }
 
     @Override
@@ -63,9 +57,7 @@ public class PojoItem implements Item {
     @Override
     public List<Trait> traits() {
         if (traits == null) {
-            if (isMap(type)) {
-                this.traits = mapTraits();
-            } else if (isList(type)) {
+            if (isList(type)) {
                 this.traits = new PojoTraits(type);
             } else {
                 this.traits = new PojoTraits(type);
@@ -81,17 +73,7 @@ public class PojoItem implements Item {
 
     @Override
     public boolean isNull() {
-        return object == null;
-    }
-
-    private List<Trait> mapTraits() {
-        List<Trait> traits = new ArrayList<>();
-        @SuppressWarnings("unchecked")
-        Map<String, ?> map = (Map<String, ?>) object;
-        for (String key : map.keySet()) {
-            traits.add(new MapTrait(key));
-        }
-        return traits;
+        return false;
     }
 
     @Override
