@@ -2,13 +2,13 @@ package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.util.*;
+import java.util.List;
 
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoItem implements Item {
     protected final Object object;
-    private final Class<?> type;
+    protected final Class<?> type;
     protected List<Trait> traits = null;
     private final AnnotatedElement annotations;
 
@@ -18,20 +18,7 @@ public class PojoItem implements Item {
         this.annotations = annotations();
     }
 
-    private static <T> boolean isList(Class<T> type) {
-        return List.class.isAssignableFrom(type);
-    }
-
     protected <T> AnnotatedElement annotations() {
-        if (type == null)
-            return null;
-        if (isList(type)) {
-            if (((List<?>) object).isEmpty()) {
-                return new NullAnnotatedElement();
-            } else {
-                return Annotations.on(((List<?>) object).get(0).getClass());
-            }
-        }
         return Annotations.on(type);
     }
 
@@ -42,26 +29,18 @@ public class PojoItem implements Item {
 
     @Override
     public boolean isList() {
-        return isList(type);
+        return false;
     }
 
     @Override
     public List<Item> getList() {
-        List<Item> result = new ArrayList<>();
-        for (Object element : ((List<?>) object)) {
-            result.add(Items.newItem(element));
-        }
-        return result;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Trait> traits() {
         if (traits == null) {
-            if (isList(type)) {
-                this.traits = new PojoTraits(type);
-            } else {
-                this.traits = new PojoTraits(type);
-            }
+            this.traits = new PojoTraits(type);
         }
         return traits;
     }

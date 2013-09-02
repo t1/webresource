@@ -1,6 +1,6 @@
 package com.github.t1.webresource.meta;
 
-import java.util.Map;
+import java.util.*;
 
 public class Items<T> {
     public static Item newItem(Object object) {
@@ -21,6 +21,8 @@ public class Items<T> {
             return new SimplePojoItem(type, object);
         if (isMap())
             return new MapItem(type, object);
+        if (isList())
+            return new ListItem(type, object);
         return new PojoItem(type, object);
     }
 
@@ -37,4 +39,7 @@ public class Items<T> {
         return Map.class.isAssignableFrom(type);
     }
 
+    private boolean isList() {
+        return List.class.isAssignableFrom(type);
+    }
 }
