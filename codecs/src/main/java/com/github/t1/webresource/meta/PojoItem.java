@@ -7,8 +7,6 @@ import java.util.*;
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoItem implements Item {
-    private static final List<Trait> SIMPLE_TRAITS = Collections.<Trait> singletonList(SimpleTrait.SIMPLE);
-
     private final Object object;
     private final Class<?> type;
     private List<Trait> traits = null;
@@ -65,9 +63,7 @@ public class PojoItem implements Item {
     @Override
     public List<Trait> traits() {
         if (traits == null) {
-            if (isSimple()) {
-                this.traits = SIMPLE_TRAITS;
-            } else if (isMap(type)) {
+            if (isMap(type)) {
                 this.traits = mapTraits();
             } else if (isList(type)) {
                 this.traits = new PojoTraits(type);
@@ -80,8 +76,7 @@ public class PojoItem implements Item {
 
     @Override
     public boolean isSimple() {
-        return isNull() || type == String.class || Number.class.isAssignableFrom(type) || type == Boolean.class
-                || type.isPrimitive();
+        return false;
     }
 
     @Override
