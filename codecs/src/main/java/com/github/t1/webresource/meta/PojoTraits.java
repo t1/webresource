@@ -16,10 +16,10 @@ public class PojoTraits extends ArrayList<Trait> {
     private static final long serialVersionUID = 1L;
 
     public PojoTraits(Class<?> type) {
-        provider(type).run();
+        collector(type).run();
     }
 
-    private PojoTraitAbstractCollector provider(Class<?> type) {
+    private PojoTraitAbstractCollector collector(Class<?> type) {
         AnnotatedElement annotations = Annotations.on(type);
         if (annotations.isAnnotationPresent(XmlRootElement.class)) {
             return new PojoTraitJaxbCollector(type, this, annotations);

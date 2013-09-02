@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 import lombok.*;
 
@@ -414,7 +414,8 @@ public class HtmlEncoderTest {
 
     @Data
     @AllArgsConstructor
-    @XmlType(propOrder = { "str", "list" })
+    @XmlRootElement
+    @XmlType(propOrder = { "list", "str" })
     private static class ListPojo {
         private String str;
         private List<String> list;
@@ -438,7 +439,6 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    @Ignore
     public void shouldWriteTableWithListPojo() throws Exception {
         ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
         ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
