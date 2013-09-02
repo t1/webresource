@@ -4,7 +4,11 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-/** A helper class to write objects as an url-form-encoded string... without the actual binding */
+/**
+ * A helper class to write objects as an url-form-encoded string... without the actual binding
+ * <p>
+ * TODO use {@link com.github.t1.webresource.meta.Item Item}s
+ */
 public class UrlEncoder {
     private Writer escaped;
     private Writer unescaped;
