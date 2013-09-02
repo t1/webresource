@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
 /**
- * TODO traits of superclasses
+ * TODO traits of super classes
  */
 public abstract class PojoTraitAbstractCollector {
 
