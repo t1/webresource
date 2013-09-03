@@ -276,9 +276,10 @@ public class HtmlEncoder {
     private void writeTraits(List<Trait> traits) throws IOException {
         for (Trait trait : traits) {
             try (Tag div = new Tag("div")) {
-                String id = id(trait.getName());
-                try (Tag label = new Tag("label", new Attribute("for", id))) {
-                    escaped.write(trait.getName());
+                String name = trait.getName();
+                String id = id(name);
+                try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
+                    escaped.write(name);
                 }
                 writeItem(item, trait, id);
             }

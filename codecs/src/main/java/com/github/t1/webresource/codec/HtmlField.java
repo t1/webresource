@@ -47,11 +47,16 @@ public class HtmlField implements CharSequence {
         result.append("<input");
         if (id != null)
             result.append(" id='" + id + "'");
+        result.append(" class='" + cssClass() + "'");
         result.append(" type='" + typeFor(value) + "'");
         if (value != null)
             result.append(" value='" + value + "' readonly");
         result.append("/>\n");
         return result.toString();
+    }
+
+    private String cssClass() {
+        return trait.getName();
     }
 
     private String typeFor(Object value) {

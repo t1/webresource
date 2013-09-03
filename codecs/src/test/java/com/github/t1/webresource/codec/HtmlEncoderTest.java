@@ -95,7 +95,7 @@ public class HtmlEncoderTest {
 
         writer(map).write();
 
-        assertEquals(wrapped(div("one-0", "one", "111") + div("two-0", "two", "222") + div("three-0", "three", "333")),
+        assertEquals(wrapped(div("one", "one", "111") + div("two", "two", "222") + div("three", "three", "333")),
                 result());
     }
 
@@ -106,12 +106,12 @@ public class HtmlEncoderTest {
     private String div(String id, String name, String value, String type) {
         return "<div>" //
                 + label(id, name) //
-                + "<input id='" + id + "' type='" + type + "' value='" + value + "' readonly/>" //
+                + "<input id='" + id + "-0' class='" + name + "' type='" + type + "' value='" + value + "' readonly/>" //
                 + "</div>";
     }
 
     private String label(String id, String name) {
-        return "<label for='" + id + "'>" + name + "</label>";
+        return "<label for='" + id + "-0' class='" + id + "-label'>" + name + "</label>";
     }
 
     @Test
@@ -200,8 +200,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("i-0", "i", "123")));
-        assertThat(result(), containsString(div("str-0", "str", "dummy")));
+        assertThat(result(), containsString(div("i", "i", "123")));
+        assertThat(result(), containsString(div("str", "str", "dummy")));
     }
 
     @Test
@@ -235,8 +235,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("b-0", "b", "true", "checkbox")));
-        assertThat(result(), containsString(div("str-0", "str", "dummy")));
+        assertThat(result(), containsString(div("b", "b", "true", "checkbox")));
+        assertThat(result(), containsString(div("str", "str", "dummy")));
     }
 
     @AllArgsConstructor
@@ -408,8 +408,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("str-0", "str", "dummy")));
-        assertThat(result(), containsString(div("set-0", "set", "[one, two, three]")));
+        assertThat(result(), containsString(div("str", "str", "dummy")));
+        assertThat(result(), containsString(div("set", "set", "[one, two, three]")));
     }
 
     @Data
@@ -427,9 +427,9 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("str-0", "str", "dummy")));
+        assertThat(result(), containsString(div("str", "str", "dummy")));
         assertThat(result(), containsString("<div>" //
-                + label("list-0", "list") //
+                + label("list", "list") //
                 + "<ul>" //
                 + "<li>one</li>" //
                 + "<li>two</li>" //
