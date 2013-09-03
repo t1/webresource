@@ -199,7 +199,7 @@ public class HtmlEncoder {
         try (Tag ul = new Tag("ul")) {
             for (Item element : list) {
                 try (Tag li = new Tag("li")) {
-                    escaped.append(new HtmlField(element, trait));
+                    writeItem(element, trait, null);
                 }
             }
         }
@@ -242,11 +242,9 @@ public class HtmlEncoder {
     private void writeItem(Item item, Trait trait, String id) throws IOException {
         Item cellItem = Items.newItem(item.get(trait));
         if (cellItem.isList()) {
-            writeBulletList(cellItem.getList());
+            writeBulletList(cellItem.getList(), SIMPLE);
         } else {
-            HtmlField field = new HtmlField(item, trait);
-            if (id != null)
-                field.id(id);
+            HtmlField field = new HtmlField(item, trait).id(id);
             unescaped.append(field);
         }
     }
@@ -257,14 +255,14 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                writeTrait(traits.get(0));
+                writeTrait(item, traits.get(0));
                 break;
             default:
                 writeTraits(traits);
         }
     }
 
-    private void writeTrait(Trait trait) throws IOException {
+    private void writeTrait(Item item, Trait trait) throws IOException {
         if (item.isSimple()) { // prevent recursion
             escaped.append(new HtmlField(item, SIMPLE));
         } else {
@@ -282,16 +280,6 @@ public class HtmlEncoder {
                     escaped.write(name);
                 }
                 writeItem(item, trait, id);
-            }
-        }
-    }
-
-    private void writeBulletList(List<Item> list) throws IOException {
-        try (Tag ul = new Tag("ul")) {
-            for (Item element : list) {
-                try (Tag li = new Tag("li")) {
-                    escaped.append(Objects.toString(element.get(SIMPLE)));
-                }
             }
         }
     }

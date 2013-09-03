@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.*;
 import lombok.*;
 
 import com.github.t1.webresource.*;
+import com.github.t1.webresource.codec.HtmlStyleSheet;
 
 @Entity
 @WebResource
