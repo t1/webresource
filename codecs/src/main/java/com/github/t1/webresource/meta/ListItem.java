@@ -13,11 +13,15 @@ class ListItem extends AbstractPojoItem {
 
     @Override
     protected <T> AnnotatedElement annotations() {
-        if (((List<?>) object).isEmpty()) {
+        if (empty()) {
             return new NullAnnotatedElement();
         } else {
             return Annotations.on(elementType());
         }
+    }
+
+    private boolean empty() {
+        return ((List<?>) object).isEmpty();
     }
 
     private Class<? extends Object> elementType() {
@@ -41,6 +45,8 @@ class ListItem extends AbstractPojoItem {
     @Override
     public List<Trait> traits() {
         if (traits == null) {
+            if (empty())
+                return Collections.emptyList();
             this.traits = new PojoTraits(elementType());
         }
         return traits;

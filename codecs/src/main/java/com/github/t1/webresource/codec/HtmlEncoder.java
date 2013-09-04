@@ -173,13 +173,13 @@ public class HtmlEncoder {
             return;
         nl();
         if (item.isList()) {
-            writeList();
+            writeItemList();
         } else {
             writeMap();
         }
     }
 
-    private void writeList() throws IOException {
+    private void writeItemList() throws IOException {
         List<Item> list = item.getList();
         if (list.isEmpty())
             return;
@@ -188,18 +188,18 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                writeBulletList(list, traits.get(0));
+                writeTraitList(list, traits.get(0));
                 break;
             default:
                 writeTable(list, traits);
         }
     }
 
-    private void writeBulletList(List<Item> list, Trait trait) throws IOException {
+    private void writeTraitList(List<Item> list, Trait trait) throws IOException {
         try (Tag ul = new Tag("ul")) {
             for (Item element : list) {
                 try (Tag li = new Tag("li")) {
-                    writeItem(element, trait, null);
+                    writeField(element, trait, null);
                 }
             }
         }
@@ -233,16 +233,16 @@ public class HtmlEncoder {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
-                    writeItem(rowItem, trait, null);
+                    writeField(rowItem, trait, null);
                 }
             }
         }
     }
 
-    private void writeItem(Item item, Trait trait, String id) throws IOException {
+    private void writeField(Item item, Trait trait, String id) throws IOException {
         Item cellItem = Items.newItem(item.get(trait));
         if (cellItem.isList()) {
-            writeBulletList(cellItem.getList(), SIMPLE);
+            writeTraitList(cellItem.getList(), SIMPLE);
         } else {
             HtmlField field = new HtmlField(item, trait).id(id);
             unescaped.append(field);
@@ -264,7 +264,7 @@ public class HtmlEncoder {
 
     private void writeTrait(Item item, Trait trait) throws IOException {
         if (item.isSimple()) { // prevent recursion
-            escaped.append(new HtmlField(item, SIMPLE));
+            escaped.append(Objects.toString(item.get(trait)));
         } else {
             Object value = item.get(trait);
             new HtmlEncoder(value, unescaped, baseUri).writeBody();
@@ -279,7 +279,7 @@ public class HtmlEncoder {
                 try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
                     escaped.write(name);
                 }
-                writeItem(item, trait, id);
+                writeField(item, trait, id);
             }
         }
     }
