@@ -40,10 +40,10 @@ public class HtmlField implements CharSequence {
 
     @Override
     public String toString() {
-        if (id == null)
-            return Objects.toString(item.get(trait));
-        StringBuilder result = new StringBuilder();
         Object value = item.get(trait);
+        if (id == null)
+            return Objects.toString(value);
+        StringBuilder result = new StringBuilder();
         result.append("<input");
         if (id != null)
             result.append(" id='" + id + "'");

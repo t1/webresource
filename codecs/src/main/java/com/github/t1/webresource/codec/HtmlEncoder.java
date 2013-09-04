@@ -240,12 +240,19 @@ public class HtmlEncoder {
     }
 
     private void writeField(Item item, Trait trait, String id) throws IOException {
-        Item cellItem = Items.newItem(item.get(trait));
-        if (cellItem.isList()) {
-            writeTraitList(cellItem.getList(), SIMPLE);
+        Object value = item.get(trait);
+        if (value == null) {
+            // append nothing
+        } else if (item.isSimple()) {
+            escaped.append(Objects.toString(value));
         } else {
-            HtmlField field = new HtmlField(item, trait).id(id);
-            unescaped.append(field);
+            Item cellItem = Items.newItem(value);
+            if (cellItem.isList()) {
+                writeTraitList(cellItem.getList(), SIMPLE);
+            } else {
+                HtmlField field = new HtmlField(item, trait).id(id);
+                unescaped.append(field);
+            }
         }
     }
 
@@ -255,19 +262,10 @@ public class HtmlEncoder {
             case 0:
                 break;
             case 1:
-                writeTrait(item, traits.get(0));
+                writeField(item, traits.get(0), null);
                 break;
             default:
                 writeTraits(traits);
-        }
-    }
-
-    private void writeTrait(Item item, Trait trait) throws IOException {
-        if (item.isSimple()) { // prevent recursion
-            escaped.append(Objects.toString(item.get(trait)));
-        } else {
-            Object value = item.get(trait);
-            new HtmlEncoder(value, unescaped, baseUri).writeBody();
         }
     }
 
