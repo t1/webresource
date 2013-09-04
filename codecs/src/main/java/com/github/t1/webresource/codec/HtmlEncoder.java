@@ -250,7 +250,9 @@ public class HtmlEncoder {
             if (cellItem.isList()) {
                 writeTraitList(cellItem.getList(), SIMPLE);
             } else if (cellItem.traits().size() > 1) {
-                new HtmlEncoder(value, unescaped, baseUri).writeBody();
+                try (Tag div = new Tag("div")) {
+                    new HtmlEncoder(value, unescaped, baseUri).writeBody();
+                }
             } else {
                 HtmlField field = new HtmlField(item, trait).id(id);
                 unescaped.append(field);

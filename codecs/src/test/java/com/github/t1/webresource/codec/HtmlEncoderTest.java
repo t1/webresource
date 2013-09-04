@@ -477,10 +477,8 @@ public class HtmlEncoderTest {
         writer(pojo).write();
 
         assertThat(result(), containsString(div("str", "str", "dummy")));
-        assertThat(
-                result(),
-                containsString("<div><label for='nested-0' class='nested-label'>nested</label>"
-                        + div("str", "str", "foo") + div("i", "i", "123") + "</div>"));
+        assertThat(result(), containsString("<div><label for='nested-0' class='nested-label'>nested</label><div>"
+                + div("str", "str", "foo") + div("i", "i", "123") + "</div></div>"));
     }
 
     @Test
@@ -493,14 +491,14 @@ public class HtmlEncoderTest {
 
         assertEquals(
                 wrapped("<table><thead><tr><th>nested</th><th>str</th></tr></thead><tbody>" //
-                        + "<tr><td>" //
+                        + "<tr><td><div>" //
                         + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='foo' readonly/></div>" //
                         + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='123' readonly/></div>" //
-                        + "</td><td>dummy1</td></tr>" //
-                        + "<tr><td>" //
+                        + "</div></td><td>dummy1</td></tr>" //
+                        + "<tr><td><div>" //
                         + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='bar' readonly/></div>" //
                         + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='321' readonly/></div>" //
-                        + "</td><td>dummy2</td></tr>" //
+                        + "</div></td><td>dummy2</td></tr>" //
                         + "</tbody></table>"), result());
     }
 }
