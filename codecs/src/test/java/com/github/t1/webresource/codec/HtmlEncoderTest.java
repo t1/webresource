@@ -446,11 +446,61 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals("<html><head></head><body><table><thead>" //
+        assertEquals(wrapped("<table><thead>" //
                 + "<tr><th>list</th><th>str</th></tr></thead>" //
                 + "<tbody>" //
                 + "<tr><td><ul><li>one1</li><li>two1</li><li>three1</li></ul></td><td>dummy1</td></tr>" //
                 + "<tr><td><ul><li>one2</li><li>two2</li><li>three2</li></ul></td><td>dummy2</td></tr>" //
-                + "</tbody></table></body></html>", result());
+                + "</tbody></table>"), result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class NestedPojo {
+        public String str;
+        public Integer i;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @XmlRootElement
+    @XmlType(propOrder = { "nested", "str" })
+    private static class ContainerPojo {
+        private String str;
+        private NestedPojo nested;
+    }
+
+    @Test
+    public void shouldWriteNestedPojo() throws Exception {
+        ContainerPojo pojo = new ContainerPojo("dummy", new NestedPojo("foo", 123));
+
+        writer(pojo).write();
+
+        assertThat(result(), containsString(div("str", "str", "dummy")));
+        assertThat(
+                result(),
+                containsString("<div><label for='nested-0' class='nested-label'>nested</label>"
+                        + div("str", "str", "foo") + div("i", "i", "123") + "</div>"));
+    }
+
+    @Test
+    public void shouldWriteTableWithContainerPojo() throws Exception {
+        ContainerPojo pojo1 = new ContainerPojo("dummy1", new NestedPojo("foo", 123));
+        ContainerPojo pojo2 = new ContainerPojo("dummy2", new NestedPojo("bar", 321));
+        List<ContainerPojo> list = ImmutableList.of(pojo1, pojo2);
+
+        writer(list).write();
+
+        assertEquals(
+                wrapped("<table><thead><tr><th>nested</th><th>str</th></tr></thead><tbody>" //
+                        + "<tr><td>" //
+                        + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='foo' readonly/></div>" //
+                        + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='123' readonly/></div>" //
+                        + "</td><td>dummy1</td></tr>" //
+                        + "<tr><td>" //
+                        + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='bar' readonly/></div>" //
+                        + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='321' readonly/></div>" //
+                        + "</td><td>dummy2</td></tr>" //
+                        + "</tbody></table>"), result());
     }
 }
