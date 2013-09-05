@@ -64,7 +64,15 @@ public class HtmlEncoderTest {
     public void shouldEncodeList() throws Exception {
         writer(asList("one", "two", "three")).write();
 
-        assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
+        assertEquals(wrapped(ul("one", "two", "three")), result());
+    }
+
+    private String ul(String... items) {
+        String lis = "";
+        for (String item : items) {
+            lis += "<li>" + item + "</li>";
+        }
+        return "<ul>" + lis + "</ul>";
     }
 
     @Test
@@ -95,23 +103,28 @@ public class HtmlEncoderTest {
 
         writer(map).write();
 
-        assertEquals(wrapped(div("one", "one", "111") + div("two", "two", "222") + div("three", "three", "333")),
-                result());
+        assertEquals(wrapped(field("one", "111") + field("two", "222") + field("three", "333")), result());
     }
 
-    private String div(String id, String name, String value) {
-        return div(id, name, value, "text");
+    private String field(String name, String value) {
+        return field(name, value, "text");
     }
 
-    private String div(String id, String name, String value, String type) {
-        return "<div>" //
-                + label(id, name) //
-                + "<input id='" + id + "-0' class='" + name + "' type='" + type + "' value='" + value + "' readonly/>" //
-                + "</div>";
+    private String field(String name, String value, String type) {
+        return div( //
+        label(name) //
+                + "<input id='" + name + "-0' class='" + name + "' type='" + type + "' value='"
+                + value
+                + "' readonly/>" //
+        );
     }
 
-    private String label(String id, String name) {
-        return "<label for='" + id + "-0' class='" + id + "-label'>" + name + "</label>";
+    private String div(String body) {
+        return "<div>" + body + "</div>";
+    }
+
+    private String label(String name) {
+        return "<label for='" + name + "-0' class='" + name + "-label'>" + name + "</label>";
     }
 
     @Test
@@ -124,7 +137,7 @@ public class HtmlEncoderTest {
 
         writer(Arrays.asList(map0, map1)).write();
 
-        assertEquals(wrapped("<ul><li>111</li><li>aaa</li></ul>"), result());
+        assertEquals(wrapped(ul("111", "aaa")), result());
     }
 
     @Test
@@ -141,14 +154,30 @@ public class HtmlEncoderTest {
 
         writer(Arrays.asList(map0, map1)).write();
 
-        assertEquals(wrapped("<table>" //
-                + "<thead>" //
-                + "<tr><th>one</th><th>two</th><th>three</th></tr>" //
-                + "</thead><tbody>" //
-                + "<tr><td>111</td><td>222</td><td>333</td></tr>" //
-                + "<tr><td>aaa</td><td>bbb</td><td>ccc</td></tr>" //
-                + "</tbody>" //
-                + "</table>"), result());
+        assertEquals(wrapped(table("one", "two", "three") //
+                + tr("111", "222", "333") //
+                + tr("aaa", "bbb", "ccc") //
+                + endTable()), result());
+    }
+
+    private String table(String... columns) {
+        String ths = "";
+        for (String column : columns) {
+            ths += "<th>" + column + "</th>";
+        }
+        return "<table><thead><tr>" + ths + "</tr></thead><tbody>";
+    }
+
+    private String endTable() {
+        return "</tbody></table>";
+    }
+
+    private String tr(String... columns) {
+        String tds = "";
+        for (String column : columns) {
+            tds += "<td>" + column + "</td>";
+        }
+        return "<tr>" + tds + "</tr>";
     }
 
     @Data
@@ -184,7 +213,7 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals(wrapped("<ul><li>one</li><li>two</li><li>three</li></ul>"), result());
+        assertEquals(wrapped(ul("one", "two", "three")), result());
     }
 
     @AllArgsConstructor
@@ -200,8 +229,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("i", "i", "123")));
-        assertThat(result(), containsString(div("str", "str", "dummy")));
+        assertThat(result(), containsString(field("i", "123")));
+        assertThat(result(), containsString(field("str", "dummy")));
     }
 
     @Test
@@ -212,14 +241,10 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals(wrapped("<table>" //
-                + "<thead>" //
-                + "<tr><th>str</th><th>i</th></tr>" //
-                + "</thead><tbody>" //
-                + "<tr><td>one</td><td>111</td></tr>" //
-                + "<tr><td>two</td><td>222</td></tr>" //
-                + "</tbody>" //
-                + "</table>"), result());
+        assertEquals(wrapped(table("str", "i") //
+                + tr("one", "111") //
+                + tr("two", "222") //
+                + endTable()), result());
     }
 
     @Data
@@ -235,8 +260,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("b", "b", "true", "checkbox")));
-        assertThat(result(), containsString(div("str", "str", "dummy")));
+        assertThat(result(), containsString(field("b", "true", "checkbox")));
+        assertThat(result(), containsString(field("str", "dummy")));
     }
 
     @AllArgsConstructor
@@ -301,7 +326,7 @@ public class HtmlEncoderTest {
 
         assertEquals("<html><head>" //
                 + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
-                + "</head><body><ul><li>a</li><li>b</li></ul></body></html>", result());
+                + "</head><body>" + ul("a", "b") + "</body></html>", result());
     }
 
     @Data
@@ -408,8 +433,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("str", "str", "dummy")));
-        assertThat(result(), containsString(div("set", "set", "[one, two, three]")));
+        assertThat(result(), containsString(field("str", "dummy")));
+        assertThat(result(), containsString(field("set", "[one, two, three]")));
     }
 
     @Data
@@ -427,15 +452,8 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("str", "str", "dummy")));
-        assertThat(result(), containsString("<div>" //
-                + label("list", "list") //
-                + "<ul>" //
-                + "<li>one</li>" //
-                + "<li>two</li>" //
-                + "<li>three</li>" //
-                + "</ul>" //
-                + "</div>"));
+        assertThat(result(), containsString(field("str", "dummy")));
+        assertThat(result(), containsString(div(label("list") + ul("one", "two", "three"))));
     }
 
     @Test
@@ -446,12 +464,10 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals(wrapped("<table><thead>" //
-                + "<tr><th>list</th><th>str</th></tr></thead>" //
-                + "<tbody>" //
-                + "<tr><td><ul><li>one1</li><li>two1</li><li>three1</li></ul></td><td>dummy1</td></tr>" //
-                + "<tr><td><ul><li>one2</li><li>two2</li><li>three2</li></ul></td><td>dummy2</td></tr>" //
-                + "</tbody></table>"), result());
+        assertEquals(wrapped(table("list", "str") //
+                + tr(ul("one1", "two1", "three1"), "dummy1") //
+                + tr(ul("one2", "two2", "three2"), "dummy2") //
+                + endTable()), result());
     }
 
     @Data
@@ -476,9 +492,9 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div("str", "str", "dummy")));
-        assertThat(result(), containsString("<div><label for='nested-0' class='nested-label'>nested</label><div>"
-                + div("str", "str", "foo") + div("i", "i", "123") + "</div></div>"));
+        assertThat(result(), containsString(field("str", "dummy")));
+        assertThat(result(), containsString(div(//
+                label("nested") + div(field("str", "foo") + field("i", "123")))));
     }
 
     @Test
@@ -490,15 +506,13 @@ public class HtmlEncoderTest {
         writer(list).write();
 
         assertEquals(
-                wrapped("<table><thead><tr><th>nested</th><th>str</th></tr></thead><tbody>" //
-                        + "<tr><td><div>" //
-                        + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='foo' readonly/></div>" //
-                        + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='123' readonly/></div>" //
-                        + "</div></td><td>dummy1</td></tr>" //
-                        + "<tr><td><div>" //
-                        + "<div><label for='str-0' class='str-label'>str</label><input id='str-0' class='str' type='text' value='bar' readonly/></div>" //
-                        + "<div><label for='i-0' class='i-label'>i</label><input id='i-0' class='i' type='text' value='321' readonly/></div>" //
-                        + "</div></td><td>dummy2</td></tr>" //
-                        + "</tbody></table>"), result());
+                wrapped(table("nested", "str")
+                        + tr(div(div(label("str") + "<input id='str-0' class='str' type='text' value='foo' readonly/>")
+                                + div(label("i") + "<input id='i-0' class='i' type='text' value='123' readonly/>")),
+                                "dummy1")
+                        + tr(div(div(label("str") + "<input id='str-0' class='str' type='text' value='bar' readonly/>")
+                                + div(label("i") + "<input id='i-0' class='i' type='text' value='321' readonly/>")),
+                                "dummy2") //
+                        + endTable()), result());
     }
 }
