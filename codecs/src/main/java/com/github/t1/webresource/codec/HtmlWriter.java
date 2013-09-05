@@ -1,48 +1,44 @@
 package com.github.t1.webresource.codec;
 
-import java.io.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import java.io.Writer;
+import java.net.URI;
+import java.nio.file.*;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.ext.*;
+/**
+ * The context to pass around {@link AbstractHtmlWriter}s. It's a writer and holds the base uri to resolve things
+ * against.
+ */
+public class HtmlWriter extends CodePointFilterWriter {
+    private final URI baseUri;
 
-import lombok.extern.slf4j.Slf4j;
-
-/** Binding for a {@link HtmlEncoder} to JAX-RS */
-@Slf4j
-@Provider
-@Produces("text/html")
-public class HtmlWriter implements MessageBodyWriter<Object> {
-
-    @Context
-    UriInfo uriInfo;
-
-    @Override
-    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return true;
+    public HtmlWriter(Writer out, URI baseUri) {
+        super(out);
+        this.baseUri = baseUri;
     }
 
-    @Override
-    public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return -1;
+    /**
+     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
+     * which is the first path element.
+     */
+    public Path applicationPath() {
+        return Paths.get(baseUri.getPath()).getName(0);
     }
 
-    @Override
-    public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException,
-            WebApplicationException {
-        log.debug("start html-encoding");
-        Writer out = new OutputStreamWriter(entityStream);
-        try {
-            new HtmlEncoder(t, out, (uriInfo == null) ? null : uriInfo.getBaseUri()).write();
-        } catch (RuntimeException | IOException e) {
-            log.error("error while encoding", e);
-            throw e;
-        } finally {
-            out.flush(); // doesn't work without this :-(
-            log.debug("done html-encoding");
+    /**
+     * Resolve the given URI.
+     * 
+     * @see HtmlStyleSheet
+     */
+    public URI resolve(URI uri) {
+        if (uri.isAbsolute())
+            return uri;
+        if (uri.getPath() == null)
+            throw new IllegalArgumentException("the given uri has no path: " + uri);
+        if (uri.getPath().startsWith("/")) {
+            return baseUri.resolve(uri.getPath());
+        } else {
+            Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
+            return baseUri.resolve("/" + path);
         }
     }
 }
