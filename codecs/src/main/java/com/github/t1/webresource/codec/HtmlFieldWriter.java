@@ -2,8 +2,7 @@ package com.github.t1.webresource.codec;
 
 import static com.github.t1.webresource.meta.SimpleTrait.*;
 
-import java.io.*;
-import java.net.URI;
+import java.io.IOException;
 import java.util.Objects;
 
 import com.github.t1.webresource.meta.*;
@@ -13,8 +12,8 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
     private final Trait trait;
     private final String id;
 
-    public HtmlFieldWriter(Writer out, URI baseUri, Item item, Trait trait, String id) {
-        super(out, baseUri);
+    public HtmlFieldWriter(AbstractHtmlWriter context, Item item, Trait trait, String id) {
+        super(context);
         this.item = item;
         this.trait = trait;
         this.id = id;

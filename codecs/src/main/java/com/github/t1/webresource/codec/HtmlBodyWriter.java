@@ -1,18 +1,16 @@
 package com.github.t1.webresource.codec;
 
-import java.io.*;
-import java.net.URI;
-import java.util.*;
+import java.io.IOException;
+import java.util.List;
 
 import com.github.t1.webresource.meta.*;
 
 public class HtmlBodyWriter extends AbstractHtmlWriter {
 
-    private final Map<String, Integer> ids = new HashMap<>();
     private final Item item;
 
-    public HtmlBodyWriter(Writer out, URI baseUri, Item item) {
-        super(out, baseUri);
+    public HtmlBodyWriter(AbstractHtmlWriter context, Item item) {
+        super(context);
         this.item = item;
     }
 
@@ -65,13 +63,5 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
                 writeField(item, trait, id);
             }
         }
-    }
-
-    private String id(String name) {
-        Integer i = ids.get(name);
-        if (i == null)
-            i = 0;
-        ids.put(name, i + 1);
-        return name + "-" + i;
     }
 }

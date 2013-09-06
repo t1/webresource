@@ -10,8 +10,8 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
 
     private final Item item;
 
-    public HtmlHeadWriter(Writer out, URI baseUri, Item item) {
-        super(out, baseUri);
+    public HtmlHeadWriter(AbstractHtmlWriter context, Item item) {
+        super(context);
         this.item = item;
     }
 

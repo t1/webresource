@@ -3,7 +3,7 @@ package com.github.t1.webresource.codec;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.List;
+import java.util.*;
 
 import lombok.*;
 
@@ -36,30 +36,38 @@ public class AbstractHtmlWriter {
     @Delegate
     private final Writer out;
     private final URI baseUri;
+    private final Map<String, Integer> ids;
 
     public AbstractHtmlWriter(Writer out, URI baseUri) {
         this.out = out;
         this.baseUri = baseUri;
+        this.ids = new HashMap<String, Integer>();
+    }
+
+    public AbstractHtmlWriter(AbstractHtmlWriter context) {
+        this.out = context.out;
+        this.baseUri = context.baseUri;
+        this.ids = context.ids;
     }
 
     public void writeHead(Item item) throws IOException {
-        new HtmlHeadWriter(out, baseUri, item).write();
+        new HtmlHeadWriter(this, item).write();
     }
 
     public void writeBody(Item item) throws IOException {
-        new HtmlBodyWriter(out, baseUri, item).write();
+        new HtmlBodyWriter(this, item).write();
     }
 
     public void writeList(List<Item> list, Trait trait) throws IOException {
-        new HtmlListWriter(out, baseUri, list, trait).write();
+        new HtmlListWriter(this, list, trait).write();
     }
 
     public void writeField(Item item, Trait trait, String id) throws IOException {
-        new HtmlFieldWriter(out, baseUri, item, trait, id).write();
+        new HtmlFieldWriter(this, item, trait, id).write();
     }
 
     public void writeTable(List<Item> list, List<Trait> traits) throws IOException {
-        new HtmlTableWriter(out, baseUri, list, traits).write();
+        new HtmlTableWriter(this, list, traits).write();
     }
 
     protected void write(Exception e) {
@@ -98,5 +106,13 @@ public class AbstractHtmlWriter {
             Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
             return baseUri.resolve("/" + path);
         }
+    }
+
+    protected String id(String name) {
+        Integer i = ids.get(name);
+        if (i == null)
+            i = 0;
+        ids.put(name, i + 1);
+        return name + "-" + i;
     }
 }

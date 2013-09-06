@@ -107,13 +107,20 @@ public class HtmlEncoderTest {
     }
 
     private String field(String name, String value) {
-        return field(name, value, "text");
+        return field(name, value, 0);
+    }
+
+    private String field(String name, String value, int id) {
+        return field(name, value, id, "text");
     }
 
     private String field(String name, String value, String type) {
-        return div( //
-        label(name) //
-                + "<input id='" + name + "-0' class='" + name + "' type='" + type + "' value='"
+        return field(name, value, 0, type);
+    }
+
+    private String field(String name, String value, int id, String type) {
+        return div(label(name, id) //
+                + "<input id='" + name + "-" + id + "' class='" + name + "' type='" + type + "' value='"
                 + value
                 + "' readonly/>" //
         );
@@ -124,7 +131,11 @@ public class HtmlEncoderTest {
     }
 
     private String label(String name) {
-        return "<label for='" + name + "-0' class='" + name + "-label'>" + name + "</label>";
+        return label(name, 0);
+    }
+
+    private String label(String name, int id) {
+        return "<label for='" + name + "-" + id + "' class='" + name + "-label'>" + name + "</label>";
     }
 
     @Test
@@ -492,9 +503,9 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(field("str", "dummy")));
         assertThat(result(), containsString(div(//
                 label("nested") + div(field("str", "foo") + field("i", "123")))));
+        assertThat(result(), containsString(field("str", "dummy", 1)));
     }
 
     @Test
@@ -510,8 +521,9 @@ public class HtmlEncoderTest {
                         + tr(div(div(label("str") + "<input id='str-0' class='str' type='text' value='foo' readonly/>")
                                 + div(label("i") + "<input id='i-0' class='i' type='text' value='123' readonly/>")),
                                 "dummy1")
-                        + tr(div(div(label("str") + "<input id='str-0' class='str' type='text' value='bar' readonly/>")
-                                + div(label("i") + "<input id='i-0' class='i' type='text' value='321' readonly/>")),
+                        + tr(div(div(label("str", 1)
+                                + "<input id='str-1' class='str' type='text' value='bar' readonly/>")
+                                + div(label("i", 1) + "<input id='i-1' class='i' type='text' value='321' readonly/>")),
                                 "dummy2") //
                         + endTable()), result());
     }
