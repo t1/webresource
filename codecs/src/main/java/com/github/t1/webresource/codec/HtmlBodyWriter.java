@@ -21,7 +21,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         if (item.isList()) {
             writeItemList();
         } else {
-            writeMap();
+            writeForm(item);
         }
     }
 
@@ -36,32 +36,6 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
             writeList(list, traits.get(0));
         } else {
             writeTable(list, traits);
-        }
-    }
-
-    private void writeMap() throws IOException {
-        List<Trait> traits = item.traits();
-        switch (traits.size()) {
-            case 0:
-                break;
-            case 1:
-                writeField(item, traits.get(0), null);
-                break;
-            default:
-                writeTraits(traits);
-        }
-    }
-
-    private void writeTraits(List<Trait> traits) throws IOException {
-        for (Trait trait : traits) {
-            try (Tag div = new Tag("div")) {
-                String name = trait.getName();
-                String id = id(name);
-                try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
-                    escaped().write(name);
-                }
-                writeField(item, trait, id);
-            }
         }
     }
 }

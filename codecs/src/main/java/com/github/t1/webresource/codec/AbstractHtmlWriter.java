@@ -58,6 +58,10 @@ public class AbstractHtmlWriter {
         new HtmlBodyWriter(this, item).write();
     }
 
+    public void writeForm(Item item) throws IOException {
+        new HtmlFormWriter(this, item).write();
+    }
+
     public void writeList(List<Item> list, Trait trait) throws IOException {
         new HtmlListWriter(this, list, trait).write();
     }
