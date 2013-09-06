@@ -128,7 +128,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldEncodeListOfOneElementMapsAsList() throws Exception {
+    public void shouldEncodeListOfOneElementMapsAsTable() throws Exception {
         Map<String, String> map0 = new LinkedHashMap<>();
         map0.put("one", "111");
 
@@ -137,7 +137,7 @@ public class HtmlEncoderTest {
 
         writer(Arrays.asList(map0, map1)).write();
 
-        assertEquals(wrapped(ul("111", "aaa")), result());
+        assertEquals(wrapped(table("one") + tr("111") + tr("aaa") + endTable()), result());
     }
 
     @Test
@@ -205,7 +205,7 @@ public class HtmlEncoderTest {
     }
 
     @Test
-    public void shouldWriteOneStringPojoListAsUnorderedList() throws Exception {
+    public void shouldWriteOneStringPojoListAsTable() throws Exception {
         OneStringPojo pojo1 = new OneStringPojo("one");
         OneStringPojo pojo2 = new OneStringPojo("two");
         OneStringPojo pojo3 = new OneStringPojo("three");
@@ -213,7 +213,7 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals(wrapped(ul("one", "two", "three")), result());
+        assertEquals(wrapped(table("string") + tr("one") + tr("two") + tr("three") + endTable()), result());
     }
 
     @AllArgsConstructor
@@ -311,9 +311,9 @@ public class HtmlEncoderTest {
 
         writer(pojo).write();
 
-        assertEquals("<html><head>" //
+        assertThat(result(), containsString("<html><head>" //
                 + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
-                + "</head><body>dummy</body></html>", result());
+                + "</head>"));
     }
 
     @Test
@@ -324,9 +324,9 @@ public class HtmlEncoderTest {
 
         writer(list).write();
 
-        assertEquals("<html><head>" //
+        assertThat(result(), containsString("<html><head>" //
                 + "<link rel='stylesheet' href='/root-path' type='text/css'/>" //
-                + "</head><body>" + ul("a", "b") + "</body></html>", result());
+                + "</head>"));
     }
 
     @Data

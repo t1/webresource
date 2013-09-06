@@ -32,14 +32,12 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         if (list.isEmpty())
             return;
         List<Trait> traits = list.get(0).traits();
-        switch (traits.size()) {
-            case 0:
-                break;
-            case 1:
-                writeList(list, traits.get(0));
-                break;
-            default:
-                writeTable(list, traits);
+        if (traits.isEmpty())
+            return;
+        if (traits.size() == 1 && SimpleTrait.SIMPLE == traits.get(0)) {
+            writeList(list, traits.get(0));
+        } else {
+            writeTable(list, traits);
         }
     }
 
