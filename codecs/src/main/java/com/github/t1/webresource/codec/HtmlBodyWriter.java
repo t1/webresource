@@ -1,6 +1,7 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 import com.github.t1.webresource.meta.*;
@@ -10,8 +11,8 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
     private final Map<String, Integer> ids = new HashMap<>();
     private final Item item;
 
-    public HtmlBodyWriter(HtmlWriter out, Item item) {
-        super(out);
+    public HtmlBodyWriter(Writer out, URI baseUri, Item item) {
+        super(out, baseUri);
         this.item = item;
     }
 
@@ -35,10 +36,10 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
             case 0:
                 break;
             case 1:
-                new HtmlListWriter(out, list, traits.get(0)).write();
+                writeList(list, traits.get(0));
                 break;
             default:
-                new HtmlTableWriter(out, list, traits).write();
+                writeTable(list, traits);
         }
     }
 
@@ -48,7 +49,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
             case 0:
                 break;
             case 1:
-                new HtmlFieldWriter(out, item, traits.get(0), null).write();
+                writeField(item, traits.get(0), null);
                 break;
             default:
                 writeTraits(traits);
@@ -63,7 +64,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
                 try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
                     escaped().write(name);
                 }
-                new HtmlFieldWriter(out, item, trait, id).write();
+                writeField(item, trait, id);
             }
         }
     }

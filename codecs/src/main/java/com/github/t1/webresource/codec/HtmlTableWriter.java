@@ -1,6 +1,7 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 import java.util.List;
 
 import com.github.t1.webresource.meta.*;
@@ -9,8 +10,8 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
     private final List<Item> list;
     private final List<Trait> traits;
 
-    public HtmlTableWriter(HtmlWriter out, List<Item> list, List<Trait> traits) {
-        super(out);
+    public HtmlTableWriter(Writer out, URI baseUri, List<Item> list, List<Trait> traits) {
+        super(out, baseUri);
         this.list = list;
         this.traits = traits;
     }
@@ -44,7 +45,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
-                    new HtmlFieldWriter(out, rowItem, trait, null).write();
+                    writeField(rowItem, trait, null);
                 }
             }
         }

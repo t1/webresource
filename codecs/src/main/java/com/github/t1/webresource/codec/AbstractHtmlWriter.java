@@ -1,8 +1,13 @@
 package com.github.t1.webresource.codec;
 
 import java.io.*;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.List;
 
-import lombok.Data;
+import lombok.*;
+
+import com.github.t1.webresource.meta.*;
 
 public class AbstractHtmlWriter {
     @Data
@@ -28,10 +33,37 @@ public class AbstractHtmlWriter {
         }
     }
 
-    protected final HtmlWriter out;
+    @Delegate
+    private final Writer out;
+    private final URI baseUri;
 
-    public AbstractHtmlWriter(HtmlWriter out) {
+    public AbstractHtmlWriter(Writer out, URI baseUri) {
         this.out = out;
+        this.baseUri = baseUri;
+    }
+
+    public void writeHead(Item item) throws IOException {
+        new HtmlHeadWriter(out, baseUri, item).write();
+    }
+
+    public void writeBody(Item item) throws IOException {
+        new HtmlBodyWriter(out, baseUri, item).write();
+    }
+
+    public void writeList(List<Item> list, Trait trait) throws IOException {
+        new HtmlListWriter(out, baseUri, list, trait).write();
+    }
+
+    public void writeField(Item item, Trait trait, String id) throws IOException {
+        new HtmlFieldWriter(out, baseUri, item, trait, id).write();
+    }
+
+    public void writeTable(List<Item> list, List<Trait> traits) throws IOException {
+        new HtmlTableWriter(out, baseUri, list, traits).write();
+    }
+
+    protected void write(Exception e) {
+        e.printStackTrace(new PrintWriter(out));
     }
 
     protected Writer escaped() {
@@ -40,5 +72,31 @@ public class AbstractHtmlWriter {
 
     protected void nl() throws IOException {
         out.append('\n');
+    }
+
+    /**
+     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
+     * which is the first path element.
+     */
+    public Path applicationPath() {
+        return Paths.get(baseUri.getPath()).getName(0);
+    }
+
+    /**
+     * Resolve the given URI.
+     * 
+     * @see HtmlStyleSheet
+     */
+    public URI resolve(URI uri) {
+        if (uri.isAbsolute())
+            return uri;
+        if (uri.getPath() == null)
+            throw new IllegalArgumentException("the given uri has no path: " + uri);
+        if (uri.getPath().startsWith("/")) {
+            return baseUri.resolve(uri.getPath());
+        } else {
+            Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
+            return baseUri.resolve("/" + path);
+        }
     }
 }

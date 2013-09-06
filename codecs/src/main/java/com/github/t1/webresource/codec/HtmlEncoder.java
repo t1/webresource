@@ -10,7 +10,7 @@ public class HtmlEncoder extends AbstractHtmlWriter {
     private final Item item;
 
     public HtmlEncoder(Object t, Writer out, URI baseUri) {
-        super(new HtmlWriter(out, baseUri));
+        super(out, baseUri);
         this.item = Items.newItem(t);
     }
 
@@ -18,15 +18,18 @@ public class HtmlEncoder extends AbstractHtmlWriter {
         try (Tag html = new Tag("html")) {
             nl();
             try (Tag head = new Tag("head")) {
-                new HtmlHeadWriter(out, item).write();
+                writeHead(item);
             }
             try (Tag body = new Tag("body")) {
-                new HtmlBodyWriter(out, item).write();
+                writeBody(item);
+            } catch (Exception e) {
+                write("error writing body");
+                throw e;
             }
         } catch (Exception e) {
-            out.write("<!-- ............................................................\n");
-            e.printStackTrace(new PrintWriter(out));
-            out.write("............................................................ -->\n");
+            write("<!-- ............................................................\n");
+            write(e);
+            write("............................................................ -->\n");
             throw e;
         }
     }

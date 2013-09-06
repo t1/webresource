@@ -2,7 +2,8 @@ package com.github.t1.webresource.codec;
 
 import static com.github.t1.webresource.meta.SimpleTrait.*;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 import java.util.Objects;
 
 import com.github.t1.webresource.meta.*;
@@ -12,8 +13,8 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
     private final Trait trait;
     private final String id;
 
-    public HtmlFieldWriter(HtmlWriter out, Item item, Trait trait, String id) {
-        super(out);
+    public HtmlFieldWriter(Writer out, URI baseUri, Item item, Trait trait, String id) {
+        super(out, baseUri);
         this.item = item;
         this.trait = trait;
         this.id = id;
@@ -28,14 +29,14 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
         } else {
             Item cellItem = Items.newItem(value);
             if (cellItem.isList()) {
-                new HtmlListWriter(out, cellItem.getList(), SIMPLE).write();
+                writeList(cellItem.getList(), SIMPLE);
             } else if (cellItem.traits().size() > 1) {
                 try (Tag div = new Tag("div")) {
-                    new HtmlBodyWriter(out, cellItem).write();
+                    writeBody(cellItem);
                 }
             } else {
                 HtmlField field = new HtmlField(item, trait).id(id);
-                out.append(field);
+                append(field);
             }
         }
     }

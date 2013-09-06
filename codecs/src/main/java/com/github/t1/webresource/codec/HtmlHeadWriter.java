@@ -10,8 +10,8 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
 
     private final Item item;
 
-    public HtmlHeadWriter(HtmlWriter out, Item item) {
-        super(out);
+    public HtmlHeadWriter(Writer out, URI baseUri, Item item) {
+        super(out, baseUri);
         this.item = item;
     }
 
@@ -66,12 +66,12 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         } else {
             if (!isRootPath(uri))
                 uri = insertApplicationPath(uri);
-            out.write("<link rel='stylesheet' href='" + uri + "' type='text/css'/>\n");
+            write("<link rel='stylesheet' href='" + uri + "' type='text/css'/>\n");
         }
     }
 
     private void writeResource(URI uri) throws IOException {
-        uri = out.resolve(uri);
+        uri = resolve(uri);
         try (InputStream inputStream = uri.toURL().openStream()) {
             write(inputStream);
         }
@@ -83,7 +83,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
             String line = reader.readLine();
             if (line == null)
                 break;
-            out.write(line);
+            write(line);
             nl();
         }
     }
@@ -93,6 +93,6 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     }
 
     private URI insertApplicationPath(URI uri) {
-        return uri.resolve("/" + out.applicationPath().resolve(uri.getPath()));
+        return uri.resolve("/" + applicationPath().resolve(uri.getPath()));
     }
 }
