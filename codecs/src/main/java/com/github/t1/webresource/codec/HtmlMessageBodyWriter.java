@@ -10,7 +10,7 @@ import javax.ws.rs.ext.*;
 
 import lombok.extern.slf4j.Slf4j;
 
-/** Binding for a {@link HtmlEncoder} to JAX-RS */
+/** Binding for a {@link HtmlWriter} to JAX-RS */
 @Slf4j
 @Provider
 @Produces("text/html")
@@ -36,7 +36,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         log.debug("start html-encoding");
         Writer out = new OutputStreamWriter(entityStream);
         try {
-            new HtmlEncoder(t, out, (uriInfo == null) ? null : uriInfo.getBaseUri()).write();
+            new HtmlWriter(t, out, (uriInfo == null) ? null : uriInfo.getBaseUri()).write();
         } catch (RuntimeException | IOException e) {
             log.error("error while encoding", e);
             throw e;

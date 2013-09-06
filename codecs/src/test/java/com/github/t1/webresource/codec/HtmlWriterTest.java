@@ -16,12 +16,12 @@ import org.junit.*;
 
 import com.google.common.collect.*;
 
-public class HtmlEncoderTest {
+public class HtmlWriterTest {
     private static final String BASE_URI = "http://localhost:8080/demo/resource";
     private final Writer out = new StringWriter();
 
-    private HtmlEncoder writer(Object object) {
-        return new HtmlEncoder(object, out, URI.create(BASE_URI));
+    private HtmlWriter writer(Object object) {
+        return new HtmlWriter(object, out, URI.create(BASE_URI));
     }
 
     private static String wrapped(String string) {

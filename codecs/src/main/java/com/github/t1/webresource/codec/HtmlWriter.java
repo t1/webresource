@@ -6,10 +6,10 @@ import java.net.URI;
 import com.github.t1.webresource.meta.*;
 
 /** A helper class to write objects as an html string... without the actual binding */
-public class HtmlEncoder extends AbstractHtmlWriter {
+public class HtmlWriter extends AbstractHtmlWriter {
     private final Item item;
 
-    public HtmlEncoder(Object t, Writer out, URI baseUri) {
+    public HtmlWriter(Object t, Writer out, URI baseUri) {
         super(out, baseUri);
         this.item = Items.newItem(t);
     }
