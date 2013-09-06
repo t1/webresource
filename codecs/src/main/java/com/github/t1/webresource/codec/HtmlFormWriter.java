@@ -1,7 +1,6 @@
 package com.github.t1.webresource.codec;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.github.t1.webresource.meta.*;
 
@@ -15,20 +14,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     }
 
     public void write() throws IOException {
-        List<Trait> traits = item.traits();
-        switch (traits.size()) {
-            case 0:
-                break;
-            case 1:
-                writeField(item, traits.get(0), null);
-                break;
-            default:
-                writeTraits(traits);
-        }
-    }
-
-    private void writeTraits(List<Trait> traits) throws IOException {
-        for (Trait trait : traits) {
+        for (Trait trait : item.traits()) {
             try (Tag div = new Tag("div")) {
                 String name = trait.getName();
                 String id = id(name);

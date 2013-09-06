@@ -91,7 +91,7 @@ public class HtmlWriterTest {
 
         writer(map).write();
 
-        assertEquals(wrapped("111"), result());
+        assertEquals(wrapped(field("one", "111")), result());
     }
 
     @Test
@@ -203,7 +203,7 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped("str"), result());
+        assertEquals(wrapped(field("string", "str")), result());
     }
 
     @Test
@@ -212,7 +212,7 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(""), result());
+        assertEquals(wrapped(div(label("string"))), result());
     }
 
     @Test
@@ -353,11 +353,11 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals("<html><head>" //
+        assertThat(result(), containsString("<html><head>" //
                 + "<style>" //
                 + "test-file-contents" //
                 + "</style>" //
-                + "</head><body>dummy</body></html>", result());
+                + "</head>"));
     }
 
     @Data
