@@ -32,6 +32,16 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
+    public boolean isNull() {
+        return false;
+    }
+
+    @Override
+    public boolean isSimple() {
+        return false;
+    }
+
+    @Override
     public boolean isList() {
         return false;
     }
@@ -42,28 +52,8 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
-    public boolean isSimple() {
-        return false;
-    }
-
-    @Override
-    public boolean isNull() {
-        return false;
-    }
-
-    @Override
     public Object get(Trait trait) {
         return trait.of(this.object);
-    }
-
-    @Override
-    public <A extends Annotation> boolean is(Class<A> type) {
-        return (annotations == null) ? false : annotations.isAnnotationPresent(type);
-    }
-
-    @Override
-    public <A extends Annotation> A get(Class<A> type) {
-        return (annotations == null) ? null : annotations.getAnnotation(type);
     }
 
     @Override
@@ -74,6 +64,26 @@ abstract class AbstractPojoItem implements Item {
         if (trait == null)
             throw new IllegalArgumentException("no trait " + traitName + " in " + type);
         return trait;
+    }
+
+    @Override
+    public <A extends Annotation> Trait trait(Class<A> type) {
+        for (Trait trait : traits()) {
+            if (trait.is(type)) {
+                return trait;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public <A extends Annotation> boolean is(Class<A> type) {
+        return (annotations == null) ? false : annotations.isAnnotationPresent(type);
+    }
+
+    @Override
+    public <A extends Annotation> A get(Class<A> type) {
+        return (annotations == null) ? null : annotations.getAnnotation(type);
     }
 
     private Map<String, Trait> buildTraitMap() {
@@ -88,5 +98,4 @@ abstract class AbstractPojoItem implements Item {
     public String toString() {
         return getClass().getSimpleName() + "[" + type.getName() + "]";
     }
-
 }

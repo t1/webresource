@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 
+import javax.persistence.Id;
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
@@ -445,7 +446,9 @@ public class HtmlWriterTest {
         writer(pojo).write();
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(field("set", "[one, two, three]")));
+        assertThat(result(), containsString(div(label("set", 0)
+                + "<a href='../regularimmutablesets/[one, two, three].html' "
+                + "id='set-0-href' class='regularimmutablesets'>[one, two, three]</a>")));
     }
 
     @Data
@@ -485,6 +488,7 @@ public class HtmlWriterTest {
     @AllArgsConstructor
     private static class NestedPojo {
         public String str;
+        @Id
         public Integer i;
     }
 
@@ -503,9 +507,11 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(div(//
-                label("nested") + div(field("str", "foo") + field("i", "123")))));
-        assertThat(result(), containsString(field("str", "dummy", 1)));
+        assertThat(
+                result(),
+                containsString(div(label("nested")
+                        + "<a href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>HtmlWriterTest.NestedPojo(str=foo, i=123)</a>")));
+        assertThat(result(), containsString(field("str", "dummy")));
     }
 
     @Test
@@ -518,13 +524,37 @@ public class HtmlWriterTest {
 
         assertEquals(
                 wrapped(table("nested", "str")
-                        + tr(div(div(label("str") + "<input id='str-0' class='str' type='text' value='foo' readonly/>")
-                                + div(label("i") + "<input id='i-0' class='i' type='text' value='123' readonly/>")),
+                        + tr(div(label("str") + "<input id='str-0' class='str' type='text' value='foo' readonly/>")
+                                + div(label("i") + "<input id='i-0' class='i' type='text' value='123' readonly/>"),
                                 "dummy1")
-                        + tr(div(div(label("str", 1)
-                                + "<input id='str-1' class='str' type='text' value='bar' readonly/>")
-                                + div(label("i", 1) + "<input id='i-1' class='i' type='text' value='321' readonly/>")),
+                        + tr(div(label("str", 1) + "<input id='str-1' class='str' type='text' value='bar' readonly/>")
+                                + div(label("i", 1) + "<input id='i-1' class='i' type='text' value='321' readonly/>"),
                                 "dummy2") //
                         + endTable()), result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class LinkNestedPojo {
+        @Id
+        public String ref;
+        @HtmlLinkValue
+        public String body;
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class LinkContainerPojo {
+        private LinkNestedPojo nested;
+    }
+
+    @Test
+    public void shouldWriteLinkNestedPojo() throws Exception {
+        LinkContainerPojo pojo = new LinkContainerPojo(new LinkNestedPojo("foo", "bar"));
+
+        writer(pojo).write();
+
+        assertThat(result(), containsString(div(label("nested")
+                + "<a href='../linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'>bar</a>")));
     }
 }
