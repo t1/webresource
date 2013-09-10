@@ -9,6 +9,7 @@ import lombok.*;
 
 import com.github.t1.webresource.meta.*;
 
+/** This is the super class and context of the various html writers */
 public class AbstractHtmlWriter {
     @Data
     protected static class Attribute {
@@ -34,7 +35,7 @@ public class AbstractHtmlWriter {
     }
 
     @Delegate
-    private final Writer out;
+    protected final Writer out;
     private final URI baseUri;
     private final Map<String, Integer> ids;
 
