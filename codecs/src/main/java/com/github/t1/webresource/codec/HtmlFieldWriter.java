@@ -29,7 +29,7 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
                 writeBody(cellItem);
             } else {
                 HtmlField field = new HtmlField(item, trait).id(id);
-                append(field);
+                write(field);
             }
         }
     }

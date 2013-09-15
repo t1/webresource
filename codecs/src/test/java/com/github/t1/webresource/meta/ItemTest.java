@@ -5,9 +5,9 @@ import static javax.xml.bind.annotation.XmlAccessType.*;
 import static org.junit.Assert.*;
 
 import java.io.Serializable;
+import java.lang.annotation.*;
 import java.util.*;
 
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
@@ -140,6 +140,11 @@ public class ItemTest {
         assertEquals("333", item.get(three));
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Size {
+        int value();
+    }
+
     @Getter
     @Setter
     @ToString
@@ -152,11 +157,11 @@ public class ItemTest {
         private Long id;
 
         @XmlElement
-        @Size(min = 1, max = 100)
+        @Size(100)
         private String first;
 
         @XmlElement(name = "lastName")
-        @Size(min = 1, max = 50)
+        @Size(50)
         private String last;
 
         @XmlTransient
@@ -177,8 +182,8 @@ public class ItemTest {
     public void shouldHoldProperties() throws Exception {
         Item item = Items.newItem(new AdvancedItem());
 
-        assertEquals(100, item.trait("first").get(Size.class).max());
-        assertEquals(50, item.trait("lastName").get(Size.class).max());
+        assertEquals(100, item.trait("first").get(Size.class).value());
+        assertEquals(50, item.trait("lastName").get(Size.class).value());
         assertTrue(item.trait("tags").is(XmlList.class));
         assertEquals(3, item.traits().size());
     }

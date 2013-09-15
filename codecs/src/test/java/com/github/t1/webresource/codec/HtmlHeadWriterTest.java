@@ -15,12 +15,14 @@ import com.github.t1.webresource.meta.Items;
 
 public class HtmlHeadWriterTest {
     public static class FakeHtmlWriter extends AbstractHtmlWriter {
+        private static StringWriter stringWriter = new StringWriter();
+
         public FakeHtmlWriter() {
-            super(new StringWriter(), URI.create("http://localhost:8080/demo/resource"));
+            super(stringWriter, URI.create("http://localhost:8080/demo/resource"));
         }
 
         public String result() {
-            return out.toString().replaceAll("\n", "").replace('\"', '\'');
+            return stringWriter.toString().replaceAll("\n", "").replace('\"', '\'');
         }
     }
 

@@ -17,7 +17,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
 
     public void write() throws IOException {
         try (Tag a = new Tag("a", hrefAttribute(), idAttribute(), classAttribute())) {
-            append(String.valueOf(body()));
+            write(body());
         }
     }
 

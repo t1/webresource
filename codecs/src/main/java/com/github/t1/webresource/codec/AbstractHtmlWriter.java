@@ -5,7 +5,7 @@ import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
-import lombok.*;
+import lombok.Data;
 
 import com.github.t1.webresource.meta.*;
 
@@ -34,8 +34,7 @@ public class AbstractHtmlWriter {
         }
     }
 
-    @Delegate
-    protected final Writer out;
+    private final Writer out;
     private final URI baseUri;
     private final Map<String, Integer> ids;
 
@@ -79,6 +78,39 @@ public class AbstractHtmlWriter {
         new HtmlTableWriter(this, list, traits).write();
     }
 
+    protected void write(String text) {
+        try {
+            out.write(text);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void write(Object object) {
+        if (object != null) {
+            write(object.toString());
+        }
+    }
+
+    protected void write(InputStream inputStream) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        while (true) {
+            String line = readLine(reader);
+            if (line == null)
+                break;
+            write(line);
+            nl();
+        }
+    }
+
+    private String readLine(BufferedReader reader) {
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected void write(Exception e) {
         e.printStackTrace(new PrintWriter(out));
     }
@@ -87,8 +119,8 @@ public class AbstractHtmlWriter {
         return new HtmlEscapeWriter(out);
     }
 
-    protected void nl() throws IOException {
-        out.append('\n');
+    protected void nl() {
+        write("\n");
     }
 
     /**

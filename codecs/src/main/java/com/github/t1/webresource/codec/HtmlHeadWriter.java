@@ -77,17 +77,6 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         }
     }
 
-    private void write(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        while (true) {
-            String line = reader.readLine();
-            if (line == null)
-                break;
-            write(line);
-            nl();
-        }
-    }
-
     private boolean isRootPath(URI uri) {
         return uri.isAbsolute() || uri.getPath() == null || uri.getPath().startsWith("/");
     }
