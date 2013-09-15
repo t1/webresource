@@ -15,4 +15,9 @@ class PojoItem extends AbstractPojoItem {
         }
         return traits;
     }
+
+    @Override
+    public String toString() {
+        return object.toString();
+    }
 }

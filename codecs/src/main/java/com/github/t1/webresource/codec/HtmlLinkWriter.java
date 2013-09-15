@@ -1,9 +1,6 @@
 package com.github.t1.webresource.codec;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-
-import javax.persistence.Id;
 
 import com.github.t1.webresource.meta.*;
 
@@ -29,28 +26,14 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String href() {
-        return "../" + type() + "/" + idTraitValue() + ".html";
+        return "../" + item.type() + "/" + idTraitValue() + ".html";
     }
 
     private String idTraitValue() {
-        Trait idTrait = idTrait();
+        Trait idTrait = item.id();
         if (idTrait == null)
-            return String.valueOf(item.target());
+            return item.toString();
         return String.valueOf(item.get(idTrait));
-    }
-
-    private Trait idTrait() {
-        for (Field field : item.target().getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(Id.class)) {
-                field.setAccessible(true);
-                return new PojoFieldTrait(field);
-            }
-        }
-        return null;
-    }
-
-    private String type() {
-        return item.target().getClass().getSimpleName().toLowerCase() + "s";
     }
 
     private Attribute idAttribute() {
@@ -58,13 +41,13 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private Attribute classAttribute() {
-        return new Attribute("class", type());
+        return new Attribute("class", item.type());
     }
 
     private Object body() {
-        Trait trait = item.trait(HtmlLinkValue.class);
+        Trait trait = item.trait(HtmlLinkText.class);
         if (trait == null)
-            return item.target(); // -> fall back to toString
+            return item.toString(); // -> fall back
         return item.get(trait);
     }
 }

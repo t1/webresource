@@ -382,7 +382,7 @@ public class HtmlWriterTest {
     private static class LinkNestedPojo {
         @Id
         public String ref;
-        @HtmlLinkValue
+        @HtmlLinkText
         public String body;
     }
 

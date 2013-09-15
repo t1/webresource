@@ -1,8 +1,10 @@
 package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.*;
 import java.util.*;
+
+import javax.persistence.Id;
 
 import com.github.t1.stereotypes.Annotations;
 import com.google.common.collect.ImmutableMap;
@@ -24,11 +26,6 @@ abstract class AbstractPojoItem implements Item {
 
     protected <T> AnnotatedElement annotations() {
         return Annotations.on(type);
-    }
-
-    @Override
-    public Object target() {
-        return object;
     }
 
     @Override
@@ -71,6 +68,22 @@ abstract class AbstractPojoItem implements Item {
         for (Trait trait : traits()) {
             if (trait.is(type)) {
                 return trait;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String type() {
+        return object.getClass().getSimpleName().toLowerCase() + "s";
+    }
+
+    @Override
+    public Trait id() {
+        for (Field field : object.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Id.class)) {
+                field.setAccessible(true);
+                return new PojoFieldTrait(field);
             }
         }
         return null;

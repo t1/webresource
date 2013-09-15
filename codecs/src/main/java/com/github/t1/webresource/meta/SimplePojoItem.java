@@ -23,4 +23,9 @@ class SimplePojoItem extends AbstractPojoItem {
     public boolean isNull() {
         return object == null;
     }
+
+    @Override
+    public String toString() {
+        return object.toString();
+    }
 }

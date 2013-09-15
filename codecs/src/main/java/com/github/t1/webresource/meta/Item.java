@@ -19,8 +19,6 @@ import java.util.List;
  */
 public interface Item {
 
-    Object target();
-
     boolean isNull();
 
     boolean isSimple();
@@ -34,6 +32,10 @@ public interface Item {
     Object get(Trait trait);
 
     Trait trait(String traitName);
+
+    String type();
+
+    Trait id();
 
     <A extends Annotation> Trait trait(Class<A> type);
 

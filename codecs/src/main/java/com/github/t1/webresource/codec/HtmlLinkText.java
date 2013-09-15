@@ -8,4 +8,4 @@ import java.lang.annotation.Retention;
  * This field will be used as the body of links pointing here.
  */
 @Retention(RUNTIME)
-public @interface HtmlLinkValue {}
+public @interface HtmlLinkText {}
