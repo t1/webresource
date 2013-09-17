@@ -25,14 +25,14 @@ public class PojoFieldTrait extends PojoTrait {
             field.setAccessible(true);
             return field.get(object);
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("can't get " + getName() + " of " + object, e);
+            throw new RuntimeException("can't get " + name() + " of " + object, e);
         }
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("field ").append(getName());
+        out.append("field ").append(name());
         out.append(" of ").append(field.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");

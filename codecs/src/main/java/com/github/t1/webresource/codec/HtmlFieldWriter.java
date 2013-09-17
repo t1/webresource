@@ -26,7 +26,7 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
             if (cellItem.isList()) {
                 writeList(cellItem.getList(), SIMPLE);
             } else {
-                HtmlField field = new HtmlField(cellItem, trait.getName(), id);
+                HtmlField field = new HtmlField(cellItem, trait, id);
                 write(field);
             }
         }

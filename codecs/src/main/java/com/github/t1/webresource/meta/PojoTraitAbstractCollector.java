@@ -59,14 +59,14 @@ public abstract class PojoTraitAbstractCollector {
 
     private void add(PojoTrait getter) {
         init(getter);
-        if (!hasTrait(getter.getName())) {
+        if (!hasTrait(getter.name())) {
             target.add(getter);
         }
     }
 
     protected boolean hasTrait(String name) {
         for (Trait trait : target) {
-            if (trait.getName().equals(name)) {
+            if (trait.name().equals(name)) {
                 return true;
             }
         }

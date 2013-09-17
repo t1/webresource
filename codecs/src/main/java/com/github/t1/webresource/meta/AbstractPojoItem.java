@@ -25,7 +25,7 @@ abstract class AbstractPojoItem implements Item {
     }
 
     protected <T> AnnotatedElement annotations() {
-        return Annotations.on(type);
+        return (type == null) ? null : Annotations.on(type);
     }
 
     @Override
@@ -103,7 +103,7 @@ abstract class AbstractPojoItem implements Item {
     private Map<String, Trait> buildTraitMap() {
         ImmutableMap.Builder<String, Trait> map = ImmutableMap.builder();
         for (Trait trait : traits()) {
-            map.put(trait.getName(), trait);
+            map.put(trait.name(), trait);
         }
         return map.build();
     }

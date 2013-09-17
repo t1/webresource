@@ -41,14 +41,14 @@ public class PojoGetterTrait extends PojoTrait {
             method.setAccessible(true);
             return method.invoke(object);
         } catch (IllegalArgumentException | ReflectiveOperationException e) {
-            throw new RuntimeException("can't get " + getName() + " of " + object, e);
+            throw new RuntimeException("can't get " + name() + " of " + object, e);
         }
     }
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append("getter ").append(getName());
+        out.append("getter ").append(name());
         out.append(" of ").append(method.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");

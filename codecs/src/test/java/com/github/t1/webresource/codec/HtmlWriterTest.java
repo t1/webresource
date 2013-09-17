@@ -228,6 +228,26 @@ public class HtmlWriterTest {
         assertEquals(wrapped(table("string") + tr("one") + tr("two") + tr("three") + endTable()), result());
     }
 
+    @Data
+    @AllArgsConstructor
+    private static class OneStringInputTypedPojo {
+        private String string;
+
+        @HtmlInputType("test")
+        public String getString() {
+            return string;
+        }
+    }
+
+    @Test
+    public void shouldWriteOneStringInputTypedPojoWithoutKey() throws Exception {
+        OneStringInputTypedPojo pojo = new OneStringInputTypedPojo("str");
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(field("string", "str", 0, "test")), result());
+    }
+
     @AllArgsConstructor
     @SuppressWarnings("unused")
     private static class TwoFieldPojo {

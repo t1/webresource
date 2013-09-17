@@ -8,8 +8,6 @@ import lombok.Data;
 
 import org.junit.Test;
 
-import com.github.t1.webresource.meta.PojoTraits;
-
 public class JaxbTraitProviderTest {
     @Data
     @XmlRootElement
@@ -22,7 +20,7 @@ public class JaxbTraitProviderTest {
         PojoTraits traits = new PojoTraits(Pojo.class);
 
         assertEquals(1, traits.size());
-        assertEquals("one", traits.get(0).getName());
+        assertEquals("one", traits.get(0).name());
     }
 
     @Data
@@ -37,8 +35,8 @@ public class JaxbTraitProviderTest {
         PojoTraits traits = new PojoTraits(AlphabeticalPojo.class);
 
         assertEquals(2, traits.size());
-        assertEquals("one", traits.get(0).getName());
-        assertEquals("two", traits.get(1).getName());
+        assertEquals("one", traits.get(0).name());
+        assertEquals("two", traits.get(1).name());
     }
 
     @Data
@@ -53,8 +51,8 @@ public class JaxbTraitProviderTest {
         PojoTraits traits = new PojoTraits(Pojo1.class);
 
         assertEquals(2, traits.size());
-        assertEquals("one", traits.get(0).getName());
-        assertEquals("two", traits.get(1).getName());
+        assertEquals("one", traits.get(0).name());
+        assertEquals("two", traits.get(1).name());
     }
 
     @Data
@@ -69,7 +67,7 @@ public class JaxbTraitProviderTest {
         PojoTraits traits = new PojoTraits(Pojo2.class);
 
         assertEquals(2, traits.size());
-        assertEquals("two", traits.get(0).getName());
-        assertEquals("one", traits.get(1).getName());
+        assertEquals("two", traits.get(0).name());
+        assertEquals("one", traits.get(1).name());
     }
 }

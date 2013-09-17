@@ -8,7 +8,7 @@ public abstract class AbstractTrait implements Trait {
 
     @Override
     public int compareTo(Trait that) {
-        return this.getName().compareTo(that.getName());
+        return this.name().compareTo(that.name());
     }
 
     @Override

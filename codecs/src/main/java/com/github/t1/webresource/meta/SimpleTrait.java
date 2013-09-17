@@ -4,7 +4,7 @@ public class SimpleTrait extends AbstractTrait {
     public static final Trait SIMPLE = new SimpleTrait();
 
     @Override
-    public String getName() {
+    public String name() {
         return "value";
     }
 

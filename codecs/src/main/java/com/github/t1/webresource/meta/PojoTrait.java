@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 
 public abstract class PojoTrait extends AbstractTrait {
@@ -14,6 +15,7 @@ public abstract class PojoTrait extends AbstractTrait {
      */
     @Getter
     @Setter
+    @Accessors(fluent = true)
     private String name;
 
     protected abstract Member member();

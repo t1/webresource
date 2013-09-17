@@ -18,7 +18,7 @@ public class MapTrait extends AbstractTrait {
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return key;
     }
 

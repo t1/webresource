@@ -57,7 +57,7 @@ public class PojoTraitJaxbCollector extends PojoTraitAbstractCollector {
 
     private void setName(PojoTrait trait, String name) {
         if (!invalid(name)) {
-            trait.setName(name);
+            trait.name(name);
         }
     }
 

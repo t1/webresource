@@ -31,7 +31,7 @@ public class PojoTraits extends ArrayList<Trait> {
     public ImmutableMap<String, Trait> map() {
         ImmutableMap.Builder<String, Trait> builder = ImmutableMap.builder();
         for (Trait trait : this) {
-            builder.put(trait.getName(), trait);
+            builder.put(trait.name(), trait);
         }
         return builder.build();
     }

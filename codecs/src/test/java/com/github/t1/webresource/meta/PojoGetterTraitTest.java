@@ -19,6 +19,6 @@ public class PojoGetterTraitTest {
 
         Trait trait = new PojoGetterTrait(method);
 
-        assertEquals("name", trait.getName());
+        assertEquals("name", trait.name());
     }
 }

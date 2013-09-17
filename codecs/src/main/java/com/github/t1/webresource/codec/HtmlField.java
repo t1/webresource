@@ -11,12 +11,12 @@ import com.github.t1.webresource.meta.*;
 public class HtmlField implements CharSequence {
 
     private final Item item;
-    private final String cssClass;
+    private final Trait trait;
     private final String id;
 
-    public HtmlField(Item item, String cssClass, String id) {
+    public HtmlField(Item item, Trait trait, String id) {
         this.item = item;
-        this.cssClass = cssClass;
+        this.trait = trait;
         this.id = id;
     }
 
@@ -37,20 +37,25 @@ public class HtmlField implements CharSequence {
 
     @Override
     public String toString() {
-        if (id == null)
-            return item.toString();
         StringBuilder result = new StringBuilder();
         result.append("<input");
         if (id != null)
             result.append(" id='" + id + "'");
-        result.append(" class='" + cssClass + "'");
-        result.append(" type='" + inputType(item.type()) + "'");
+        result.append(" class='" + cssClass() + "'");
+        result.append(" type='" + inputType() + "'");
         result.append(" value='" + item + "' readonly");
         result.append("/>\n");
         return result.toString();
     }
 
-    private String inputType(String itemType) {
+    private String cssClass() {
+        return trait.name();
+    }
+
+    private String inputType() {
+        if (trait.is(HtmlInputType.class))
+            return trait.get(HtmlInputType.class).value();
+        String itemType = item.type();
         if (itemType == null)
             return "text";
         switch (itemType) {
