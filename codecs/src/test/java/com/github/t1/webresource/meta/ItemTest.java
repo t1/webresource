@@ -49,6 +49,16 @@ public class ItemTest {
     }
 
     @Test
+    public void shouldHoldDate() throws Exception {
+        Item item = Items.newItem(new Date(0));
+
+        assertFalse(item.isNull());
+        assertTrue(item.isSimple());
+        assertEquals("Thu Jan 01 01:00:00 CET 1970", item.get(SIMPLE).toString());
+        assertEquals(Arrays.asList(SIMPLE), item.traits());
+    }
+
+    @Test
     public void shouldHoldMap() throws Exception {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");

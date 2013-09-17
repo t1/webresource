@@ -25,7 +25,7 @@ public class Items {
 
     private boolean isSimple() {
         return isNull() || object instanceof String || object instanceof Number || object instanceof Boolean
-                || object instanceof Character || object.getClass().isPrimitive();
+                || object instanceof Character || object.getClass().isPrimitive() || object instanceof Date;
     }
 
     private boolean isNull() {
