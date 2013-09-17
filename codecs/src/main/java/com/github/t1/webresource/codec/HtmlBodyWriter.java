@@ -3,7 +3,7 @@ package com.github.t1.webresource.codec;
 import static com.github.t1.webresource.meta.SimpleTrait.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import com.github.t1.webresource.meta.*;
 
@@ -21,7 +21,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
             return;
         nl();
         if (item.isSimple()) {
-            escaped().write(Objects.toString(item.get(SIMPLE)));
+            escaped().write(item.toString());
         } else if (item.isList()) {
             writeItemList();
         } else {

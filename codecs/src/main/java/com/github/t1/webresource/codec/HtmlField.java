@@ -1,26 +1,23 @@
 package com.github.t1.webresource.codec;
 
-import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 
 import com.github.t1.webresource.meta.*;
 
 /**
  * Renders a {@link Trait}... eventually as an <code>input</code>.
  */
+@Slf4j
 public class HtmlField implements CharSequence {
 
     private final Item item;
-    private final Trait trait;
-    private String id;
+    private final String cssClass;
+    private final String id;
 
-    public HtmlField(Item item, Trait trait) {
+    public HtmlField(Item item, String cssClass, String id) {
         this.item = item;
-        this.trait = trait;
-    }
-
-    public HtmlField id(String id) {
+        this.cssClass = cssClass;
         this.id = id;
-        return this;
     }
 
     @Override
@@ -40,28 +37,31 @@ public class HtmlField implements CharSequence {
 
     @Override
     public String toString() {
-        Object value = item.get(trait);
         if (id == null)
-            return Objects.toString(value);
+            return item.toString();
         StringBuilder result = new StringBuilder();
         result.append("<input");
         if (id != null)
             result.append(" id='" + id + "'");
-        result.append(" class='" + cssClass() + "'");
-        result.append(" type='" + typeFor(value) + "'");
-        if (value != null)
-            result.append(" value='" + value + "' readonly");
+        result.append(" class='" + cssClass + "'");
+        result.append(" type='" + inputType(item.type()) + "'");
+        result.append(" value='" + item + "' readonly");
         result.append("/>\n");
         return result.toString();
     }
 
-    private String cssClass() {
-        return trait.getName();
-    }
-
-    private String typeFor(Object value) {
-        if (value instanceof Boolean)
-            return "checkbox";
-        return "text";
+    private String inputType(String itemType) {
+        if (itemType == null)
+            return "text";
+        switch (itemType) {
+            case "booleans":
+                return "checkbox";
+            case "integers":
+            case "strings":
+                return "text";
+            default:
+                log.debug("unknown item type [" + itemType + "] for field. Default to 'text'");
+                return "text";
+        }
     }
 }

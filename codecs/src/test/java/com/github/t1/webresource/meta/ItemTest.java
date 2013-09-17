@@ -24,7 +24,7 @@ public class ItemTest {
 
         assertTrue(item.isNull());
         assertTrue(item.isSimple());
-        assertNull(item.get(SIMPLE));
+        assertEquals("", item.get(SIMPLE).toString());
         assertEquals(Arrays.asList(SIMPLE), item.traits());
     }
 
@@ -34,7 +34,7 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("dummy", item.get(SIMPLE));
+        assertEquals("dummy", item.get(SIMPLE).toString());
         assertEquals(Arrays.asList(SIMPLE), item.traits());
     }
 
@@ -44,7 +44,7 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals(1234L, item.get(SIMPLE));
+        assertEquals("1234", item.get(SIMPLE).toString());
         assertEquals(Arrays.asList(SIMPLE), item.traits());
     }
 
@@ -62,13 +62,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("one");
-        assertEquals("111", item.get(one));
+        assertEquals("111", item.get(one).toString());
 
         Trait two = item.trait("two");
-        assertEquals("222", item.get(two));
+        assertEquals("222", item.get(two).toString());
 
         Trait three = item.trait("three");
-        assertEquals("333", item.get(three));
+        assertEquals("333", item.get(three).toString());
     }
 
     @AllArgsConstructor
@@ -88,13 +88,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("one");
-        assertEquals("111", item.get(one));
+        assertEquals("111", item.get(one).toString());
 
         Trait two = item.trait("two");
-        assertEquals("222", item.get(two));
+        assertEquals("222", item.get(two).toString());
 
         Trait three = item.trait("three");
-        assertEquals("333", item.get(three));
+        assertEquals("333", item.get(three).toString());
     }
 
     @Data
@@ -131,13 +131,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("xxx");
-        assertEquals("111", item.get(one));
+        assertEquals("111", item.get(one).toString());
 
         Trait two = item.trait("yyy");
-        assertEquals("222", item.get(two));
+        assertEquals("222", item.get(two).toString());
 
         Trait three = item.trait("zzz");
-        assertEquals("333", item.get(three));
+        assertEquals("333", item.get(three).toString());
     }
 
     @Retention(RetentionPolicy.RUNTIME)

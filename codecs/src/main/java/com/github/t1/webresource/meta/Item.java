@@ -29,7 +29,7 @@ public interface Item {
 
     List<Trait> traits();
 
-    Object get(Trait trait);
+    Item get(Trait trait);
 
     Trait trait(String traitName);
 

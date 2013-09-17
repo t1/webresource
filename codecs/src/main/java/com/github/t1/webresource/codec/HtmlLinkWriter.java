@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.github.t1.webresource.meta.*;
 
+// TODO escape strings
 public class HtmlLinkWriter extends AbstractHtmlWriter {
 
     private final Item item;
@@ -33,7 +34,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
         Trait idTrait = item.id();
         if (idTrait == null)
             return item.toString();
-        return String.valueOf(item.get(idTrait));
+        return item.get(idTrait).toString();
     }
 
     private Attribute idAttribute() {
@@ -48,6 +49,6 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
         Trait trait = item.trait(HtmlLinkText.class);
         if (trait == null)
             return item.toString(); // -> fall back
-        return item.get(trait);
+        return item.get(trait).toString();
     }
 }

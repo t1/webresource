@@ -1,5 +1,7 @@
 package com.github.t1.webresource.codec;
 
+import static com.github.t1.webresource.meta.SimpleTrait.*;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -44,7 +46,16 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
-                    writeField(rowItem, trait, null);
+                    Item cellItem = rowItem.get(trait);
+                    String name = trait.getName();
+                    String id = id(name);
+                    if (cellItem.isSimple()) {
+                        writeField(cellItem, SIMPLE, id);
+                    } else if (cellItem.isList()) {
+                        writeList(cellItem.getList(), SIMPLE);
+                    } else {
+                        writeLink(cellItem, id);
+                    }
                 }
             }
         }

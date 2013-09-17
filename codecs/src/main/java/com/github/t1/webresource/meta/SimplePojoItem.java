@@ -26,6 +26,6 @@ class SimplePojoItem extends AbstractPojoItem {
 
     @Override
     public String toString() {
-        return object.toString();
+        return (object == null) ? "" : object.toString();
     }
 }

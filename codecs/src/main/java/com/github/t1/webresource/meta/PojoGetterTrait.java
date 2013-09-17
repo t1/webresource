@@ -40,7 +40,7 @@ public class PojoGetterTrait extends PojoTrait {
         try {
             method.setAccessible(true);
             return method.invoke(object);
-        } catch (ReflectiveOperationException e) {
+        } catch (IllegalArgumentException | ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + getName() + " of " + object, e);
         }
     }

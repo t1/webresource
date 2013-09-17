@@ -49,8 +49,9 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
-    public Object get(Trait trait) {
-        return trait.of(this.object);
+    public Item get(Trait trait) {
+        Object value = ((AbstractTrait) trait).of(this.object);
+        return Items.newItem(value);
     }
 
     @Override
@@ -75,7 +76,7 @@ abstract class AbstractPojoItem implements Item {
 
     @Override
     public String type() {
-        return object.getClass().getSimpleName().toLowerCase() + "s";
+        return (object == null) ? null : object.getClass().getSimpleName().toLowerCase() + "s";
     }
 
     @Override

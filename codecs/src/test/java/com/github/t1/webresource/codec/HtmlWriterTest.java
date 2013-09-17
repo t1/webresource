@@ -213,7 +213,7 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrapped(div(label("string"))), result());
+        assertEquals(wrapped(field("string", "")), result());
     }
 
     @Test
@@ -246,7 +246,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoListAsTables() throws Exception {
+    public void shouldWriteTwoFieldPojoListAsTable() throws Exception {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
@@ -331,6 +331,7 @@ public class HtmlWriterTest {
     @Data
     @AllArgsConstructor
     private static class NestedPojo {
+        @HtmlLinkText
         public String str;
         @Id
         public Integer i;
@@ -351,10 +352,8 @@ public class HtmlWriterTest {
 
         writer(pojo).write();
 
-        assertThat(
-                result(),
-                containsString(div(label("nested")
-                        + "<a href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>HtmlWriterTest.NestedPojo(str=foo, i=123)</a>")));
+        assertThat(result(), containsString(div(label("nested")
+                + "<a href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>foo</a>")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -366,15 +365,10 @@ public class HtmlWriterTest {
 
         writer(list).write();
 
-        assertEquals(
-                wrapped(table("nested", "str")
-                        + tr(div(label("str") + "<input id='str-0' class='str' type='text' value='foo' readonly/>")
-                                + div(label("i") + "<input id='i-0' class='i' type='text' value='123' readonly/>"),
-                                "dummy1")
-                        + tr(div(label("str", 1) + "<input id='str-1' class='str' type='text' value='bar' readonly/>")
-                                + div(label("i", 1) + "<input id='i-1' class='i' type='text' value='321' readonly/>"),
-                                "dummy2") //
-                        + endTable()), result());
+        assertEquals(wrapped(table("nested", "str") //
+                + tr("<a href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>foo</a>", "dummy1") //
+                + tr("<a href='../nestedpojos/321.html' id='nested-1-href' class='nestedpojos'>bar</a>", "dummy2") //
+                + endTable()), result());
     }
 
     @Data

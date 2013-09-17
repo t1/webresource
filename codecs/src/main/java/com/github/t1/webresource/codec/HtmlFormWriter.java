@@ -29,7 +29,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     }
 
     private void writeItem(Trait trait, String id) throws IOException {
-        Item value = Items.newItem(item.get(trait));
+        Item value = item.get(trait);
         if (value.isSimple()) {
             writeField(item, trait, id);
         } else if (value.isList()) {

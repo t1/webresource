@@ -2,7 +2,6 @@ package com.github.t1.webresource.codec;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Objects;
 
 import com.github.t1.webresource.meta.*;
 
@@ -37,7 +36,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         for (Trait trait : item.traits()) {
             if (trait.is(HtmlHead.class)) {
                 delim.write();
-                titleString.append(Objects.toString(item.get(trait)));
+                titleString.append(item.get(trait).toString());
             }
         }
         return titleString.toString();
