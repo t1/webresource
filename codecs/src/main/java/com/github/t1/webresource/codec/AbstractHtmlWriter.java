@@ -70,8 +70,8 @@ public class AbstractHtmlWriter {
         new HtmlFieldWriter(this, item, trait, id).write();
     }
 
-    public void writeLink(Item item, String id) throws IOException {
-        new HtmlLinkWriter(this, item, id).write();
+    public void writeLink(Item item, String id, String prefix) throws IOException {
+        new HtmlLinkWriter(this, item, id, prefix).write();
     }
 
     public void writeTable(List<Item> list, List<Trait> traits) throws IOException {

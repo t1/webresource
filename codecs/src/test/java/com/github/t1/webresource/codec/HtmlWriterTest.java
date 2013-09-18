@@ -386,8 +386,8 @@ public class HtmlWriterTest {
         writer(list).write();
 
         assertEquals(wrapped(table("nested", "str") //
-                + tr("<a href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>foo</a>", "dummy1") //
-                + tr("<a href='../nestedpojos/321.html' id='nested-1-href' class='nestedpojos'>bar</a>", "dummy2") //
+                + tr("<a href='nestedpojos/123.html' id='nested-0-href' class='nestedpojos'>foo</a>", "dummy1") //
+                + tr("<a href='nestedpojos/321.html' id='nested-1-href' class='nestedpojos'>bar</a>", "dummy2") //
                 + endTable()), result());
     }
 

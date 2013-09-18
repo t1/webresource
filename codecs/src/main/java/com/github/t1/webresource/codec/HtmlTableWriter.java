@@ -54,7 +54,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
                     } else if (cellItem.isList()) {
                         writeList(cellItem.getList(), SIMPLE);
                     } else {
-                        writeLink(cellItem, id);
+                        writeLink(cellItem, id, "");
                     }
                 }
             }
