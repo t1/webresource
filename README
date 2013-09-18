@@ -15,5 +15,6 @@ Binding for DAOs
 Timestamp as lastModified.
 Dynamic generation at runtime?
 
+has similarities to http://isis.apache.org
 TODO codec:
 Provide favicons: <link rel="icon" type="image/png" href="/images/icon.png">
