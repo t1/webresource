@@ -20,7 +20,8 @@ public class HtmlListWriter extends AbstractHtmlWriter {
         try (Tag ul = new Tag("ul")) {
             for (Item element : list) {
                 try (Tag li = new Tag("li")) {
-                    writeField(element, trait, null);
+                    Item cellItem = element.get(trait);
+                    writeLink(cellItem, "id", "");
                 }
             }
         }
