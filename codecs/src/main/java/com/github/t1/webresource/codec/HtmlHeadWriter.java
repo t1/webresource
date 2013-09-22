@@ -70,7 +70,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     }
 
     private void writeResource(URI uri) throws IOException {
-        uri = resolve(uri);
+        uri = resolveApp(uri);
         try (InputStream inputStream = uri.toURL().openStream()) {
             write(inputStream);
         }

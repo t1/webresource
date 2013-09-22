@@ -26,7 +26,7 @@ public class HtmlListWriter extends AbstractHtmlWriter {
                     if (cellItem.isSimple()) {
                         write(cellItem.get(SIMPLE));
                     } else {
-                        writeLink(cellItem, "id", "");
+                        writeLink(cellItem, "id");
                     }
                 }
             }

@@ -37,6 +37,6 @@ public class Items {
     }
 
     private boolean isList() {
-        return object instanceof List;
+        return object instanceof Collection;
     }
 }

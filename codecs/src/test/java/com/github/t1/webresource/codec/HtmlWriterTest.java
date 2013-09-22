@@ -314,9 +314,7 @@ public class HtmlWriterTest {
         writer(pojo).write();
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("set", 0)
-                + a("href='../regularimmutablesets/[one, two, three].html'"
-                        + " id='set-0-href' class='regularimmutablesets'", "[one, two, three]"))));
+        assertThat(result(), containsString(div(label("set", 0) + ul("one", "two", "three"))));
     }
 
     @Data
@@ -379,7 +377,8 @@ public class HtmlWriterTest {
         assertThat(
                 result(),
                 containsString(div(label("nested")
-                        + a("href='../nestedpojos/123.html' id='nested-0-href' class='nestedpojos'", "foo"))));
+                        + a("href='" + BASE_URI + "/nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
+                                "foo"))));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -391,10 +390,13 @@ public class HtmlWriterTest {
 
         writer(list).write();
 
-        assertEquals(wrapped(table("nested", "str") //
-                + tr(a("href='nestedpojos/123.html' id='nested-0-href' class='nestedpojos'", "foo"), "dummy1") //
-                + tr(a("href='nestedpojos/321.html' id='nested-1-href' class='nestedpojos'", "bar"), "dummy2") //
-                + endTable()), result());
+        assertEquals(
+                wrapped(table("nested", "str") //
+                        + tr(a("href='" + BASE_URI + "/nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
+                                "foo"), "dummy1") //
+                        + tr(a("href='" + BASE_URI + "/nestedpojos/321.html' id='nested-1-href' class='nestedpojos'",
+                                "bar"), "dummy2") //
+                        + endTable()), result());
     }
 
     @Data
@@ -421,6 +423,7 @@ public class HtmlWriterTest {
         assertThat(
                 result(),
                 containsString(div(label("nested")
-                        + a("href='../linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'", "bar"))));
+                        + a("href='" + BASE_URI
+                                + "/linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'", "bar"))));
     }
 }

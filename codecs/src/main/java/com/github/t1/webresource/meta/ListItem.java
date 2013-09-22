@@ -21,11 +21,15 @@ class ListItem extends AbstractPojoItem {
     }
 
     private boolean empty() {
-        return ((List<?>) object).isEmpty();
+        return collection().isEmpty();
+    }
+
+    private Collection<?> collection() {
+        return (Collection<?>) object;
     }
 
     private Class<? extends Object> elementType() {
-        return ((List<?>) object).get(0).getClass();
+        return collection().iterator().next().getClass();
     }
 
     @Override
@@ -36,7 +40,7 @@ class ListItem extends AbstractPojoItem {
     @Override
     public List<Item> getList() {
         List<Item> result = new ArrayList<>();
-        for (Object element : ((List<?>) object)) {
+        for (Object element : collection()) {
             result.add(Items.newItem(element));
         }
         return result;

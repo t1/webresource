@@ -70,8 +70,8 @@ public class AbstractHtmlWriter {
         new HtmlFieldWriter(this, item, trait, id).write();
     }
 
-    public void writeLink(Item item, String id, String prefix) throws IOException {
-        new HtmlLinkWriter(this, item, id, prefix).write();
+    public void writeLink(Item item, String id) throws IOException {
+        new HtmlLinkWriter(this, item, id).write();
     }
 
     public void writeTable(List<Item> list, List<Trait> traits) throws IOException {
@@ -124,7 +124,7 @@ public class AbstractHtmlWriter {
     }
 
     /**
-     * The path of the JAX-RS base-uri starts with the resource base (often 'rest'), but we need the application base,
+     * The path of the JAX-RS base-uri contains the resource base (often 'rest'), but we need the application base,
      * which is the first path element.
      */
     public Path applicationPath() {
@@ -132,11 +132,16 @@ public class AbstractHtmlWriter {
     }
 
     /**
-     * Resolve the given URI.
+     * Resolve the given URI against the application base, i.e.
+     * <ul>
+     * <li>if the given uri is absolut (contains a protocol like http), use that
+     * <li>if the given uri path starts with a slash, use the same host, but nothing from the application path, or
+     * <li>if the given uri does not start with a slash, resolve within the application.
+     * </ul>
      * 
      * @see HtmlStyleSheet
      */
-    public URI resolve(URI uri) {
+    public URI resolveApp(URI uri) {
         if (uri.isAbsolute())
             return uri;
         if (uri.getPath() == null)
@@ -147,6 +152,14 @@ public class AbstractHtmlWriter {
             Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
             return baseUri.resolve("/" + path);
         }
+    }
+
+    /**
+     * Resolve the given path against the base uri (i.e. including the application and the 'rest' or 'resource' path
+     * elements)
+     */
+    public URI resolveBase(String path) {
+        return URI.create(baseUri + "/" + path);
     }
 
     protected String id(String name) {

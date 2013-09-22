@@ -35,7 +35,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
         } else if (value.isList()) {
             writeList(value.getList(), SIMPLE);
         } else {
-            writeLink(value, id, "../");
+            writeLink(value, id);
         }
     }
 }

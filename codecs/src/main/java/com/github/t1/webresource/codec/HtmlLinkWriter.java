@@ -12,13 +12,11 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
 
     private final Item item;
     private final String id;
-    private final String prefix;
 
-    public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String id, String prefix) {
+    public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String id) {
         super(context);
         this.item = item;
         this.id = id;
-        this.prefix = prefix;
     }
 
     public void write() throws IOException {
@@ -32,7 +30,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String href() {
-        return prefix + item.type() + "/" + idTraitValue() + ".html";
+        return resolveBase(item.type() + "/" + idTraitValue() + ".html").toString();
     }
 
     private String idTraitValue() {
