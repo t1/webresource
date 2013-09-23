@@ -15,7 +15,7 @@ import com.github.t1.webresource.meta.*;
 
 public class HtmlLinkWriterTest {
 
-    private static final URI BASE_URI = URI.create("http://host/app/rest");
+    private static final URI BASE_URI = URI.create("http://host/app/rest/");
     private final StringWriter out = new StringWriter();
     private final AbstractHtmlWriter context = new AbstractHtmlWriter(out, BASE_URI);
 
@@ -39,8 +39,8 @@ public class HtmlLinkWriterTest {
 
         writer.write();
 
-        assertEquals("<a href='" + BASE_URI + "/simplepojos/" + pojo + ".html' id='id-href' class='simplepojos'>"
-                + pojo + "</a>\n", out.toString());
+        assertEquals("<a href='" + BASE_URI + "simplepojos/" + pojo + ".html' id='id-href' class='simplepojos'>" + pojo
+                + "</a>\n", out.toString());
     }
 
     @Getter
@@ -68,7 +68,7 @@ public class HtmlLinkWriterTest {
 
         writer.write();
 
-        assertEquals("<a href='" + BASE_URI + "/onelinkfieldpojos/" + pojo
+        assertEquals("<a href='" + BASE_URI + "onelinkfieldpojos/" + pojo
                 + ".html' id='id-href' class='onelinkfieldpojos'>one</a>\n", out.toString());
     }
 
@@ -94,7 +94,7 @@ public class HtmlLinkWriterTest {
 
         writer.write();
 
-        assertEquals("<a href='" + BASE_URI + "/textlinkvariablepojos/" + pojo
+        assertEquals("<a href='" + BASE_URI + "textlinkvariablepojos/" + pojo
                 + ".html' id='id-href' class='textlinkvariablepojos'>one-two</a>\n", out.toString());
     }
 }

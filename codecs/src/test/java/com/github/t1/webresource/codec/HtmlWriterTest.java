@@ -18,7 +18,7 @@ import org.junit.Test;
 import com.google.common.collect.*;
 
 public class HtmlWriterTest {
-    private static final String BASE_URI = "http://localhost:8080/demo/resource";
+    private static final String BASE_URI = "http://localhost:8080/demo/resource/";
     private final Writer out = new StringWriter();
 
     private HtmlWriter writer(Object object) {
@@ -377,8 +377,7 @@ public class HtmlWriterTest {
         assertThat(
                 result(),
                 containsString(div(label("nested")
-                        + a("href='" + BASE_URI + "/nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
-                                "foo"))));
+                        + a("href='" + BASE_URI + "nestedpojos/123.html' id='nested-0-href' class='nestedpojos'", "foo"))));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -392,9 +391,9 @@ public class HtmlWriterTest {
 
         assertEquals(
                 wrapped(table("nested", "str") //
-                        + tr(a("href='" + BASE_URI + "/nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
+                        + tr(a("href='" + BASE_URI + "nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
                                 "foo"), "dummy1") //
-                        + tr(a("href='" + BASE_URI + "/nestedpojos/321.html' id='nested-1-href' class='nestedpojos'",
+                        + tr(a("href='" + BASE_URI + "nestedpojos/321.html' id='nested-1-href' class='nestedpojos'",
                                 "bar"), "dummy2") //
                         + endTable()), result());
     }
@@ -424,6 +423,6 @@ public class HtmlWriterTest {
                 result(),
                 containsString(div(label("nested")
                         + a("href='" + BASE_URI
-                                + "/linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'", "bar"))));
+                                + "linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'", "bar"))));
     }
 }

@@ -159,7 +159,7 @@ public class AbstractHtmlWriter {
      * elements)
      */
     public URI resolveBase(String path) {
-        return URI.create(baseUri + "/" + path);
+        return URI.create(baseUri + path);
     }
 
     protected String id(String name) {
