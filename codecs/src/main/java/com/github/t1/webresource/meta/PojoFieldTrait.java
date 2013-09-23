@@ -42,4 +42,9 @@ public class PojoFieldTrait extends PojoTrait {
         }
         return out.toString();
     }
+
+    @Override
+    protected Class<?> typeClass() {
+        return field.getType();
+    }
 }

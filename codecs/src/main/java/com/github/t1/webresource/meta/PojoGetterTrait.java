@@ -36,6 +36,11 @@ public class PojoGetterTrait extends PojoTrait {
     }
 
     @Override
+    protected Class<?> typeClass() {
+        return method.getReturnType();
+    }
+
+    @Override
     public Object of(Object object) {
         try {
             method.setAccessible(true);

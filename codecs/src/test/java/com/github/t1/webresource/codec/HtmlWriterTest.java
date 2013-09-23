@@ -112,16 +112,12 @@ public class HtmlWriterTest {
     }
 
     private String field(String name, String value, int id) {
-        return field(name, value, id, "text");
+        return field(name, value, id, "string", "text");
     }
 
-    private String field(String name, String value, String type) {
-        return field(name, value, 0, type);
-    }
-
-    private String field(String name, String value, int id, String type) {
+    private String field(String name, String value, int id, String cssClass, String type) {
         return div(label(name, id) //
-                + "<input id='" + name + "-" + id + "' class='" + name + "' type='" + type + "' value='"
+                + "<input id='" + name + "-" + id + "' class='" + cssClass + "' type='" + type + "' value='"
                 + value
                 + "' readonly/>" //
         );
@@ -203,7 +199,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneStringPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneStringPojoWithoutKey() throws Exception {
         OneStringPojo pojo = new OneStringPojo("str");
 
         writer(pojo).write();
@@ -212,7 +208,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneStringPojoNullValue() throws Exception {
+    public void shouldEncodeOneStringPojoNullValue() throws Exception {
         OneStringPojo pojo = new OneStringPojo(null);
 
         writer(pojo).write();
@@ -221,7 +217,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneStringPojoListAsTable() throws Exception {
+    public void shouldEncodeOneStringPojoListAsTable() throws Exception {
         OneStringPojo pojo1 = new OneStringPojo("one");
         OneStringPojo pojo2 = new OneStringPojo("two");
         OneStringPojo pojo3 = new OneStringPojo("three");
@@ -230,6 +226,47 @@ public class HtmlWriterTest {
         writer(list).write();
 
         assertEquals(wrapped(table("string") + tr("one") + tr("two") + tr("three") + endTable()), result());
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class OneStringInputNamedPojo {
+        private String string;
+
+        @HtmlFieldName("foo")
+        public String getString() {
+            return string;
+        }
+    }
+
+    @Test
+    public void shouldEncodeOneStringInputNamedPojoWithoutKey() throws Exception {
+        OneStringInputNamedPojo pojo = new OneStringInputNamedPojo("str");
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(field("foo", "str", 0, "string", "text")), result());
+    }
+
+    @Test
+    public void shouldEncodeOneStringInputNamedPojoNullValue() throws Exception {
+        OneStringInputNamedPojo pojo = new OneStringInputNamedPojo(null);
+
+        writer(pojo).write();
+
+        assertEquals(wrapped(field("foo", "", 0, "string", "text")), result());
+    }
+
+    @Test
+    public void shouldEncodeOneStringInputNamedPojoListAsTable() throws Exception {
+        OneStringInputNamedPojo pojo1 = new OneStringInputNamedPojo("one");
+        OneStringInputNamedPojo pojo2 = new OneStringInputNamedPojo("two");
+        OneStringInputNamedPojo pojo3 = new OneStringInputNamedPojo("three");
+        List<OneStringInputNamedPojo> list = asList(pojo1, pojo2, pojo3);
+
+        writer(list).write();
+
+        assertEquals(wrapped(table("foo") + tr("one") + tr("two") + tr("three") + endTable()), result());
     }
 
     @Data
@@ -244,12 +281,12 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneStringInputTypedPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneStringInputTypedPojoWithoutKey() throws Exception {
         OneStringInputTypedPojo pojo = new OneStringInputTypedPojo("str");
 
         writer(pojo).write();
 
-        assertEquals(wrapped(field("string", "str", 0, "test")), result());
+        assertEquals(wrapped(field("string", "str", 0, "string", "test")), result());
     }
 
     @AllArgsConstructor
@@ -260,17 +297,17 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
+    public void shouldEncodeTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(field("i", "123")));
+        assertThat(result(), containsString(field("i", "123", 0, "number", "text")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
     @Test
-    public void shouldWriteTwoFieldPojoListAsTable() throws Exception {
+    public void shouldEncodeTwoFieldPojoListAsTable() throws Exception {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
@@ -291,12 +328,12 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneBooleanPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneBooleanPojoWithoutKey() throws Exception {
         TwoFieldsOneBooleanPojo pojo = new TwoFieldsOneBooleanPojo(true, "dummy");
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(field("b", "true", "checkbox")));
+        assertThat(result(), containsString(field("b", "true", 0, "boolean", "checkbox")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -308,7 +345,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteSetPojo() throws Exception {
+    public void shouldEncodeSetPojo() throws Exception {
         SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
 
         writer(pojo).write();
@@ -327,7 +364,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteListPojo() throws Exception {
+    public void shouldEncodeListPojo() throws Exception {
         ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
 
         writer(pojo).write();
@@ -337,7 +374,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteTableWithListPojo() throws Exception {
+    public void shouldEncodeTableWithListPojo() throws Exception {
         ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
         ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
         List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
@@ -369,7 +406,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteNestedPojo() throws Exception {
+    public void shouldEncodeNestedPojo() throws Exception {
         ContainerPojo pojo = new ContainerPojo("dummy", new NestedPojo("foo", 123));
 
         writer(pojo).write();
@@ -382,7 +419,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteTableWithContainerPojo() throws Exception {
+    public void shouldEncodeTableWithContainerPojo() throws Exception {
         ContainerPojo pojo1 = new ContainerPojo("dummy1", new NestedPojo("foo", 123));
         ContainerPojo pojo2 = new ContainerPojo("dummy2", new NestedPojo("bar", 321));
         List<ContainerPojo> list = ImmutableList.of(pojo1, pojo2);
@@ -414,7 +451,7 @@ public class HtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteLinkNestedPojo() throws Exception {
+    public void shouldEncodeLinkNestedPojo() throws Exception {
         LinkContainerPojo pojo = new LinkContainerPojo(new LinkNestedPojo("foo", "bar"));
 
         writer(pojo).write();

@@ -35,7 +35,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag th = new Tag("th")) {
-                    escaped().append(trait.name());
+                    escaped().append(name(trait));
                 }
             }
         }
@@ -47,8 +47,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
                     Item cellItem = rowItem.get(trait);
-                    String name = trait.name();
-                    String id = id(name);
+                    String id = id(name(trait));
                     if (cellItem.isSimple()) {
                         writeField(cellItem, SIMPLE, id);
                     } else if (cellItem.isList()) {

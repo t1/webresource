@@ -20,6 +20,24 @@ public abstract class PojoTrait extends AbstractTrait {
 
     protected abstract Member member();
 
+    @Override
+    public String type() {
+        String type = typeClass().getSimpleName().toLowerCase();
+        switch (type) {
+            case "byte":
+            case "short":
+            case "integer":
+            case "long":
+            case "float":
+            case "double":
+                return "number";
+            default:
+                return type;
+        }
+    }
+
+    protected abstract Class<?> typeClass();
+
     /** is not static and not transient, but public */
     public boolean isPublicMember() {
         int modifiers = member().getModifiers();

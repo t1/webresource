@@ -38,4 +38,9 @@ public class MapTrait extends AbstractTrait {
     public <T extends Annotation> T get(Class<T> type) {
         return null;
     }
+
+    @Override
+    public String type() {
+        return "string";
+    }
 }

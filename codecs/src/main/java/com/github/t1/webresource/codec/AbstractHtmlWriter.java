@@ -162,6 +162,12 @@ public class AbstractHtmlWriter {
         return URI.create(baseUri + path);
     }
 
+    protected String name(Trait trait) {
+        if (trait.is(HtmlFieldName.class))
+            return trait.get(HtmlFieldName.class).value();
+        return trait.name();
+    }
+
     protected String id(String name) {
         Integer i = ids.get(name);
         if (i == null)

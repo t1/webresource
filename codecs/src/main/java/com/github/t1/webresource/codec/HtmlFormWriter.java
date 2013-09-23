@@ -17,7 +17,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
 
     public void write() throws IOException {
         for (Trait trait : item.traits()) {
-            String name = trait.name();
+            String name = name(trait);
             String id = id(name);
             try (Tag div = new Tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
                 try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {

@@ -19,27 +19,27 @@ import java.util.List;
  */
 public interface Item {
 
-    boolean isNull();
+    public boolean isNull();
 
-    boolean isSimple();
+    public boolean isSimple();
 
-    boolean isList();
+    public boolean isList();
 
-    List<Item> getList();
+    public List<Item> getList();
 
-    List<Trait> traits();
+    public List<Trait> traits();
 
-    Item get(Trait trait);
+    public Item get(Trait trait);
 
-    Trait trait(String traitName);
+    public Trait trait(String traitName);
 
-    String type();
+    public String type();
 
-    Trait id();
+    public Trait id();
 
-    <A extends Annotation> Trait trait(Class<A> type);
+    public <A extends Annotation> Trait trait(Class<A> type);
 
-    <A extends Annotation> boolean is(Class<A> type);
+    public <A extends Annotation> boolean is(Class<A> type);
 
-    <A extends Annotation> A get(Class<A> type);
+    public <A extends Annotation> A get(Class<A> type);
 }
