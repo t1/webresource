@@ -1,15 +1,36 @@
 package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
 import com.github.t1.stereotypes.Annotations;
 
 public class PojoGetterTrait extends PojoTrait {
+    private static AnnotatedElement collectAnnotations(Method method, String name) {
+        AnnotatedElement methodAnnotations = Annotations.on(method);
+        Field field = findField(method.getDeclaringClass(), name);
+        if (field == null)
+            return methodAnnotations;
+        return new UnionAnnotatedElement(methodAnnotations, Annotations.on(field));
+    }
+
+    private static Field findField(Class<?> declaringClass, String name) {
+        for (Field field : declaringClass.getDeclaredFields()) {
+            if (field.getName().equals(name)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
     private final Method method;
 
     public PojoGetterTrait(Method method) {
-        super(Annotations.on(method), name(method));
+        this(method, name(method));
+    }
+
+    private PojoGetterTrait(Method method, String name) {
+        super(collectAnnotations(method, name), name);
         this.method = method;
     }
 

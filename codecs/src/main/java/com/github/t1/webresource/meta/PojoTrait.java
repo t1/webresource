@@ -7,7 +7,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 
-public abstract class PojoTrait extends AbstractTrait {
+public abstract class PojoTrait extends ObjectTrait {
 
     /**
      * Note that the name of a trait does not have to match the name of the field or method... not only that the "get"
@@ -19,24 +19,6 @@ public abstract class PojoTrait extends AbstractTrait {
     private String name;
 
     protected abstract Member member();
-
-    @Override
-    public String type() {
-        String type = typeClass().getSimpleName().toLowerCase();
-        switch (type) {
-            case "byte":
-            case "short":
-            case "integer":
-            case "long":
-            case "float":
-            case "double":
-                return "number";
-            default:
-                return type;
-        }
-    }
-
-    protected abstract Class<?> typeClass();
 
     /** is not static and not transient, but public */
     public boolean isPublicMember() {

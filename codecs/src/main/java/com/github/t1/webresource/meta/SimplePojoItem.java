@@ -3,15 +3,17 @@ package com.github.t1.webresource.meta;
 import java.util.*;
 
 class SimplePojoItem extends AbstractPojoItem {
-    private static final List<Trait> SIMPLE_TRAITS = Collections.<Trait> singletonList(SimpleTrait.SIMPLE);
+    private final Trait trait;
 
     public SimplePojoItem(Object object) {
         super(object);
+        Class<?> type = (object == null) ? null : object.getClass();
+        this.trait = new SimpleTrait(type);
     }
 
     @Override
     public List<Trait> traits() {
-        return SIMPLE_TRAITS;
+        return Collections.singletonList(trait);
     }
 
     @Override

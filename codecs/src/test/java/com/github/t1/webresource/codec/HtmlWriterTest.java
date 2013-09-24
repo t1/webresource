@@ -63,7 +63,9 @@ public class HtmlWriterTest {
 
     @Test
     public void shouldEncodeList() throws Exception {
-        writer(asList("one", "two", "three")).write();
+        List<String> list = asList("one", "two", "three");
+
+        writer(list).write();
 
         assertEquals(wrapped(ul("one", "two", "three")), result());
     }

@@ -1,7 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import static com.github.t1.webresource.meta.SimpleTrait.*;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -36,8 +34,8 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         List<Trait> traits = list.get(0).traits();
         if (traits.isEmpty())
             return;
-        if (traits.size() == 1 && SIMPLE == traits.get(0)) {
-            writeList(list, traits.get(0));
+        if (traits.size() == 1 && traits.get(0) instanceof SimpleTrait) {
+            writeList(list);
         } else {
             writeTable(list, traits);
         }

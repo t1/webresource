@@ -1,6 +1,5 @@
 package com.github.t1.webresource.meta;
 
-import static com.github.t1.webresource.meta.SimpleTrait.*;
 import static javax.xml.bind.annotation.XmlAccessType.*;
 import static org.junit.Assert.*;
 
@@ -24,8 +23,8 @@ public class ItemTest {
 
         assertTrue(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("", item.get(SIMPLE).toString());
-        assertEquals(Arrays.asList(SIMPLE), item.traits());
+        assertEquals("", item.get(new SimpleTrait(null)).toString());
+        assertEquals("[SimpleTrait[null]]", item.traits().toString());
     }
 
     @Test
@@ -34,8 +33,8 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("dummy", item.get(SIMPLE).toString());
-        assertEquals(Arrays.asList(SIMPLE), item.traits());
+        assertEquals("dummy", item.get(new SimpleTrait(String.class)).toString());
+        assertEquals("[SimpleTrait[string]]", item.traits().toString());
     }
 
     @Test
@@ -44,8 +43,8 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("1234", item.get(SIMPLE).toString());
-        assertEquals(Arrays.asList(SIMPLE), item.traits());
+        assertEquals("1234", item.get(new SimpleTrait(Long.class)).toString());
+        assertEquals("[SimpleTrait[number]]", item.traits().toString());
     }
 
     @Test
@@ -54,8 +53,8 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("Thu Jan 01 01:00:00 CET 1970", item.get(SIMPLE).toString());
-        assertEquals(Arrays.asList(SIMPLE), item.traits());
+        assertEquals("Thu Jan 01 01:00:00 CET 1970", item.get(new SimpleTrait(Date.class)).toString());
+        assertEquals("[SimpleTrait[date]]", item.traits().toString());
     }
 
     @Test

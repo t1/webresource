@@ -1,7 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import static com.github.t1.webresource.meta.SimpleTrait.*;
-
 import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,7 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
         } else {
             Item fieldItem = item.get(trait);
             if (fieldItem.isList()) {
-                writeList(fieldItem.getList(), SIMPLE);
+                writeList(fieldItem.getList());
             } else {
                 writeField();
             }

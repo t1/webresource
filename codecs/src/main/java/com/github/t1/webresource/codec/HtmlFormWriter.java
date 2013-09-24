@@ -1,7 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import static com.github.t1.webresource.meta.SimpleTrait.*;
-
 import java.io.IOException;
 
 import com.github.t1.webresource.meta.*;
@@ -33,7 +31,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
         if (value.isSimple()) {
             writeField(item, trait, id);
         } else if (value.isList()) {
-            writeList(value.getList(), SIMPLE);
+            writeList(value.getList());
         } else {
             writeLink(value, id);
         }
