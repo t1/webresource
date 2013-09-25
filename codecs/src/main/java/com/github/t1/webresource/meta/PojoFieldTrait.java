@@ -33,7 +33,7 @@ public class PojoFieldTrait extends PojoTrait {
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("field ").append(name());
-        out.append(" of ").append(field.getDeclaringClass().getName());
+        out.append(" of ").append(field.getDeclaringClass().getSimpleName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
             for (Annotation annotation : annotations.getAnnotations()) {
