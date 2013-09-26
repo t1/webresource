@@ -42,6 +42,6 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
 
         writer(list).write();
 
-        assertEquals(wrapped(ul("one", "two", "three")), result());
+        assertEquals(wrapped(ul("strings", "one", "two", "three")), result());
     }
 }

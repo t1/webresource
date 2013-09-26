@@ -50,7 +50,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
                         Trait simple = SimpleTrait.of(cellItem);
                         writeField(cellItem, simple, id);
                     } else if (cellItem.isList()) {
-                        writeList(cellItem.getList());
+                        writeList(cellItem);
                     } else {
                         writeLink(cellItem, id);
                     }

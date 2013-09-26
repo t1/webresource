@@ -111,8 +111,8 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         writer(list).write();
 
         assertEquals(wrapped(table("list", "str") //
-                + tr(ul("one1", "two1", "three1"), "dummy1") //
-                + tr(ul("one2", "two2", "three2"), "dummy2") //
+                + tr(ul("strings", "one1", "two1", "three1"), "dummy1") //
+                + tr(ul("strings", "one2", "two2", "three2"), "dummy2") //
                 + endTable()), result());
     }
 

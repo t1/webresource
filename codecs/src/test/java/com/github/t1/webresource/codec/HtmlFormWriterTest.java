@@ -166,7 +166,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         writer(pojo).write();
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("set", 0) + ul("one", "two", "three"))));
+        assertThat(result(), containsString(div(label("set", 0) + ul("strings", "one", "two", "three"))));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         writer(pojo).write();
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("list") + ul("one", "two", "three"))));
+        assertThat(result(), containsString(div(label("list") + ul("strings", "one", "two", "three"))));
     }
 
     @Test

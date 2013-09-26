@@ -29,12 +29,12 @@ abstract class AbstractHtmlWriterTest {
         return "<div>" + body + "</div>";
     }
 
-    protected String ul(String... items) {
+    protected String ul(String cssClass, String... items) {
         String lis = "";
         for (String item : items) {
             lis += "<li>" + item + "</li>";
         }
-        return "<ul>" + lis + "</ul>";
+        return "<ul class='" + cssClass + "'>" + lis + "</ul>";
     }
 
     protected String a(String attributes, String body) {

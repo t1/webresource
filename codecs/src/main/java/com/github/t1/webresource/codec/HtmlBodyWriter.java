@@ -35,7 +35,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         if (traits.isEmpty())
             return;
         if (traits.size() == 1 && traits.get(0) instanceof SimpleTrait) {
-            writeList(list);
+            writeList(item);
         } else {
             writeTable(list, traits);
         }

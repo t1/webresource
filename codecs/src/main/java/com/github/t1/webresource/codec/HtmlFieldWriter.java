@@ -25,7 +25,7 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
         } else {
             Item fieldItem = item.get(trait);
             if (fieldItem.isList()) {
-                writeList(fieldItem.getList());
+                writeList(fieldItem);
             } else {
                 writeField();
             }

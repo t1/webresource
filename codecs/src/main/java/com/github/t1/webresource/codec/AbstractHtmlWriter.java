@@ -62,8 +62,8 @@ public class AbstractHtmlWriter {
         new HtmlFormWriter(this, item).write();
     }
 
-    public void writeList(List<Item> list) throws IOException {
-        new HtmlListWriter(this, list).write();
+    public void writeList(Item listItem) throws IOException {
+        new HtmlListWriter(this, listItem).write();
     }
 
     public void writeField(Item item, Trait trait, String id) throws IOException {

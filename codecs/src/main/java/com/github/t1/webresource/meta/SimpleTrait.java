@@ -1,8 +1,13 @@
 package com.github.t1.webresource.meta;
 
+import java.util.List;
+
 public class SimpleTrait extends ObjectTrait {
     public static SimpleTrait of(Item item) {
-        return (SimpleTrait) item.traits().get(0);
+        List<Trait> traits = item.traits();
+        if (traits.size() != 1)
+            throw new IllegalArgumentException("expected an item with exactly one trait, but found " + traits);
+        return (SimpleTrait) traits.get(0);
     }
 
     private final Class<?> type;

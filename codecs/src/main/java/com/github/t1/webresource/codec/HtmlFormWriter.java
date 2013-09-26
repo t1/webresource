@@ -25,8 +25,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
         String name = name(trait);
         String id = id(name);
         try (Tag div = new Tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
-            try (Tag label =
-                    new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
+            try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
                 escaped().write(name);
             }
             writeItem(trait, id);
@@ -38,7 +37,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
         if (value.isSimple()) {
             writeField(item, trait, id);
         } else if (value.isList()) {
-            writeList(value.getList());
+            writeList(value);
         } else {
             writeLink(value, id);
         }
