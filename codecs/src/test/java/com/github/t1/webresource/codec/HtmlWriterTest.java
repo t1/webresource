@@ -233,12 +233,8 @@ public class HtmlWriterTest {
     @Data
     @AllArgsConstructor
     private static class OneStringInputNamedPojo {
-        private String string;
-
         @HtmlFieldName("foo")
-        public String getString() {
-            return string;
-        }
+        private String string;
     }
 
     @Test
@@ -274,12 +270,8 @@ public class HtmlWriterTest {
     @Data
     @AllArgsConstructor
     private static class OneStringInputTypedPojo {
-        private String string;
-
         @HtmlInputType("test")
-        public String getString() {
-            return string;
-        }
+        private String string;
     }
 
     @Test

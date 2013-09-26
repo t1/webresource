@@ -47,10 +47,6 @@ public class HtmlLinkWriterTest {
     @AllArgsConstructor
     public static class OneLinkFieldPojo {
         @HtmlLinkText
-        public String getStr1() {
-            return str1;
-        }
-
         String str1;
         String str2;
 
