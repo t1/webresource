@@ -14,15 +14,22 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     }
 
     public void write() throws IOException {
-        for (Trait trait : item.traits()) {
-            String name = name(trait);
-            String id = id(name);
-            try (Tag div = new Tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
-                try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
-                    escaped().write(name);
-                }
-                writeItem(trait, id);
+        try (Tag form = new Tag("form")) {
+            for (Trait trait : item.traits()) {
+                writeFormDiv(trait);
             }
+        }
+    }
+
+    private void writeFormDiv(Trait trait) throws IOException {
+        String name = name(trait);
+        String id = id(name);
+        try (Tag div = new Tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
+            try (Tag label =
+                    new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
+                escaped().write(name);
+            }
+            writeItem(trait, id);
         }
     }
 
