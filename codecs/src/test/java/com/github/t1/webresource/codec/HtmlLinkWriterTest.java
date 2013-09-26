@@ -14,7 +14,6 @@ import org.junit.Test;
 import com.github.t1.webresource.meta.*;
 
 public class HtmlLinkWriterTest {
-
     private static final URI BASE_URI = URI.create("http://host/app/rest/");
     private final StringWriter out = new StringWriter();
     private final AbstractHtmlWriter context = new AbstractHtmlWriter(out, BASE_URI);

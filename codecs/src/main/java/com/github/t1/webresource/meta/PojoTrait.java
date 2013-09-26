@@ -23,7 +23,7 @@ public abstract class PojoTrait extends ObjectTrait {
     /** is not static and not transient, but public */
     public boolean isPublicMember() {
         int modifiers = member().getModifiers();
-        return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers) && Modifier.isPublic(modifiers);
+        return !Modifier.isTransient(modifiers) && Modifier.isPublic(modifiers);
     }
 
     protected final AnnotatedElement annotations;

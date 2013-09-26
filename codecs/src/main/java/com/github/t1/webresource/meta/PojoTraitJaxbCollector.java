@@ -48,7 +48,9 @@ public class PojoTraitJaxbCollector extends PojoTraitAbstractCollector {
 
     @Override
     protected void init(PojoTrait trait) {
-        if (trait.is(XmlElement.class)) {
+        if (trait.is(XmlElementWrapper.class)) {
+            setName(trait, trait.get(XmlElementWrapper.class).name());
+        } else if (trait.is(XmlElement.class)) {
             setName(trait, trait.get(XmlElement.class).name());
         } else if (trait.is(XmlAttribute.class)) {
             setName(trait, trait.get(XmlAttribute.class).name());

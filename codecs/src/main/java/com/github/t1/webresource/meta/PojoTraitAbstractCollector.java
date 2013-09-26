@@ -34,11 +34,17 @@ public abstract class PojoTraitAbstractCollector {
 
     private void addFields() {
         for (Field field : type.getDeclaredFields()) {
+            if (isStatic(field))
+                continue;
             PojoFieldTrait trait = new PojoFieldTrait(field);
             if (pass(trait)) {
                 add(trait);
             }
         }
+    }
+
+    private boolean isStatic(Member member) {
+        return Modifier.isStatic(member.getModifiers());
     }
 
     protected abstract boolean pass(PojoFieldTrait field);
@@ -50,6 +56,8 @@ public abstract class PojoTraitAbstractCollector {
 
     private void addGetters() {
         for (Method method : type.getDeclaredMethods()) {
+            if (isStatic(method))
+                continue;
             PojoGetterTrait getter = new PojoGetterTrait(method);
             if (pass(getter)) {
                 add(getter);

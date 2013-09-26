@@ -23,6 +23,15 @@ public class PojoGetterTrait extends PojoTrait {
         return null;
     }
 
+    private static String name(Method method) {
+        String name = method.getName();
+        if (name.startsWith("get"))
+            name = uncapitalize(name.substring(3));
+        else if (name.startsWith("is"))
+            name = uncapitalize(name.substring(2));
+        return name;
+    }
+
     private final Method method;
 
     public PojoGetterTrait(Method method) {
@@ -32,16 +41,6 @@ public class PojoGetterTrait extends PojoTrait {
     private PojoGetterTrait(Method method, String name) {
         super(collectAnnotations(method, name), name);
         this.method = method;
-    }
-
-    /** This is only the default name, subclasses can call {@link PojoGetterTrait#setName(String)} */
-    private static String name(Method method) {
-        String name = method.getName();
-        if (name.startsWith("get"))
-            name = uncapitalize(name.substring(3));
-        else if (name.startsWith("is"))
-            name = uncapitalize(name.substring(2));
-        return name;
     }
 
     private static String uncapitalize(String name) {

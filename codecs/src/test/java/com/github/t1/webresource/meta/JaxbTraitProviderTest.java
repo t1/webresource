@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import javax.xml.bind.annotation.*;
 
-import lombok.Data;
+import lombok.*;
 
 import org.junit.Test;
 
@@ -69,5 +69,19 @@ public class JaxbTraitProviderTest {
         assertEquals(2, traits.size());
         assertEquals("two", traits.get(0).name());
         assertEquals("one", traits.get(1).name());
+    }
+
+
+    @XmlRootElement
+    public static class StaticFieldAndGetter {
+        @Getter
+        public static String one;
+    }
+
+    @Test
+    public void shouldNotFindStaticGetter() throws Exception {
+        PojoTraits traits = new PojoTraits(StaticFieldAndGetter.class);
+
+        assertEquals(0, traits.size());
     }
 }
