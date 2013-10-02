@@ -25,45 +25,10 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<archive>
-						<!--addMavenDescriptor>false</addMavenDescriptor -->
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.jboss.arquillian</groupId>
-				<artifactId>arquillian-bom</artifactId>
-				<version>1.0.3.Final</version>
-				<scope>import</scope>
-				<type>pom</type>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<dependencies>
-		<!-- "build" scope -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>0.11.6</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-
 		<!-- provided scope -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -81,6 +46,13 @@
 					<groupId>org.apache.xalan</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		
+		<!-- compile scope -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>webresource-common</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<!-- test scope -->

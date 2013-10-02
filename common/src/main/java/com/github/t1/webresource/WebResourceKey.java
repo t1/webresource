@@ -1,7 +1,9 @@
 package com.github.t1.webresource;
 
 import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
+import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import javax.persistence.Id;
@@ -11,6 +13,7 @@ import javax.persistence.Id;
  * will be more suitable.
  */
 @Target({ FIELD })
+@Retention(RUNTIME)
 public @interface WebResourceKey {
     //
 }

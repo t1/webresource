@@ -3,11 +3,14 @@ package com.github.t1.webresource.codec;
 import java.io.IOException;
 import java.util.regex.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+import com.github.t1.webresource.WebResourceKey;
 import com.github.t1.webresource.meta.*;
 
-// TODO escape strings
+// TODO escape strings?
+@Slf4j
 public class HtmlLinkWriter extends AbstractHtmlWriter {
-
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
     private final Item item;
@@ -49,12 +52,26 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private Object body() {
-        if (item.is(HtmlLinkText.class))
-            return resolveVariables(item.get(HtmlLinkText.class).value());
-        Trait trait = item.trait(HtmlLinkText.class);
-        if (trait == null)
-            return item.toString(); // -> fall back
-        return item.get(trait).toString();
+        if (item.is(HtmlLinkText.class)) {
+            HtmlLinkText linkText = item.get(HtmlLinkText.class);
+            log.debug("found link text {} on type {}", linkText, item);
+            return resolveVariables(linkText.value());
+        }
+
+        Trait linkTextTrait = item.trait(HtmlLinkText.class);
+        if (linkTextTrait != null) {
+            log.debug("found link text trait {}", linkTextTrait);
+            return item.get(linkTextTrait).toString();
+        }
+
+        Trait webResourceKeyTrait = item.trait(WebResourceKey.class);
+        if (webResourceKeyTrait != null) {
+            log.debug("found webresource key trait {}", webResourceKeyTrait);
+            return item.get(webResourceKeyTrait).toString();
+        }
+
+        log.debug("found no text link annotations on {}; fall back to toString", item);
+        return item.toString();
     }
 
     private String resolveVariables(String text) {
