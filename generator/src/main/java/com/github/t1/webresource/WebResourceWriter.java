@@ -27,7 +27,7 @@ class WebResourceWriter {
 
     public String run() {
         if (key == null)
-            throw new IllegalStateException("no id type found in " + type.getQualifiedName());
+            throw new IllegalStateException("no id type found in " + type.qualified);
         append("package " + type.pkg + ";");
         nl();
         imports();

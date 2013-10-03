@@ -4,23 +4,27 @@ import java.util.List;
 
 import javax.lang.model.element.*;
 
+/** TODO switch this and WebResourceField to meta, move to commons, and join with WebResourceTypeInfo */
 class WebResourceType {
     final TypeElement type;
     final String pkg;
     final String simple;
-    final String entityName;
     final String lower;
     final String plural;
+    final String qualified;
     final boolean extended;
+
+    final String entityName;
 
     public WebResourceType(TypeElement type) {
         this.type = type;
         this.pkg = pkg();
         this.simple = type.getSimpleName().toString();
-        this.entityName = entity(type);
+        this.entityName = entity();
         this.lower = simple.toLowerCase();
-        this.plural = plural(lower);
-        this.extended = isExtended(type);
+        this.plural = new WebResourceTypeInfo(simple).plural;
+        this.qualified = qualified();
+        this.extended = isExtended();
     }
 
     private String pkg() {
@@ -32,7 +36,18 @@ class WebResourceType {
         throw new IllegalStateException("no package for " + type);
     }
 
-    private String entity(TypeElement type) {
+    private boolean isExtended() {
+        WebResource annotation = type.getAnnotation(WebResource.class);
+        if (annotation == null)
+            throw new RuntimeException("expected type to be annotated as WebResource: " + type);
+        return annotation.extended();
+    }
+
+    private String qualified() {
+        return type.getQualifiedName().toString();
+    }
+
+    private String entity() {
         AnnotationMirror annotation = WebResourceField.getAnnotation(type, "javax.persistence.Entity");
         if (annotation != null) {
             AnnotationValue name = annotation.getElementValues().get("name");
@@ -41,23 +56,6 @@ class WebResourceType {
             }
         }
         return type.getSimpleName().toString();
-    }
-
-    private String plural(String name) {
-        if (name.endsWith("y"))
-            return name.substring(0, name.length() - 1) + "ies";
-        return name + "s";
-    }
-
-    private boolean isExtended(TypeElement type) {
-        WebResource annotation = type.getAnnotation(WebResource.class);
-        if (annotation == null)
-            throw new RuntimeException("expected type to be annotated as WebResource: " + type);
-        return annotation.extended();
-    }
-
-    public String getQualifiedName() {
-        return type.getQualifiedName().toString();
     }
 
     public WebResourceField getIdField() {

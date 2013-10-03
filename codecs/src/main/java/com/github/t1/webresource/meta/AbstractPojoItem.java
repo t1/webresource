@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
+import com.github.t1.webresource.WebResourceTypeInfo;
 import com.google.common.collect.*;
 
 
@@ -76,7 +77,7 @@ abstract class AbstractPojoItem implements Item {
 
     @Override
     public String type() {
-        return (object == null) ? null : object.getClass().getSimpleName().toLowerCase() + "s";
+        return (object == null) ? null : new WebResourceTypeInfo(object.getClass().getSimpleName()).plural;
     }
 
     @Override
