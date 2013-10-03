@@ -38,7 +38,7 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
             write(" id='" + id + "'");
         write(" class='" + trait.type() + "'");
         write(" type='" + inputType() + "'");
-        write(" value='" + item.get(trait) + "' readonly");
+        write(" value='" + item.get(trait) + "'");
         write("/>\n");
     }
 

@@ -61,7 +61,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         return div(label(name, id) //
                 + "<input id='" + name + "-" + id + "' class='" + cssClass + "' type='" + type + "' value='"
                 + value
-                + "' readonly/>" //
+                + "'/>" //
         );
     }
 
