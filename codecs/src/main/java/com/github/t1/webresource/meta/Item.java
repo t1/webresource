@@ -35,9 +35,11 @@ public interface Item {
 
     public String type();
 
-    public Trait id();
-
-    public <A extends Annotation> Trait trait(Class<A> type);
+    /**
+     * The list of traits with this annotation. Note that this may also return traits that are <i>not</i> in
+     * {@link #traits()}, e.g. a transient id of an entity.
+     */
+    public <A extends Annotation> List<Trait> trait(Class<A> type);
 
     public <A extends Annotation> boolean is(Class<A> type);
 

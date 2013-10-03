@@ -4,10 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.persistence.Id;
-
 import com.github.t1.stereotypes.Annotations;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.*;
 
 
 abstract class AbstractPojoItem implements Item {
@@ -65,29 +63,20 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
-    public <A extends Annotation> Trait trait(Class<A> type) {
-        for (Trait trait : traits()) {
-            if (trait.is(type)) {
-                return trait;
+    public <A extends Annotation> List<Trait> trait(Class<A> type) {
+        ImmutableList.Builder<Trait> list = ImmutableList.builder();
+        for (Field field : object.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(type)) {
+                field.setAccessible(true);
+                list.add(new PojoFieldTrait(field));
             }
         }
-        return null;
+        return list.build();
     }
 
     @Override
     public String type() {
         return (object == null) ? null : object.getClass().getSimpleName().toLowerCase() + "s";
-    }
-
-    @Override
-    public Trait id() {
-        for (Field field : object.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(Id.class)) {
-                field.setAccessible(true);
-                return new PojoFieldTrait(field);
-            }
-        }
-        return null;
     }
 
     @Override

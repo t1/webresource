@@ -1,7 +1,10 @@
 package com.github.t1.webresource.codec;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.*;
+
+import javax.persistence.Id;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,10 +40,12 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String idTraitValue() {
-        Trait idTrait = item.id();
-        if (idTrait == null)
+        List<Trait> traits = item.trait(Id.class);
+        if (traits.isEmpty())
             return item.toString();
-        return item.get(idTrait).toString();
+        if (traits.size() > 1)
+            throw new RuntimeException("found more than one id traits: " + traits);
+        return item.get(traits.get(0)).toString();
     }
 
     private Attribute idAttribute() {
@@ -58,16 +63,20 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
             return resolveVariables(linkText.value());
         }
 
-        Trait linkTextTrait = item.trait(HtmlLinkText.class);
-        if (linkTextTrait != null) {
-            log.debug("found link text trait {}", linkTextTrait);
-            return item.get(linkTextTrait).toString();
+        List<Trait> linkTextTraits = item.trait(HtmlLinkText.class);
+        if (!linkTextTraits.isEmpty()) {
+            if (linkTextTraits.size() > 1)
+                throw new RuntimeException("found more than one HtmlLinkText traits: " + linkTextTraits);
+            log.debug("found link text trait {}", linkTextTraits);
+            return item.get(linkTextTraits.get(0)).toString();
         }
 
-        Trait webResourceKeyTrait = item.trait(WebResourceKey.class);
-        if (webResourceKeyTrait != null) {
+        List<Trait> webResourceKeyTrait = item.trait(WebResourceKey.class);
+        if (!webResourceKeyTrait.isEmpty()) {
+            if (webResourceKeyTrait.size() > 1)
+                throw new RuntimeException("found more than one WebResourceKey traits: " + webResourceKeyTrait);
             log.debug("found webresource key trait {}", webResourceKeyTrait);
-            return item.get(webResourceKeyTrait).toString();
+            return item.get(webResourceKeyTrait.get(0)).toString();
         }
 
         log.debug("found no text link annotations on {}; fall back to toString", item);
