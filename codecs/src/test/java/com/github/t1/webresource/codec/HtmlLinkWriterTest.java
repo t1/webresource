@@ -11,6 +11,7 @@ import lombok.*;
 
 import org.junit.Test;
 
+import com.github.t1.webresource.WebResourceKey;
 import com.github.t1.webresource.meta.*;
 
 public class HtmlLinkWriterTest {
@@ -66,6 +67,27 @@ public class HtmlLinkWriterTest {
         assertEquals("<a href='" + BASE_URI + "onelinkfieldpojos/" + pojo
                 + ".html' id='id-href' class='onelinkfieldpojos'>one</a>\n", out.toString());
     }
+
+    @Getter
+    @AllArgsConstructor
+    @XmlRootElement
+    public static class TextLinkWebResourceKeyPojo {
+        @WebResourceKey
+        String str1;
+    }
+
+    @Test
+    public void shouldWriteWebResourceKeyLink() throws Exception {
+        TextLinkWebResourceKeyPojo pojo = new TextLinkWebResourceKeyPojo("one");
+        Item item = Items.newItem(pojo);
+        HtmlLinkWriter writer = new HtmlLinkWriter(context, item, "id");
+
+        writer.write();
+
+        assertEquals("<a href='" + BASE_URI + "textlinkwebresourcekeypojos/one.html' "
+                + "id='id-href' class='textlinkwebresourcekeypojos'>one</a>\n", out.toString());
+    }
+
 
     @Getter
     @AllArgsConstructor

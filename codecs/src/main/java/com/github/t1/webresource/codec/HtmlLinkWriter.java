@@ -40,12 +40,33 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String idTraitValue() {
+        Trait trait = idTrait();
+        if (trait == null)
+            return item.toString();
+        return item.get(trait).toString();
+    }
+
+    private Trait idTrait() {
+        Trait webResourceKeyTrait = getWebResourceKey();
+        if (webResourceKeyTrait != null)
+            return webResourceKeyTrait;
+
         List<Trait> traits = item.trait(Id.class);
         if (traits.isEmpty())
-            return item.toString();
+            return null;
         if (traits.size() > 1)
             throw new RuntimeException("found more than one id traits: " + traits);
-        return item.get(traits.get(0)).toString();
+        return traits.get(0);
+    }
+
+    private Trait getWebResourceKey() {
+        List<Trait> traits = item.trait(WebResourceKey.class);
+        if (traits.isEmpty())
+            return null;
+        if (traits.size() > 1)
+            throw new RuntimeException("found more than one WebResourceKey traits: " + traits);
+        log.debug("found webresource key trait {}", traits);
+        return traits.get(0);
     }
 
     private Attribute idAttribute() {
@@ -71,13 +92,9 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
             return item.get(linkTextTraits.get(0)).toString();
         }
 
-        List<Trait> webResourceKeyTrait = item.trait(WebResourceKey.class);
-        if (!webResourceKeyTrait.isEmpty()) {
-            if (webResourceKeyTrait.size() > 1)
-                throw new RuntimeException("found more than one WebResourceKey traits: " + webResourceKeyTrait);
-            log.debug("found webresource key trait {}", webResourceKeyTrait);
-            return item.get(webResourceKeyTrait.get(0)).toString();
-        }
+        Trait webResourceKeyTrait = getWebResourceKey();
+        if (webResourceKeyTrait != null)
+            return item.get(webResourceKeyTrait).toString();
 
         log.debug("found no text link annotations on {}; fall back to toString", item);
         return item.toString();
