@@ -14,39 +14,9 @@ import org.junit.Test;
 import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
-    private static String wrappedForm(String string) {
-        return wrapped("<form>" + string + "</form>");
-    }
-
-    @Test
-    public void shouldEncodeEmptyMap() throws Exception {
-        Map<String, String> map = new LinkedHashMap<>();
-
-        writer(map).write();
-
-        assertEquals(wrappedForm(""), result());
-    }
-
-    @Test
-    public void shouldEncodeOneKeyMap() throws Exception {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("one", "111");
-
-        writer(map).write();
-
-        assertEquals(wrappedForm(field("one", "111")), result());
-    }
-
-    @Test
-    public void shouldEncodeMap() throws Exception {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("one", "111");
-        map.put("two", "222");
-        map.put("three", "333");
-
-        writer(map).write();
-
-        assertEquals(wrappedForm(field("one", "111") + field("two", "222") + field("three", "333")), result());
+    private static String wrappedForm(String type, String action, String body) {
+        return wrapped("<form id='" + type + "-form' action='" + action + "' method='post'>" + body
+                + "<input type='submit' value='submit'/></form>");
     }
 
     private String field(String name, String value) {
@@ -54,14 +24,14 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     private String field(String name, String value, int id) {
-        return field(name, value, id, "string", "text");
+        return field(name, name, value, id, "string", "text");
     }
 
-    private String field(String name, String value, int id, String cssClass, String type) {
-        return div(label(name, id) //
-                + "<input id='" + name + "-" + id + "' class='" + cssClass + "' type='" + type + "' value='"
-                + value
-                + "'/>" //
+    private String field(String type, String name, String value, int id, String cssClass, String fieldType) {
+        return div(label(type, id) //
+                + "<input id='" + type + "-" + id + "' name='" + name + "' class='" + cssClass + "' type='"
+                + fieldType
+                + "' value='" + value + "'/>" //
         );
     }
 
@@ -74,12 +44,45 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
+    public void shouldEncodeEmptyMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+
+        writer(map).write();
+
+        assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", ""), result());
+    }
+
+    @Test
+    public void shouldEncodeOneKeyMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("one", "111");
+
+        writer(map).write();
+
+        assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", field("one", "111")), result());
+    }
+
+    @Test
+    public void shouldEncodeMap() throws Exception {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("one", "111");
+        map.put("two", "222");
+        map.put("three", "333");
+
+        writer(map).write();
+
+        assertEquals(
+                wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", field("one", "111") + field("two", "222")
+                        + field("three", "333")), result());
+    }
+
+    @Test
     public void shouldEncodeOneStringPojoWithoutKey() throws Exception {
         OneStringPojo pojo = new OneStringPojo("str");
 
         writer(pojo).write();
 
-        assertEquals(wrappedForm(field("string", "str")), result());
+        assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", field("string", "str")), result());
     }
 
     @Test
@@ -88,7 +91,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrappedForm(field("string", "")), result());
+        assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", field("string", "")), result());
     }
 
     @Test
@@ -97,7 +100,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrappedForm(field("foo", "str", 0, "string", "text")), result());
+        assertEquals(
+                wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos",
+                        field("foo", "string", "str", 0, "string", "text")), result());
     }
 
     @Test
@@ -106,7 +111,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrappedForm(field("foo", "", 0, "string", "text")), result());
+        assertEquals(
+                wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos",
+                        field("foo", "string", "", 0, "string", "text")), result());
     }
 
     @Data
@@ -122,7 +129,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertEquals(wrappedForm(field("string", "str", 0, "string", "test")), result());
+        assertEquals(
+                wrappedForm("onestringinputtypedpojos", BASE_URI + "onestringinputtypedpojos",
+                        field("string", "string", "str", 0, "string", "test")), result());
     }
 
     @Test
@@ -131,7 +140,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(field("i", "123", 0, "number", "text")));
+        assertThat(result(), containsString(field("i", "i", "123", 0, "number", "text")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -148,7 +157,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         writer(pojo).write();
 
-        assertThat(result(), containsString(field("b", "true", 0, "boolean", "checkbox")));
+        assertThat(result(), containsString(field("b", "b", "true", 0, "boolean", "checkbox")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 

@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.*;
 
-import javax.persistence.Id;
-
 import lombok.extern.slf4j.Slf4j;
 
-import com.github.t1.webresource.WebResourceKey;
 import com.github.t1.webresource.meta.*;
 
 // TODO escape strings?
@@ -17,12 +14,14 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
     private final Item item;
-    private final String id;
+    private final String linkId;
+    private final HtmlId refId;
 
-    public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String id) {
+    public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String linkId) {
         super(context);
         this.item = item;
-        this.id = id;
+        this.linkId = linkId;
+        this.refId = HtmlId.of(item);
     }
 
     public void write() throws IOException {
@@ -36,41 +35,11 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String href() {
-        return resolveBase(item.type() + "/" + idTraitValue() + ".html").toString();
-    }
-
-    private String idTraitValue() {
-        Trait trait = idTrait();
-        if (trait == null)
-            return item.toString();
-        return item.get(trait).toString();
-    }
-
-    private Trait idTrait() {
-        Trait webResourceKeyTrait = getWebResourceKey();
-        if (webResourceKeyTrait != null)
-            return webResourceKeyTrait;
-
-        List<Trait> traits = item.trait(Id.class);
-        if (traits.isEmpty())
-            return null;
-        if (traits.size() > 1)
-            throw new RuntimeException("found more than one id traits: " + traits);
-        return traits.get(0);
-    }
-
-    private Trait getWebResourceKey() {
-        List<Trait> traits = item.trait(WebResourceKey.class);
-        if (traits.isEmpty())
-            return null;
-        if (traits.size() > 1)
-            throw new RuntimeException("found more than one WebResourceKey traits: " + traits);
-        log.debug("found webresource key trait {}", traits);
-        return traits.get(0);
+        return resolveBase(item.type() + "/" + refId + ".html").toString();
     }
 
     private Attribute idAttribute() {
-        return new Attribute("id", id + "-href");
+        return new Attribute("id", linkId + "-href");
     }
 
     private Attribute classAttribute() {
@@ -92,7 +61,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
             return item.get(linkTextTraits.get(0)).toString();
         }
 
-        Trait webResourceKeyTrait = getWebResourceKey();
+        Trait webResourceKeyTrait = refId.getWebResourceKey();
         if (webResourceKeyTrait != null)
             return item.get(webResourceKeyTrait).toString();
 

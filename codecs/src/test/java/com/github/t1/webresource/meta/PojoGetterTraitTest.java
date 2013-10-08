@@ -17,7 +17,7 @@ public class PojoGetterTraitTest {
     public void shouldFindStringGetter() throws Exception {
         Method method = OneGetter.class.getMethod("getName");
 
-        Trait trait = new PojoGetterTrait(method);
+        Trait trait = new PojoAccessorTrait(method);
 
         assertEquals("name", trait.name());
     }

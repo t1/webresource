@@ -9,12 +9,12 @@ import lombok.*;
 
 import org.junit.Test;
 
-import com.github.t1.webresource.codec.UrlEncoder;
+import com.github.t1.webresource.codec.FormUrlEncoder;
 
-public class UrlEncoderTest {
+public class FormUrlEncoderTest {
 
     private final Writer out = new StringWriter();
-    private final UrlEncoder writer = new UrlEncoder(out);
+    private final FormUrlEncoder writer = new FormUrlEncoder(out);
 
     @Test
     public void shouldNotWriteNull() throws Exception {

@@ -27,8 +27,13 @@ public class SimpleTrait extends ObjectTrait {
     }
 
     @Override
-    public Object of(Object object) {
+    Object of(Object object) {
         return object;
+    }
+
+    @Override
+    void set(Object object, Object value) {
+        throw new IllegalStateException("can't set a simple trait");
     }
 
     @Override

@@ -31,6 +31,8 @@ public interface Item {
 
     public Item get(Trait trait);
 
+    public void set(Trait trait, Item value);
+
     public Trait trait(String traitName);
 
     public String type();

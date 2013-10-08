@@ -20,12 +20,22 @@ public class PojoFieldTrait extends PojoTrait {
     }
 
     @Override
-    public Object of(Object object) {
+    Object of(Object object) {
         try {
             field.setAccessible(true);
             return field.get(object);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + name() + " of " + object, e);
+        }
+    }
+
+    @Override
+    void set(Object object, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(object, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("can't set " + name() + " of " + object + " to " + value, e);
         }
     }
 

@@ -14,7 +14,7 @@ public class PojoTraitDefaultCollector extends PojoTraitAbstractCollector {
     }
 
     @Override
-    protected boolean pass(PojoGetterTrait getter) {
+    protected boolean pass(PojoAccessorTrait getter) {
         return getter.isPublicMember() && getter.isGetter();
     }
 }

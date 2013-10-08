@@ -69,6 +69,7 @@ public class HtmlLinkWriterTest {
     }
 
     @Getter
+    @ToString
     @AllArgsConstructor
     @XmlRootElement
     public static class TextLinkWebResourceKeyPojo {

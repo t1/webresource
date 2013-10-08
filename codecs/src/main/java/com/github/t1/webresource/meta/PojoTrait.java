@@ -11,7 +11,7 @@ public abstract class PojoTrait extends ObjectTrait {
 
     /**
      * Note that the name of a trait does not have to match the name of the field or method... not only that the "get"
-     * prefix of a method has to be removed, in JAXB there are annotations to set the name explicitly.
+     * prefix of a method has to be removed, e.g. in JAXB, there are annotations to set the name explicitly.
      */
     @Getter
     @Setter

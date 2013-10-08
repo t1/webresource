@@ -18,7 +18,7 @@ public class PojoTraitJaxbCollector extends PojoTraitAbstractCollector {
     }
 
     @Override
-    protected boolean pass(PojoGetterTrait getter) {
+    protected boolean pass(PojoAccessorTrait getter) {
         return getter.isGetter() && !xmlTransient(getter) && isVisible(PROPERTY, getter);
     }
 

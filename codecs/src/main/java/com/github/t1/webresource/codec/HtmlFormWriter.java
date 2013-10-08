@@ -14,10 +14,17 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     }
 
     public void write() throws IOException {
-        try (Tag form = new Tag("form")) {
+        try (Tag form = new Tag("form", //
+                new Attribute("id", item.type() + "-form"), //
+                new Attribute("action", resolveBase(item.type()).toString()), //
+                new Attribute("method", "post") //
+                )) {
+            nl();
             for (Trait trait : item.traits()) {
                 writeFormDiv(trait);
             }
+            write("<input type=\"submit\" value=\"submit\"/>");
+            nl();
         }
     }
 

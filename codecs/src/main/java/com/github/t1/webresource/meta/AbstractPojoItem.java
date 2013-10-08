@@ -10,7 +10,6 @@ import com.google.common.collect.*;
 
 
 abstract class AbstractPojoItem implements Item {
-
     protected final Object object;
     protected final Class<?> type;
     protected List<Trait> traits = null;
@@ -54,6 +53,11 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
+    public void set(Trait trait, Item value) {
+        ((AbstractTrait) trait).set(this.object, ((AbstractPojoItem) value).object);
+    }
+
+    @Override
     public Trait trait(String traitName) {
         if (traitMap == null)
             traitMap = buildTraitMap();
@@ -66,7 +70,7 @@ abstract class AbstractPojoItem implements Item {
     @Override
     public <A extends Annotation> List<Trait> trait(Class<A> type) {
         ImmutableList.Builder<Trait> list = ImmutableList.builder();
-        for (Field field : object.getClass().getDeclaredFields()) {
+        for (Field field : this.type.getDeclaredFields()) {
             if (field.isAnnotationPresent(type)) {
                 field.setAccessible(true);
                 list.add(new PojoFieldTrait(field));
@@ -77,7 +81,7 @@ abstract class AbstractPojoItem implements Item {
 
     @Override
     public String type() {
-        return (object == null) ? null : new WebResourceTypeInfo(object.getClass().getSimpleName()).plural;
+        return (object == null) ? null : new WebResourceTypeInfo(type.getSimpleName()).plural;
     }
 
     @Override

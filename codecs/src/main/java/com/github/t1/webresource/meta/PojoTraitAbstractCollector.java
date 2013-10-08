@@ -49,7 +49,7 @@ public abstract class PojoTraitAbstractCollector {
 
     protected abstract boolean pass(PojoFieldTrait field);
 
-    protected abstract boolean pass(PojoGetterTrait getter);
+    protected abstract boolean pass(PojoAccessorTrait getter);
 
     /** esp. for overwriting the name after it was decided to add this trait */
     protected void init(PojoTrait trait) {}
@@ -58,7 +58,7 @@ public abstract class PojoTraitAbstractCollector {
         for (Method method : type.getDeclaredMethods()) {
             if (isStatic(method))
                 continue;
-            PojoGetterTrait getter = new PojoGetterTrait(method);
+            PojoAccessorTrait getter = new PojoAccessorTrait(method);
             if (pass(getter)) {
                 add(getter);
             }

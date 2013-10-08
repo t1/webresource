@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 
 import com.github.t1.stereotypes.Annotations;
 
-public class PojoGetterTrait extends PojoTrait {
+public class PojoAccessorTrait extends PojoTrait {
     private static AnnotatedElement collectAnnotations(Method method, String name) {
         AnnotatedElement methodAnnotations = Annotations.on(method);
         Field field = findField(method.getDeclaringClass(), name);
@@ -32,15 +32,15 @@ public class PojoGetterTrait extends PojoTrait {
         return name;
     }
 
-    private final Method method;
+    private final Method getter;
 
-    public PojoGetterTrait(Method method) {
+    public PojoAccessorTrait(Method method) {
         this(method, name(method));
     }
 
-    private PojoGetterTrait(Method method, String name) {
+    private PojoAccessorTrait(Method method, String name) {
         super(collectAnnotations(method, name), name);
-        this.method = method;
+        this.getter = method;
     }
 
     private static String uncapitalize(String name) {
@@ -49,32 +49,56 @@ public class PojoGetterTrait extends PojoTrait {
         return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 
-
     @Override
     protected Method member() {
-        return method;
+        return getter;
     }
 
     @Override
     protected Class<?> typeClass() {
-        return method.getReturnType();
+        return getter.getReturnType();
     }
 
     @Override
-    public Object of(Object object) {
+    Object of(Object object) {
         try {
-            method.setAccessible(true);
-            return method.invoke(object);
+            getter.setAccessible(true);
+            return getter.invoke(object);
         } catch (IllegalArgumentException | ReflectiveOperationException e) {
             throw new RuntimeException("can't get " + name() + " of " + object, e);
         }
     }
 
     @Override
+    void set(Object object, Object value) {
+        try {
+            Method setter = setter();
+            setter.setAccessible(true);
+            setter.invoke(object, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("can't set " + name() + " of " + object + " to " + value, e);
+        }
+    }
+
+    private Method setter() {
+        String setterName = "set" + initCap(name());
+        try {
+            Class<?> declaringClass = getter.getDeclaringClass();
+            return declaringClass.getDeclaredMethod(setterName, typeClass());
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String initCap(String name) {
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+
+    @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
         out.append("getter ").append(name());
-        out.append(" of ").append(method.getDeclaringClass().getName());
+        out.append(" of ").append(getter.getDeclaringClass().getName());
         if (annotations.getAnnotations().length > 0) {
             out.append(": ");
             for (Annotation annotation : annotations.getAnnotations()) {
@@ -89,8 +113,8 @@ public class PojoGetterTrait extends PojoTrait {
      * type, and takes no arguments.
      */
     public boolean isGetter() {
-        return method.getParameterTypes().length == 0 && method.getReturnType() != void.class
-                && isGetterMethodName(method.getName());
+        return getter.getParameterTypes().length == 0 && getter.getReturnType() != void.class
+                && isGetterMethodName(getter.getName());
     }
 
     private boolean isGetterMethodName(String name) {

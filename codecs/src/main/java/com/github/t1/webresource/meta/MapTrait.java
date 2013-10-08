@@ -23,10 +23,17 @@ public class MapTrait extends AbstractTrait {
     }
 
     @Override
-    public Object of(Object object) {
+    Object of(Object object) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) object;
         return map.get(key);
+    }
+
+    @Override
+    void set(Object object, Object value) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = (Map<String, Object>) object;
+        map.put(key, value);
     }
 
     @Override

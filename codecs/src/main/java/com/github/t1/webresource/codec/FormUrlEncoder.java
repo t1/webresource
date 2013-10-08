@@ -9,11 +9,11 @@ import java.util.*;
  * <p>
  * TODO use {@link com.github.t1.webresource.meta.Item Item}s
  */
-public class UrlEncoder {
+public class FormUrlEncoder {
     private Writer escaped;
     private Writer unescaped;
 
-    public UrlEncoder(Writer out) {
+    public FormUrlEncoder(Writer out) {
         this.unescaped = out;
         this.escaped = escape(out);
     }
