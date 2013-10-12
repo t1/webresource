@@ -1,7 +1,7 @@
 package com.github.t1.webresource.codec;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 import com.github.t1.webresource.meta.*;
 
@@ -31,10 +31,10 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         List<Item> list = item.getList();
         if (list.isEmpty())
             return;
-        List<Trait> traits = list.get(0).traits();
+        Collection<Trait> traits = list.get(0).traits();
         if (traits.isEmpty())
             return;
-        if (traits.size() == 1 && traits.get(0) instanceof SimpleTrait) {
+        if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
             writeList(item);
         } else {
             writeTable(list, traits);

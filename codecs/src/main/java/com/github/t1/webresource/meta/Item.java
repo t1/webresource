@@ -1,7 +1,7 @@
 package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
+import java.util.*;
 
 /**
  * POJO meta object that provides data as {@link Trait}s and meta data as {@link Annotation}s, i.e. you don't have to
@@ -19,31 +19,42 @@ import java.util.List;
  */
 public interface Item {
 
+    /** Is this item <code>null</code>? */
     public boolean isNull();
 
+    /** Is this item "simple", i.e. a string, boolean or a number? */
     public boolean isSimple();
 
+    /** Is this item a list of items? */
     public boolean isList();
 
+    /** The list of elements in this {@link #isList() list-trait} */
     public List<Item> getList();
 
-    public List<Trait> traits();
+    /** The publicly visible traits */
+    public Collection<Trait> traits();
 
+    /** The value of that trait */
     public Item get(Trait trait);
 
+    /** Sets the value of that trait */
     public void set(Trait trait, Item value);
 
+    /** The trait with that name... visible or not, transient or not */
     public Trait trait(String traitName);
 
+    /** The type name of this item */
     public String type();
 
     /**
      * The list of traits with this annotation. Note that this may also return traits that are <i>not</i> in
-     * {@link #traits()}, e.g. a transient id of an entity.
+     * {@link #traits()}, e.g. an invisible or transient id of an entity.
      */
     public <A extends Annotation> List<Trait> trait(Class<A> type);
 
+    /** Is this item annotated as <code>type</code>? */
     public <A extends Annotation> boolean is(Class<A> type);
 
+    /** The item annotation of that <code>type</code> or <code>null</code> if it's not annotated so. */
     public <A extends Annotation> A get(Class<A> type);
 }

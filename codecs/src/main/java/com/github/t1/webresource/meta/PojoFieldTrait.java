@@ -4,13 +4,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import com.github.t1.stereotypes.Annotations;
+import com.google.common.base.Predicate;
 
 public class PojoFieldTrait extends PojoTrait {
 
     private final Field field;
 
-    public PojoFieldTrait(Field field) {
-        super(Annotations.on(field), field.getName());
+    public PojoFieldTrait(Field field, String name, Predicate<PojoTrait> visible) {
+        super(Annotations.on(field), name, visible);
         this.field = field;
     }
 

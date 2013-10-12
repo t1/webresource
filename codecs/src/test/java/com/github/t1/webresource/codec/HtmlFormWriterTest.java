@@ -11,11 +11,14 @@ import lombok.*;
 
 import org.junit.Test;
 
+import com.github.t1.webresource.meta.*;
 import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     private static String wrappedForm(String type, String action, String body) {
-        return wrapped("<form id='" + type + "-form' action='" + action + "' method='post'>" + body
+        return wrapped("<form id='" + type + "-form' action='" + action + "' method='post'>" //
+                // + "<input name='id' type='hidden' value='3'/>" // FIXME
+                + body //
                 + "<input type='submit' value='submit'/></form>");
     }
 
@@ -88,6 +91,10 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     @Test
     public void shouldEncodeOneStringPojoNullValue() throws Exception {
         OneStringPojo pojo = new OneStringPojo(null);
+
+        Item item = Items.newItem(pojo);
+        assertEquals(1, item.traits().size());
+        assertEquals("string", item.trait("string").type());
 
         writer(pojo).write();
 

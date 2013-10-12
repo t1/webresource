@@ -2,7 +2,7 @@ package com.github.t1.webresource.meta;
 
 import java.util.*;
 
-class SimplePojoItem extends AbstractPojoItem {
+class SimplePojoItem extends AbstractItem {
     private final Trait trait;
 
     public SimplePojoItem(Object object) {
@@ -12,7 +12,7 @@ class SimplePojoItem extends AbstractPojoItem {
     }
 
     @Override
-    public List<Trait> traits() {
+    public List<Trait> fetchAllTraits() {
         return Collections.singletonList(trait);
     }
 

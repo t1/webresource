@@ -1,15 +1,15 @@
 package com.github.t1.webresource.codec;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 import com.github.t1.webresource.meta.*;
 
 public class HtmlTableWriter extends AbstractHtmlWriter {
     private final List<Item> list;
-    private final List<Trait> traits;
+    private final Collection<Trait> traits;
 
-    public HtmlTableWriter(AbstractHtmlWriter context, List<Item> list, List<Trait> traits) {
+    public HtmlTableWriter(AbstractHtmlWriter context, List<Item> list, Collection<Trait> traits) {
         super(context);
         this.list = list;
         this.traits = traits;
@@ -29,7 +29,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
         }
     }
 
-    private void writeTableHead(List<Trait> traits) throws IOException {
+    private void writeTableHead(Collection<Trait> traits) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag th = new Tag("th")) {
@@ -40,7 +40,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
     }
 
     // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
-    private void writeTableRow(Item rowItem, List<Trait> traits) throws IOException {
+    private void writeTableRow(Item rowItem, Collection<Trait> traits) throws IOException {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {

@@ -23,6 +23,11 @@ public class MapTrait extends AbstractTrait {
     }
 
     @Override
+    public boolean visible() {
+        return true;
+    }
+
+    @Override
     Object of(Object object) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) object;

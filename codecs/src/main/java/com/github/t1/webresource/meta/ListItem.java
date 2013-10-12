@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
 
-class ListItem extends AbstractPojoItem {
+class ListItem extends AbstractItem {
 
     public <T> ListItem(T object) {
         super(object);
@@ -47,12 +47,9 @@ class ListItem extends AbstractPojoItem {
     }
 
     @Override
-    public List<Trait> traits() {
-        if (traits == null) {
-            if (empty())
-                return Collections.emptyList();
-            this.traits = new PojoTraits(elementType());
-        }
-        return traits;
+    protected PojoTraits fetchAllTraits() {
+        if (empty())
+            return PojoTraits.EMPTY;
+        return new PojoTraits(elementType());
     }
 }

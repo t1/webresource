@@ -7,13 +7,14 @@ import java.io.Serializable;
 import java.lang.annotation.*;
 import java.util.*;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 
 public class ItemTest {
 
@@ -163,18 +164,17 @@ public class ItemTest {
         private static final long serialVersionUID = 1L;
 
         @XmlTransient
-        private Long id;
+        private Long id = 123L;
 
         @XmlElement
         @Size(100)
-        private String first;
+        private String first = "fff";
 
         @XmlElement(name = "lastName")
         @Size(50)
-        private String last;
+        private String last = "lll";
 
-        @XmlTransient
-        private Set<String> tags = new HashSet<>();
+        private Set<String> tags = ImmutableSet.of("one", "two");
 
         @XmlList
         @XmlElement(name = "tags")
@@ -185,15 +185,41 @@ public class ItemTest {
             }
             return builder.build();
         }
+
+        // not an XmlElement or XmlAttribute, and AccessorType is NONE
+        public String getNever() {
+            return "nope";
+        }
+    }
+
+    @Test
+    public void shouldMarshalAdvancedItem() throws Exception {
+        JAXB.marshal(new AdvancedItem(), System.out);
+
+        // no asserts... just check that the annotations are legal
     }
 
     @Test
     public void shouldHoldProperties() throws Exception {
         Item item = Items.newItem(new AdvancedItem());
 
+        assertEquals("first, lastName, tags", names(item.traits()));
+        assertEquals("123", item.get(item.trait("id")).toString());
+        assertEquals("fff", item.get(item.trait("first")).toString());
+        assertEquals("lll", item.get(item.trait("last")).toString());
         assertEquals(100, item.trait("first").get(Size.class).value());
         assertEquals(50, item.trait("lastName").get(Size.class).value());
-        assertTrue(item.trait("tags").is(XmlList.class));
+        assertTrue(item.trait("tags").is(XmlList.class)); // not the field; the method getTagList!
         assertEquals(3, item.traits().size());
+    }
+
+    private String names(Collection<Trait> traits) {
+        StringBuilder out = new StringBuilder();
+        for (Trait trait : traits) {
+            if (out.length() > 0)
+                out.append(", ");
+            out.append(trait.name());
+        }
+        return out.toString();
     }
 }

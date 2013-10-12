@@ -3,7 +3,7 @@ package com.github.t1.webresource.meta;
 import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
-class MapItem extends AbstractPojoItem {
+class MapItem extends AbstractItem {
     public MapItem(Object object) {
         super(object);
     }
@@ -14,14 +14,7 @@ class MapItem extends AbstractPojoItem {
     }
 
     @Override
-    public List<Trait> traits() {
-        if (traits == null) {
-            this.traits = mapTraits();
-        }
-        return traits;
-    }
-
-    private List<Trait> mapTraits() {
+    public List<Trait> fetchAllTraits() {
         List<Trait> traits = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Map<String, ?> map = (Map<String, ?>) object;

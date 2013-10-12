@@ -1,13 +1,13 @@
 package com.github.t1.webresource.meta;
 
-import java.util.List;
+import java.util.Collection;
 
 public class SimpleTrait extends ObjectTrait {
     public static SimpleTrait of(Item item) {
-        List<Trait> traits = item.traits();
+        Collection<Trait> traits = item.traits();
         if (traits.size() != 1)
             throw new IllegalArgumentException("expected an item with exactly one trait, but found " + traits);
-        return (SimpleTrait) traits.get(0);
+        return (SimpleTrait) traits.iterator().next();
     }
 
     private final Class<?> type;
@@ -24,6 +24,11 @@ public class SimpleTrait extends ObjectTrait {
     @Override
     protected Class<?> typeClass() {
         return type;
+    }
+
+    @Override
+    public boolean visible() {
+        return true;
     }
 
     @Override

@@ -1,22 +1,21 @@
 package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.WebResourceTypeInfo;
 import com.google.common.collect.*;
 
-
-abstract class AbstractPojoItem implements Item {
+public abstract class AbstractItem implements Item {
     protected final Object object;
     protected final Class<?> type;
-    protected List<Trait> traits = null;
     protected Map<String, Trait> traitMap = null;
     protected final AnnotatedElement annotations;
+    private Collection<Trait> visibleTraits;
 
-    public AbstractPojoItem(Object object) {
+    public AbstractItem(Object object) {
         this.object = object;
         this.type = (object == null) ? null : object.getClass();
         this.annotations = annotations();
@@ -47,6 +46,37 @@ abstract class AbstractPojoItem implements Item {
     }
 
     @Override
+    public final Collection<Trait> traits() {
+        if (visibleTraits == null) {
+            ImmutableList.Builder<Trait> builder = ImmutableList.builder();
+            for (Trait trait : allTraits()) {
+                if (trait.visible()) {
+                    builder.add(trait);
+                }
+            }
+            visibleTraits = builder.build();
+        }
+        return visibleTraits;
+    }
+
+    private Collection<Trait> allTraits() {
+        return traitMap().values();
+    }
+
+    private Map<String, Trait> traitMap() {
+        if (traitMap == null) {
+            ImmutableMap.Builder<String, Trait> map = ImmutableMap.builder();
+            for (Trait trait : fetchAllTraits()) {
+                map.put(trait.name(), trait);
+            }
+            traitMap = map.build();
+        }
+        return traitMap;
+    }
+
+    protected abstract Collection<Trait> fetchAllTraits();
+
+    @Override
     public Item get(Trait trait) {
         Object value = ((AbstractTrait) trait).of(this.object);
         return Items.newItem(value);
@@ -54,14 +84,12 @@ abstract class AbstractPojoItem implements Item {
 
     @Override
     public void set(Trait trait, Item value) {
-        ((AbstractTrait) trait).set(this.object, ((AbstractPojoItem) value).object);
+        ((AbstractTrait) trait).set(this.object, ((AbstractItem) value).object);
     }
 
     @Override
     public Trait trait(String traitName) {
-        if (traitMap == null)
-            traitMap = buildTraitMap();
-        Trait trait = traitMap.get(traitName);
+        Trait trait = traitMap().get(traitName);
         if (trait == null)
             throw new IllegalArgumentException("no trait " + traitName + " in " + type);
         return trait;
@@ -69,11 +97,11 @@ abstract class AbstractPojoItem implements Item {
 
     @Override
     public <A extends Annotation> List<Trait> trait(Class<A> type) {
+        // TODO use filter instead
         ImmutableList.Builder<Trait> list = ImmutableList.builder();
-        for (Field field : this.type.getDeclaredFields()) {
-            if (field.isAnnotationPresent(type)) {
-                field.setAccessible(true);
-                list.add(new PojoFieldTrait(field));
+        for (Trait trait : allTraits()) {
+            if (trait.is(type)) {
+                list.add(trait);
             }
         }
         return list.build();
@@ -92,14 +120,6 @@ abstract class AbstractPojoItem implements Item {
     @Override
     public <A extends Annotation> A get(Class<A> type) {
         return (annotations == null) ? null : annotations.getAnnotation(type);
-    }
-
-    private Map<String, Trait> buildTraitMap() {
-        ImmutableMap.Builder<String, Trait> map = ImmutableMap.builder();
-        for (Trait trait : traits()) {
-            map.put(trait.name(), trait);
-        }
-        return map.build();
     }
 
     @Override

@@ -74,7 +74,7 @@ public class AbstractHtmlWriter {
         new HtmlLinkWriter(this, item, id).write();
     }
 
-    public void writeTable(List<Item> list, List<Trait> traits) throws IOException {
+    public void writeTable(List<Item> list, Collection<Trait> traits) throws IOException {
         new HtmlTableWriter(this, list, traits).write();
     }
 
