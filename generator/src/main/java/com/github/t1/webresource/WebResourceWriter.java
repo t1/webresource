@@ -207,7 +207,15 @@ class WebResourceWriter {
         ++indent;
         log("post " + type.lower + " {}", type.lower);
         nl();
+        append("if (" + type.lower + ".getId() == null) {");
+        ++indent;
         append("em.persist(" + type.lower + ");");
+        --indent;
+        append("} else {");
+        ++indent;
+        append(type.lower + " = em.merge(" + type.lower + ");");
+        --indent;
+        append("}");
         append("em.flush();");
         nl();
         append("UriBuilder builder = uriInfo.getBaseUriBuilder();");

@@ -44,7 +44,11 @@ public class TestEntityWebResource {
     public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
         log.debug("post testentity {}", testentity);
 
-        em.persist(testentity);
+        if (testentity.getId() == null) {
+            em.persist(testentity);
+        } else {
+            testentity = em.merge(testentity);
+        }
         em.flush();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder();
