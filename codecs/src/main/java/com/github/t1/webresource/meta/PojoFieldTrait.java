@@ -1,5 +1,7 @@
 package com.github.t1.webresource.meta;
 
+import static com.github.t1.webresource.meta.Converter.*;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
@@ -34,7 +36,7 @@ public class PojoFieldTrait extends PojoTrait {
     void set(Object object, Object value) {
         try {
             field.setAccessible(true);
-            field.set(object, value);
+            field.set(object, convert(value).to(field.getType()));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't set " + name() + " of " + object + " to " + value, e);
         }

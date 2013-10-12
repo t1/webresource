@@ -23,13 +23,13 @@ public class HtmlId {
 
     @Override
     public String toString() {
-        Trait trait = idTrait();
+        Trait trait = trait();
         if (trait == null)
             return item.toString();
         return item.get(trait).toString();
     }
 
-    private Trait idTrait() {
+    public Trait trait() {
         Trait webResourceKeyTrait = getWebResourceKey();
         if (webResourceKeyTrait != null)
             return webResourceKeyTrait;
