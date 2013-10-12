@@ -2,11 +2,8 @@ package com.github.t1.webresource.meta;
 
 import java.lang.reflect.AnnotatedElement;
 
-import lombok.extern.slf4j.Slf4j;
-
 import com.google.common.base.Predicate;
 
-@Slf4j
 public class DefaultPojoTraitCollector extends AbstractPojoTraitCollector {
     public DefaultPojoTraitCollector(Class<?> type, PojoTraits target, AnnotatedElement annotations) {
         super(type, target, annotations);
