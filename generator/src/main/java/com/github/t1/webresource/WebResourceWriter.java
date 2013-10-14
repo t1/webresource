@@ -45,10 +45,13 @@ class WebResourceWriter {
         nl();
         append("import javax.ejb.Stateless;");
         append("import javax.persistence.*;");
-        nl();
+        append("import javax.persistence.criteria.*;");
         append("import javax.ws.rs.*;");
+        append("import javax.ws.rs.Path;");
         append("import javax.ws.rs.core.*;");
-        append("import javax.ws.rs.core.Response.*;");
+        append("import javax.ws.rs.core.Response.Status;");
+        if (version != null)
+            append("import javax.ws.rs.core.Response.ResponseBuilder;");
         nl();
         append("import org.slf4j.*;");
     }
@@ -125,12 +128,36 @@ class WebResourceWriter {
 
     private void LIST() {
         append("@GET");
-        append("public List<" + type.simple + "> list" + type.simple + "() {");
+        append("public Response list" + type.simple + "(@Context UriInfo uriInfo) {");
         ++indent;
-        log("get all " + type.plural);
+        append("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
+        log("get " + type.plural + " where {}", "queryParams");
         nl();
-        append("return em.createQuery(\"FROM " + type.entityName + " ORDER BY " + key.name + "\", " + type.simple
-                + ".class).getResultList();");
+        append("CriteriaBuilder builder = em.getCriteriaBuilder();");
+        append("CriteriaQuery<" + type.simple + "> query = builder.createQuery(" + type.simple + ".class);");
+        append("Root<" + type.simple + "> from = query.from(" + type.simple + ".class);");
+        append("Predicate predicate = null;");
+        append("for (String key : queryParams.keySet()) {");
+        ++indent;
+        append("Predicate sub = builder.equal(from.get(key), queryParams.getFirst(key));");
+        append("if (predicate == null) {");
+        ++indent;
+        append("predicate = sub;");
+        --indent;
+        append("} else {");
+        ++indent;
+        append("predicate = builder.and(predicate, sub);");
+        --indent;
+        append("}");
+        --indent;
+        append("}");
+        append("if (predicate != null)");
+        ++indent;
+        append("query.where(predicate);");
+        --indent;
+        append("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
+        nl();
+        append("return Response.ok(list).build();");
         --indent;
         append("}");
     }

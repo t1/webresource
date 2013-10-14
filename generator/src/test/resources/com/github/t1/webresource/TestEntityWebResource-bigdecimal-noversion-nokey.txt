@@ -5,10 +5,11 @@ import java.util.*;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
-
+import javax.persistence.criteria.*;
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.*;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.*;
 
@@ -21,10 +22,27 @@ public class TestEntityWebResource {
     private EntityManager em;
 
     @GET
-    public List<TestEntity> listTestEntity() {
-        log.debug("get all testentities");
+    public Response listTestEntity(@Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+        log.debug("get testentities where {}", queryParams);
 
-        return em.createQuery("FROM TEST_ENTITY ORDER BY id", TestEntity.class).getResultList();
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<TestEntity> query = builder.createQuery(TestEntity.class);
+        Root<TestEntity> from = query.from(TestEntity.class);
+        Predicate predicate = null;
+        for (String key : queryParams.keySet()) {
+            Predicate sub = builder.equal(from.get(key), queryParams.getFirst(key));
+            if (predicate == null) {
+                predicate = sub;
+            } else {
+                predicate = builder.and(predicate, sub);
+            }
+        }
+        if (predicate != null)
+            query.where(predicate);
+        List<TestEntity> list = em.createQuery(query.select(from)).getResultList();
+
+        return Response.ok(list).build();
     }
 
     @GET
