@@ -21,7 +21,7 @@ public class TestEntityWebResource {
     private EntityManager em;
 
     @GET
-    public List<TestEntity> list() {
+    public List<TestEntity> listTestEntity() {
         log.debug("get all testentities");
 
         return em.createQuery("FROM TEST_ENTITY ORDER BY id", TestEntity.class).getResultList();
@@ -41,7 +41,7 @@ public class TestEntityWebResource {
     }
 
     @POST
-    public Response createTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
+    public Response postTestEntity(TestEntity testentity, @Context UriInfo uriInfo) {
         log.debug("post testentity {}", testentity);
 
         if (testentity.getId() == null) {
@@ -58,7 +58,7 @@ public class TestEntityWebResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateTestEntity(@PathParam("id") BigDecimal id, TestEntity testentity) {
+    public Response putTestEntity(@PathParam("id") BigDecimal id, TestEntity testentity) {
         log.debug("put testentity id {}: {}", id, testentity);
 
         if (testentity.getId() == null) {

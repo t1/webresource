@@ -125,7 +125,7 @@ class WebResourceWriter {
 
     private void LIST() {
         append("@GET");
-        append("public List<" + type.simple + "> list() {");
+        append("public List<" + type.simple + "> list" + type.simple + "() {");
         ++indent;
         log("get all " + type.plural);
         nl();
@@ -202,7 +202,7 @@ class WebResourceWriter {
 
     private void POST() {
         append("@POST");
-        append("public Response create" + type.simple + "(" + type.simple + " " + type.lower
+        append("public Response post" + type.simple + "(" + type.simple + " " + type.lower
                 + ", @Context UriInfo uriInfo) {");
         ++indent;
         log("post " + type.lower + " {}", type.lower);
@@ -232,7 +232,7 @@ class WebResourceWriter {
     private void PUT() {
         append("@PUT");
         path("/{id}");
-        append("public Response update" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
+        append("public Response put" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
                 + requestContext() + ") {");
         ++indent;
         log("put " + type.lower + " " + key.name + " {}: {}", key.name, type.lower);
