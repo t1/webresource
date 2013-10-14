@@ -5,33 +5,33 @@ import java.lang.reflect.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Converter {
-    public static Converter convert(Object value) {
-        return new Converter(value);
+public class Converter<T> {
+    public static <T> Converter<T> to(Class<T> type) {
+        return new Converter<>(type);
     }
 
-    private final Object value;
+    private final Class<T> type;
 
-    private Converter(Object value) {
-        this.value = value;
+    private Converter(Class<T> type) {
+        this.type = type;
     }
 
-    public Object to(Class<?> type) {
+    public T convert(Object value) {
         log.debug("converting [{}] to {}", value, type.getSimpleName());
         if (type.isInstance(value))
-            return value;
-        if (hasValueOf(type))
-            return valueOfFor(type);
+            return type.cast(value);
+        if (hasValueOf(value.getClass()))
+            return valueOf(value);
         return null;
     }
 
-    private boolean hasValueOf(Class<?> type) {
-        return valueOfMethodOf(type) != null;
+    private boolean hasValueOf(Class<?> valueType) {
+        return valueOfMethodOf(valueType) != null;
     }
 
-    private Method valueOfMethodOf(Class<?> type) {
+    private Method valueOfMethodOf(Class<?> valueType) {
         try {
-            Method method = type.getMethod("valueOf", value.getClass());
+            Method method = type.getMethod("valueOf", valueType);
             if (!Modifier.isStatic(method.getModifiers()))
                 return null;
             return method;
@@ -40,9 +40,9 @@ public class Converter {
         }
     }
 
-    private Object valueOfFor(Class<?> type) {
+    private T valueOf(Object value) {
         try {
-            return valueOfMethodOf(type).invoke(null, value);
+            return type.cast(valueOfMethodOf(type).invoke(null, value));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }

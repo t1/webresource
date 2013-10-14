@@ -36,7 +36,7 @@ public class PojoFieldTrait extends PojoTrait {
     void set(Object object, Object value) {
         try {
             field.setAccessible(true);
-            field.set(object, convert(value).to(field.getType()));
+            field.set(object, to(field.getType()).convert(value));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't set " + name() + " of " + object + " to " + value, e);
         }

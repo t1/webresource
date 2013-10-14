@@ -40,7 +40,7 @@ public class PojoAccessorTrait extends PojoTrait {
         try {
             Method setter = setter();
             setter.setAccessible(true);
-            setter.invoke(object, convert(value).to(setter.getParameterTypes()[0]));
+            setter.invoke(object, to(setter.getParameterTypes()[0]).convert(value));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("can't set " + name() + " of " + object + " to " + value, e);
         }
