@@ -15,13 +15,13 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
 
     private final Item item;
     private final String linkId;
-    private final HtmlId refId;
+    private final HtmlId ref;
 
     public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String linkId) {
         super(context);
         this.item = item;
         this.linkId = linkId;
-        this.refId = HtmlId.of(item);
+        this.ref = HtmlId.of(item);
     }
 
     public void write() throws IOException {
@@ -35,7 +35,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String href() {
-        return resolveBase(item.type() + "/" + refId + ".html").toString();
+        return resolveBase(item.type() + "/" + ref + ".html").toString();
     }
 
     private Attribute idAttribute() {
@@ -61,7 +61,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
             return item.get(linkTextTraits.get(0)).toString();
         }
 
-        Trait webResourceKeyTrait = refId.getWebResourceKey();
+        Trait webResourceKeyTrait = ref.getWebResourceKey();
         if (webResourceKeyTrait != null)
             return item.get(webResourceKeyTrait).toString();
 

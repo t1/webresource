@@ -9,7 +9,10 @@ import lombok.Data;
 
 import com.github.t1.webresource.meta.*;
 
-/** This is the super class and context of the various html writers */
+/**
+ * This is the super class and context of the various html writers. Does two things, but the code turns out nicer than
+ * when passing a context around... maybe we should use CDI instead?
+ */
 public class AbstractHtmlWriter {
     @Data
     protected static class Attribute {
@@ -38,12 +41,14 @@ public class AbstractHtmlWriter {
     private final URI baseUri;
     private final Map<String, Integer> ids;
 
+    /** Constructs the initial or root context. */
     public AbstractHtmlWriter(Writer out, URI baseUri) {
         this.out = out;
         this.baseUri = baseUri;
         this.ids = new HashMap<String, Integer>();
     }
 
+    /** Constructs a sub-context by copying reusable fields. */
     public AbstractHtmlWriter(AbstractHtmlWriter context) {
         this.out = context.out;
         this.baseUri = context.baseUri;

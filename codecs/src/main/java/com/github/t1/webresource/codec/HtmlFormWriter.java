@@ -19,7 +19,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
                 new Attribute("action", resolveBase(item.type()).toString()), //
                 new Attribute("method", "post") //
                 )) {
-            Trait idTrait = HtmlId.of(item).trait();
+            Trait idTrait = HtmlId.of(this.item).trait();
             if (idTrait != null) {
                 nl();
                 write("<input name=\"" + idTrait.name() + "\" type=\"hidden\" value=\"" + item.get(idTrait) + "\"/>");
