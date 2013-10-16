@@ -28,17 +28,17 @@ public class TestEntityWebResource {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<TestEntity> query = builder.createQuery(TestEntity.class);
         Root<TestEntity> from = query.from(TestEntity.class);
-        Predicate predicate = null;
+        Predicate where = null;
         for (String key : queryParams.keySet()) {
-            Predicate sub = builder.equal(from.get(key), queryParams.getFirst(key));
-            if (predicate == null) {
-                predicate = sub;
+            Predicate predicate = builder.equal(from.get(key), queryParams.getFirst(key));
+            if (where == null) {
+                where = predicate;
             } else {
-                predicate = builder.and(predicate, sub);
+                where = builder.and(where, predicate);
             }
         }
-        if (predicate != null)
-            query.where(predicate);
+        if (where != null)
+            query.where(where);
         List<TestEntity> list = em.createQuery(query.select(from)).getResultList();
 
         return Response.ok(list).build();
