@@ -29,16 +29,16 @@ abstract class AbstractHtmlWriterTest {
 
     public void write(AbstractHtmlWriter writer, Object t) {
         writer.out = out;
-        writer.uriInfo = mockUriInfo();
+        writer.uriResolver = mockUriResolver();
         writer.ids = new IdGenerator();
         Item item = Items.newItem(t);
         writer.write(item);
     }
 
-    public static UriInfo mockUriInfo() {
+    public static UriResolver mockUriResolver() {
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
-        return uriInfo;
+        return new UriResolver(uriInfo);
     }
 
     protected String result() {

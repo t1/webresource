@@ -34,7 +34,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     }
 
     private String href() {
-        return resolveBase(item.type() + "/" + ref + ".html").toString();
+        return uriResolver.resolveBase(item.type() + "/" + ref + ".html").toString();
     }
 
     private Attribute idAttribute() {

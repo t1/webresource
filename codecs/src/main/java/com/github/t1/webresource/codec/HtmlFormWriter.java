@@ -13,7 +13,7 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
         this.item = item;
         try (Tag form = new Tag("form", //
                 new Attribute("id", item.type() + "-form"), //
-                new Attribute("action", resolveBase(item.type()).toString()), //
+                new Attribute("action", uriResolver.resolveBase(item.type()).toString()), //
                 new Attribute("method", "post") //
                 )) {
             Trait idTrait = HtmlId.of(this.item).trait();

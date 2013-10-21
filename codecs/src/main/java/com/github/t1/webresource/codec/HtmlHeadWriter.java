@@ -71,7 +71,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     }
 
     private void writeResource(URI uri) {
-        uri = resolveApp(uri);
+        uri = uriResolver.resolveApp(uri);
         try (InputStream inputStream = uri.toURL().openStream()) {
             write(inputStream);
         } catch (MalformedURLException e) {
@@ -86,6 +86,6 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     }
 
     private URI insertApplicationPath(URI uri) {
-        return uri.resolve("/" + applicationPath().resolve(uri.getPath()));
+        return uri.resolve("/" + uriResolver.applicationPath().resolve(uri.getPath()));
     }
 }

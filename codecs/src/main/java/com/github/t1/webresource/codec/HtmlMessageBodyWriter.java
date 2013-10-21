@@ -40,7 +40,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         try {
             HtmlWriter htmlWriter = new HtmlWriter();
             htmlWriter.out = out;
-            htmlWriter.uriInfo = uriInfo;
+            htmlWriter.uriResolver = new UriResolver(uriInfo);
             htmlWriter.ids = new IdGenerator();
             htmlWriter.write(Items.newItem(t));
         } catch (RuntimeException e) {
