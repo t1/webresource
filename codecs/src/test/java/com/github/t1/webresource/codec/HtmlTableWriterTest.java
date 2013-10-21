@@ -11,6 +11,10 @@ import com.google.common.collect.ImmutableList;
 
 
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
+    private void write(Object t) {
+        write(HtmlTableWriter.class, t);
+    }
+
     private String table(String... columns) {
         String ths = "";
         for (String column : columns) {
@@ -39,9 +43,9 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         Map<String, String> map1 = new LinkedHashMap<>();
         map1.put("one", "aaa");
 
-        writer(Arrays.asList(map0, map1)).write();
+        write(Arrays.asList(map0, map1));
 
-        assertEquals(wrapped(table("one") + tr("111") + tr("aaa") + endTable()), result());
+        assertEquals(table("one") + tr("111") + tr("aaa") + endTable(), result());
     }
 
     @Test
@@ -56,12 +60,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         map1.put("two", "bbb");
         map1.put("three", "ccc");
 
-        writer(Arrays.asList(map0, map1)).write();
+        write(Arrays.asList(map0, map1));
 
-        assertEquals(wrapped(table("one", "two", "three") //
+        assertEquals(table("one", "two", "three") //
                 + tr("111", "222", "333") //
                 + tr("aaa", "bbb", "ccc") //
-                + endTable()), result());
+                + endTable(), result());
     }
 
     @Test
@@ -71,9 +75,9 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         OneStringPojo pojo3 = new OneStringPojo("three");
         List<OneStringPojo> list = asList(pojo1, pojo2, pojo3);
 
-        writer(list).write();
+        write(list);
 
-        assertEquals(wrapped(table("string") + tr("one") + tr("two") + tr("three") + endTable()), result());
+        assertEquals(table("string") + tr("one") + tr("two") + tr("three") + endTable(), result());
     }
 
     @Test
@@ -83,9 +87,9 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         OneStringInputNamedPojo pojo3 = new OneStringInputNamedPojo("three");
         List<OneStringInputNamedPojo> list = asList(pojo1, pojo2, pojo3);
 
-        writer(list).write();
+        write(list);
 
-        assertEquals(wrapped(table("foo") + tr("one") + tr("two") + tr("three") + endTable()), result());
+        assertEquals(table("foo") + tr("one") + tr("two") + tr("three") + endTable(), result());
     }
 
     @Test
@@ -94,12 +98,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
 
-        writer(list).write();
+        write(list);
 
-        assertEquals(wrapped(table("str", "i") //
+        assertEquals(table("str", "i") //
                 + tr("one", "111") //
                 + tr("two", "222") //
-                + endTable()), result());
+                + endTable(), result());
     }
 
     @Test
@@ -108,12 +112,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
         List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
 
-        writer(list).write();
+        write(list);
 
-        assertEquals(wrapped(table("list", "str") //
+        assertEquals(table("list", "str") //
                 + tr(ul("strings", "one1", "two1", "three1"), "dummy1") //
                 + tr(ul("strings", "one2", "two2", "three2"), "dummy2") //
-                + endTable()), result());
+                + endTable(), result());
     }
 
     @Test
@@ -122,14 +126,14 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         ContainerPojo pojo2 = new ContainerPojo("dummy2", new NestedPojo("bar", 321));
         List<ContainerPojo> list = ImmutableList.of(pojo1, pojo2);
 
-        writer(list).write();
+        write(list);
 
         assertEquals(
-                wrapped(table("nested", "str") //
+                table("nested", "str") //
                         + tr(a("href='" + BASE_URI + "nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
                                 "foo"), "dummy1") //
                         + tr(a("href='" + BASE_URI + "nestedpojos/321.html' id='nested-1-href' class='nestedpojos'",
                                 "bar"), "dummy2") //
-                        + endTable()), result());
+                        + endTable(), result());
     }
 }

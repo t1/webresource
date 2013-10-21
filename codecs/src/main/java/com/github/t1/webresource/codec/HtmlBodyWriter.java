@@ -7,19 +7,20 @@ import com.github.t1.webresource.meta.*;
 
 public class HtmlBodyWriter extends AbstractHtmlWriter {
 
-    private final Item item;
+    private Item item;
 
-    public HtmlBodyWriter(AbstractHtmlWriter context, Item item) {
-        super(context);
+    @Override
+    public void write(Item item) {
         this.item = item;
-    }
-
-    public void write() throws IOException {
         if (item.isNull())
             return;
         nl();
         if (item.isSimple()) {
-            escaped().write(item.toString());
+            try {
+                escaped().write(item.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } else if (item.isList()) {
             writeItemList();
         } else {
@@ -27,7 +28,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         }
     }
 
-    private void writeItemList() throws IOException {
+    private void writeItemList() {
         List<Item> list = item.getList();
         if (list.isEmpty())
             return;
@@ -37,7 +38,7 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
             writeList(item);
         } else {
-            writeTable(list, traits);
+            writeTable(item);
         }
     }
 }

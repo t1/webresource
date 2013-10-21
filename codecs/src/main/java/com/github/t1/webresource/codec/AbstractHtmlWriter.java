@@ -3,17 +3,15 @@ package com.github.t1.webresource.codec;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.*;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 
 import lombok.Data;
 
 import com.github.t1.webresource.meta.*;
 
-/**
- * This is the super class and context of the various html writers. Does two things, but the code turns out nicer than
- * when passing a context around... maybe we should use CDI instead?
- */
-public class AbstractHtmlWriter {
+public abstract class AbstractHtmlWriter {
     @Data
     protected static class Attribute {
         private final String name;
@@ -23,64 +21,82 @@ public class AbstractHtmlWriter {
     protected class Tag implements AutoCloseable {
         private final String name;
 
-        public Tag(String name, Attribute... attributes) throws IOException {
+        public Tag(String name, Attribute... attributes) {
             this.name = name;
-            out.append('<').append(name);
-            for (Attribute attribute : attributes)
-                out.append(' ').append(attribute.name).append("='").append(attribute.value).append('\'');
-            out.append(">");
+            try {
+                out.append('<').append(name);
+                for (Attribute attribute : attributes)
+                    out.append(' ').append(attribute.name).append("='").append(attribute.value).append('\'');
+                out.append(">");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
-        public void close() throws IOException {
-            out.append("</").append(name).append(">\n");
+        public void close() {
+            try {
+                out.append("</").append(name).append(">\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private final Writer out;
-    private final URI baseUri;
-    private final Map<String, Integer> ids;
+    @Inject
+    Writer out;
+    @Inject
+    IdGenerator ids;
+    @Inject
+    UriInfo uriInfo;
 
-    /** Constructs the initial or root context. */
-    public AbstractHtmlWriter(Writer out, URI baseUri) {
-        this.out = out;
-        this.baseUri = baseUri;
-        this.ids = new HashMap<String, Integer>();
+    public abstract void write(Item item);
+
+    private void init(AbstractHtmlWriter that) {
+        that.out = out;
+        that.uriInfo = uriInfo;
+        that.ids = ids;
     }
 
-    /** Constructs a sub-context by copying reusable fields. */
-    public AbstractHtmlWriter(AbstractHtmlWriter context) {
-        this.out = context.out;
-        this.baseUri = context.baseUri;
-        this.ids = context.ids;
+    private void writeTo(Class<? extends AbstractHtmlWriter> type, Item item) {
+        try {
+            writeTo(type.newInstance(), item);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void writeHead(Item item) throws IOException {
-        new HtmlHeadWriter(this, item).write();
+    private void writeTo(AbstractHtmlWriter writer, Item item) {
+        init(writer);
+        writer.write(item);
     }
 
-    public void writeBody(Item item) throws IOException {
-        new HtmlBodyWriter(this, item).write();
+    public void writeHead(Item item) {
+        writeTo(HtmlHeadWriter.class, item);
     }
 
-    public void writeForm(Item item) throws IOException {
-        new HtmlFormWriter(this, item).write();
+    public void writeBody(Item item) {
+        writeTo(HtmlBodyWriter.class, item);
     }
 
-    public void writeList(Item listItem) throws IOException {
-        new HtmlListWriter(this, listItem).write();
+    public void writeForm(Item item) {
+        writeTo(HtmlFormWriter.class, item);
     }
 
-    public void writeField(Item item, Trait trait, String id) throws IOException {
-        new HtmlFieldWriter(this, item, trait, id).write();
+    public void writeList(Item item) {
+        writeTo(HtmlListWriter.class, item);
     }
 
-    public void writeLink(Item item, String id) throws IOException {
-        new HtmlLinkWriter(this, item, id).write();
+    public void writeField(Item item, Trait trait, String id) {
+        writeTo(new HtmlFieldWriter(trait, id), item);
     }
 
-    public void writeTable(List<Item> list, Collection<Trait> traits) throws IOException {
-        new HtmlTableWriter(this, list, traits).write();
+    public void writeLink(Item item, String id) {
+        writeTo(new HtmlLinkWriter(id), item);
+    }
+
+    public void writeTable(Item item) {
+        writeTo(HtmlTableWriter.class, item);
     }
 
     protected void write(String text) {
@@ -133,7 +149,8 @@ public class AbstractHtmlWriter {
      * which is the first path element.
      */
     public Path applicationPath() {
-        return Paths.get(baseUri.getPath()).getName(0);
+        String path = uriInfo.getBaseUri().getPath();
+        return Paths.get(path).getName(0);
     }
 
     /**
@@ -152,10 +169,10 @@ public class AbstractHtmlWriter {
         if (uri.getPath() == null)
             throw new IllegalArgumentException("the given uri has no path: " + uri);
         if (uri.getPath().startsWith("/")) {
-            return baseUri.resolve(uri.getPath());
+            return uriInfo.getBaseUri().resolve(uri.getPath());
         } else {
-            Path path = Paths.get(baseUri.getPath()).subpath(0, 1).resolve(uri.getPath());
-            return baseUri.resolve("/" + path);
+            Path path = Paths.get(uriInfo.getBaseUri().getPath()).subpath(0, 1).resolve(uri.getPath());
+            return uriInfo.getBaseUri().resolve("/" + path);
         }
     }
 
@@ -164,7 +181,7 @@ public class AbstractHtmlWriter {
      * elements)
      */
     public URI resolveBase(String path) {
-        return URI.create(baseUri + path);
+        return URI.create(uriInfo.getBaseUri() + path);
     }
 
     protected String name(Trait trait) {
@@ -174,10 +191,6 @@ public class AbstractHtmlWriter {
     }
 
     protected String id(String name) {
-        Integer i = ids.get(name);
-        if (i == null)
-            i = 0;
-        ids.put(name, i + 1);
-        return name + "-" + i;
+        return ids.get(name);
     }
 }

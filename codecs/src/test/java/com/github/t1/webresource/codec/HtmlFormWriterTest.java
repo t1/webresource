@@ -15,11 +15,15 @@ import com.github.t1.webresource.meta.*;
 import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
+    public void write(Object t) {
+        write(HtmlFormWriter.class, t);
+    }
+
     private static String wrappedForm(String type, String action, String id, String body) {
-        return wrapped("<form id='" + type + "-form' action='" + action + "' method='post'>" //
+        return "<form id='" + type + "-form' action='" + action + "' method='post'>" //
                 + ((id == null) ? "" : "<input name='id' type='hidden' value='" + id + "'/>") //
                 + body //
-                + "<input type='submit' value='submit'/></form>");
+                + "<input type='submit' value='submit'/></form>";
     }
 
     private String field(String name, String value) {
@@ -50,7 +54,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeEmptyMap() throws Exception {
         Map<String, String> map = new LinkedHashMap<>();
 
-        writer(map).write();
+        write(map);
 
         assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null, ""), result());
     }
@@ -60,7 +64,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");
 
-        writer(map).write();
+        write(map);
 
         assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null, field("one", "111")), result());
     }
@@ -72,7 +76,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         map.put("two", "222");
         map.put("three", "333");
 
-        writer(map).write();
+        write(map);
 
         assertEquals(
                 wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null,
@@ -83,7 +87,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeOneStringPojoWithoutKey() throws Exception {
         OneStringPojo pojo = new OneStringPojo("str");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", null, field("string", "str")), result());
     }
@@ -96,7 +100,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         assertEquals(1, item.traits().size());
         assertEquals("string", item.trait("string").type());
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", null, field("string", "")), result());
     }
@@ -105,7 +109,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeOneStringInputNamedPojoWithoutKey() throws Exception {
         OneStringInputNamedPojo pojo = new OneStringInputNamedPojo("str");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(
                 wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos", null,
@@ -116,7 +120,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeOneStringInputNamedPojoNullValue() throws Exception {
         OneStringInputNamedPojo pojo = new OneStringInputNamedPojo(null);
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(
                 wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos", null,
@@ -134,7 +138,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeOneStringInputTypedPojoWithoutKey() throws Exception {
         OneStringInputTypedPojo pojo = new OneStringInputTypedPojo("str");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(
                 wrappedForm("onestringinputtypedpojos", BASE_URI + "onestringinputtypedpojos", null,
@@ -145,7 +149,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(field("i", "i", "123", 0, "number", "text")));
         assertThat(result(), containsString(field("str", "dummy")));
@@ -162,7 +166,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeOneBooleanPojoWithoutKey() throws Exception {
         TwoFieldsOneBooleanPojo pojo = new TwoFieldsOneBooleanPojo(true, "dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(field("b", "b", "true", 0, "boolean", "checkbox")));
         assertThat(result(), containsString(field("str", "dummy")));
@@ -179,7 +183,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodePojoWithId() throws Exception {
         PojoWithId pojo = new PojoWithId(123, "dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertEquals(wrappedForm("pojowithids", BASE_URI + "pojowithids", "123", //
                 field("str", "str", "dummy", 0, "string", "text")), result());
@@ -196,7 +200,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeSetPojo() throws Exception {
         SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(field("str", "dummy")));
         assertThat(result(), containsString(div(label("set", 0) + ul("strings", "one", "two", "three"))));
@@ -206,7 +210,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeListPojo() throws Exception {
         ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(field("str", "dummy")));
         assertThat(result(), containsString(div(label("list") + ul("strings", "one", "two", "three"))));
@@ -216,7 +220,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeNestedPojo() throws Exception {
         ContainerPojo pojo = new ContainerPojo("dummy", new NestedPojo("foo", 123));
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(
                 result(),
@@ -244,7 +248,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void shouldEncodeLinkNestedPojo() throws Exception {
         LinkContainerPojo pojo = new LinkContainerPojo(new LinkNestedPojo("foo", "bar"));
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(
                 result(),

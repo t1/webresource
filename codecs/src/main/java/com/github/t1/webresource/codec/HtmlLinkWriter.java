@@ -1,6 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.regex.*;
 
@@ -13,18 +12,18 @@ import com.github.t1.webresource.meta.*;
 public class HtmlLinkWriter extends AbstractHtmlWriter {
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
-    private final Item item;
+    private Item item;
     private final String linkId;
-    private final HtmlId ref;
+    private HtmlId ref;
 
-    public HtmlLinkWriter(AbstractHtmlWriter context, Item item, String linkId) {
-        super(context);
-        this.item = item;
+    public HtmlLinkWriter(String linkId) {
         this.linkId = linkId;
-        this.ref = HtmlId.of(item);
     }
 
-    public void write() throws IOException {
+    @Override
+    public void write(Item item) {
+        this.item = item;
+        this.ref = HtmlId.of(item);
         try (Tag a = new Tag("a", hrefAttribute(), idAttribute(), classAttribute())) {
             write(body());
         }

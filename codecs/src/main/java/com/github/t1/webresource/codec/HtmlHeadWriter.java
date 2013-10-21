@@ -1,36 +1,37 @@
 package com.github.t1.webresource.codec;
 
 import java.io.*;
-import java.net.URI;
+import java.net.*;
 
 import com.github.t1.webresource.meta.*;
 
 public class HtmlHeadWriter extends AbstractHtmlWriter {
 
-    private final Item item;
+    private Item item;
 
-    public HtmlHeadWriter(AbstractHtmlWriter context, Item item) {
-        super(context);
+    @Override
+    public void write(Item item) {
         this.item = item;
-    }
-
-    public void write() throws IOException {
         if (!item.isSimple()) {
             writeTitle();
             writeStyleSheets();
         }
     }
 
-    private void writeTitle() throws IOException {
+    private void writeTitle() {
         String titleString = titleString();
         if (!titleString.isEmpty()) {
             try (Tag title = new Tag("title")) {
-                escaped().append(titleString);
+                try {
+                    escaped().append(titleString);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
 
-    private String titleString() throws IOException {
+    private String titleString() {
         StringWriter titleString = new StringWriter();
         Delimiter delim = new Delimiter(titleString, " - ");
         for (Trait trait : item.traits()) {
@@ -42,7 +43,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         return titleString.toString();
     }
 
-    private void writeStyleSheets() throws IOException {
+    private void writeStyleSheets() {
         if (item.is(HtmlStyleSheet.class)) {
             nl();
             writeStyleSheet(item.get(HtmlStyleSheet.class));
@@ -55,7 +56,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         }
     }
 
-    private void writeStyleSheet(HtmlStyleSheet styleSheet) throws IOException {
+    private void writeStyleSheet(HtmlStyleSheet styleSheet) {
         URI uri = URI.create(styleSheet.value());
         if (styleSheet.inline()) {
             try (Tag style = new Tag("style")) {
@@ -69,10 +70,14 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         }
     }
 
-    private void writeResource(URI uri) throws IOException {
+    private void writeResource(URI uri) {
         uri = resolveApp(uri);
         try (InputStream inputStream = uri.toURL().openStream()) {
             write(inputStream);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

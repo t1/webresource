@@ -25,11 +25,15 @@ public class Delimiter {
         this.string = string;
     }
 
-    public void write() throws IOException {
+    public void write() {
         if (first) {
             first = false;
         } else {
-            writer.write(string);
+            try {
+                writer.write(string);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

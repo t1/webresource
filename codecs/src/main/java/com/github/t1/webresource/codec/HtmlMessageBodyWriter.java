@@ -4,16 +4,18 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.ws.rs.*;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
-import javax.ws.rs.ext.*;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.webresource.meta.Items;
+
 /** Binding for a {@link HtmlWriter} to JAX-RS */
 @Slf4j
-@Provider
-@Produces("text/html")
+@javax.ws.rs.ext.Provider
+@javax.ws.rs.Produces("text/html")
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
     @Context
@@ -36,8 +38,12 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         log.debug("start html-encoding");
         Writer out = new OutputStreamWriter(entityStream);
         try {
-            new HtmlWriter(t, out, (uriInfo == null) ? null : uriInfo.getBaseUri()).write();
-        } catch (RuntimeException | IOException e) {
+            HtmlWriter htmlWriter = new HtmlWriter();
+            htmlWriter.out = out;
+            htmlWriter.uriInfo = uriInfo;
+            htmlWriter.ids = new IdGenerator();
+            htmlWriter.write(Items.newItem(t));
+        } catch (RuntimeException e) {
             log.error("error while encoding", e);
             throw e;
         } finally {

@@ -1,47 +1,75 @@
 package com.github.t1.webresource.codec;
 
-import static java.util.Arrays.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-
-import java.util.List;
 
 import org.junit.Test;
 
+import com.github.t1.webresource.meta.Item;
+
 public class HtmlWriterTest extends AbstractHtmlWriterTest {
     @Test
-    public void shouldEncodeNullObject() throws Exception {
-        writer(null).write();
+    public void shouldWriteBody() throws Exception {
+        write(new HtmlWriter() {
+            @Override
+            public void writeBody(Item item) {
+                write("{body:" + item + "}");
+            }
+        }, "dummy");
 
-        assertEquals(wrapped(""), result());
+        assertEquals("<html><head></head><body>{body:dummy}</body></html>", result());
     }
 
     @Test
-    public void shouldEncodePrimitiveString() throws Exception {
-        writer("dummy").write();
+    public void shouldWriteHead() throws Exception {
+        write(new HtmlWriter() {
+            @Override
+            public void writeHead(Item item) {
+                write("{head:" + item + "}");
+            }
 
-        assertEquals(wrapped("dummy"), result());
+            @Override
+            public void writeBody(Item item) {}
+        }, "dummy");
+
+        assertEquals("<html><head>{head:dummy}</head><body></body></html>", result());
     }
 
     @Test
-    public void shouldEscapeString() throws Exception {
-        writer("string & ampersand").write();
+    public void shouldWriteExceptionInBody() throws Exception {
+        HtmlWriter writer = new HtmlWriter() {
+            @Override
+            public void writeBody(Item item) {
+                throw new RuntimeException("test-exception");
+            }
+        };
+        try {
+            write(writer, "dummy");
+            fail("expected RuntimeException");
+        } catch (RuntimeException e) {
+            // we don't check the exception but the html output
+        }
 
-        assertEquals(wrapped("string &amp; ampersand"), result());
+        // TODO the error text should be IN the body
+        assertThat(result(), startsWith("<html><head></head><body></body>error writing body</html>"));
     }
 
     @Test
-    public void shouldEncodePrimitiveInteger() throws Exception {
-        writer(1234).write();
+    public void shouldWriteExceptionInHead() throws Exception {
+        HtmlWriter writer = new HtmlWriter() {
+            @Override
+            public void writeHead(Item item) {
+                throw new RuntimeException("test-exception");
+            }
+        };
+        try {
+            write(writer, "dummy");
+            fail("expected RuntimeException");
+        } catch (RuntimeException e) {
+            // we don't check the exception but the html output
+        }
 
-        assertEquals(wrapped("1234"), result());
-    }
-
-    @Test
-    public void shouldEncodeList() throws Exception {
-        List<String> list = asList("one", "two", "three");
-
-        writer(list).write();
-
-        assertEquals(wrapped(ul("strings", "one", "two", "three")), result());
+        // TODO the error text should be IN the head
+        assertThat(result(), startsWith("<html><head></head>error writing head</html>"));
     }
 }

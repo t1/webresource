@@ -1,24 +1,44 @@
 package com.github.t1.webresource.codec;
 
+import static org.mockito.Mockito.*;
+
 import java.io.*;
 import java.net.URI;
 import java.util.List;
 
 import javax.persistence.Id;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
 
-abstract class AbstractHtmlWriterTest {
-    protected static final String BASE_URI = "http://localhost:8080/demo/resource/";
-    protected final Writer out = new StringWriter();
+import com.github.t1.webresource.meta.*;
 
-    public HtmlWriter writer(Object object) {
-        return new HtmlWriter(object, out, URI.create(BASE_URI));
+abstract class AbstractHtmlWriterTest {
+    public static final String BASE_URI = "http://localhost:8080/demo/resource/";
+
+    private final Writer out = new StringWriter();
+
+    public void write(Class<? extends AbstractHtmlWriter> type, Object t) {
+        try {
+            write(type.newInstance(), t);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static String wrapped(String string) {
-        return "<html><head></head><body>" + string + "</body></html>";
+    public void write(AbstractHtmlWriter writer, Object t) {
+        writer.out = out;
+        writer.uriInfo = mockUriInfo();
+        writer.ids = new IdGenerator();
+        Item item = Items.newItem(t);
+        writer.write(item);
+    }
+
+    public static UriInfo mockUriInfo() {
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
+        return uriInfo;
     }
 
     protected String result() {

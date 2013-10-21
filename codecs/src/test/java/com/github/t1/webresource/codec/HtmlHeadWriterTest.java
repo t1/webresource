@@ -3,37 +3,15 @@ package com.github.t1.webresource.codec;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.io.StringWriter;
-import java.net.URI;
 import java.util.*;
 
 import lombok.*;
 
 import org.junit.*;
 
-import com.github.t1.webresource.meta.Items;
-
-public class HtmlHeadWriterTest {
-    public static class FakeHtmlWriter extends AbstractHtmlWriter {
-        private static StringWriter stringWriter = new StringWriter();
-
-        public FakeHtmlWriter() {
-            super(stringWriter, URI.create("http://localhost:8080/demo/resource"));
-        }
-
-        public String result() {
-            return stringWriter.toString().replaceAll("\n", "").replace('\"', '\'');
-        }
-    }
-
-    FakeHtmlWriter fakeWriter = new FakeHtmlWriter();
-
-    private HtmlHeadWriter writer(Object object) {
-        return new HtmlHeadWriter(fakeWriter, Items.newItem(object));
-    }
-
-    private String result() {
-        return fakeWriter.result();
+public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
+    private void write(Object t) {
+        write(HtmlHeadWriter.class, t);
     }
 
     @AllArgsConstructor
@@ -48,7 +26,7 @@ public class HtmlHeadWriterTest {
         PojoWithOneHtmlHead pojo = new PojoWithOneHtmlHead("dummy", 123);
         assertEquals(123, (int) pojo.i); // cover
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString("<title>dummy</title>"));
     }
@@ -65,7 +43,7 @@ public class HtmlHeadWriterTest {
     public void shouldWritePojoWithTwoHtmlHead() throws Exception {
         PojoWithTwoHtmlHeads pojo = new PojoWithTwoHtmlHeads("dummy0", "dummy1");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString("<title>dummy0 - dummy1</title>"));
     }
@@ -81,7 +59,7 @@ public class HtmlHeadWriterTest {
     public void shouldLinkRootPathCssStyleSheet() throws Exception {
         PojoWithRootPathCss pojo = new PojoWithRootPathCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(stylesheet("/root-path")));
     }
@@ -96,7 +74,7 @@ public class HtmlHeadWriterTest {
         PojoWithRootPathCss pojo2 = new PojoWithRootPathCss("b");
         List<PojoWithRootPathCss> list = Arrays.asList(pojo1, pojo2);
 
-        writer(list).write();
+        write(list);
 
         assertThat(result(), containsString(stylesheet("/root-path")));
     }
@@ -112,7 +90,7 @@ public class HtmlHeadWriterTest {
     public void shouldInlineFileCssStyleSheet() throws Exception {
         PojoWithInlineFileCss pojo = new PojoWithInlineFileCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString("<style>test-file-contents</style>"));
     }
@@ -129,7 +107,7 @@ public class HtmlHeadWriterTest {
     public void shouldInlineRootResourceCssStyleSheet() throws Exception {
         PojoWithInlineRootResourceCss pojo = new PojoWithInlineRootResourceCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString("<head><style>test-file-contents</style></head>"));
     }
@@ -146,7 +124,7 @@ public class HtmlHeadWriterTest {
     public void shouldInlineLocalResourceCssStyleSheet() throws Exception {
         PojoWithInlineLocalResourceCss pojo = new PojoWithInlineLocalResourceCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString("<style>test-file-contents</style>"));
     }
@@ -162,7 +140,7 @@ public class HtmlHeadWriterTest {
     public void shouldLinkLocalCssStyleSheet() throws Exception {
         PojoWithLocalCss pojo = new PojoWithLocalCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(stylesheet("/demo/local-path")));
     }
@@ -178,7 +156,7 @@ public class HtmlHeadWriterTest {
     public void shouldLinkTwoCssStyleSheets() throws Exception {
         PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
 
-        writer(pojo).write();
+        write(pojo);
 
         assertThat(result(), containsString(stylesheet("/root-path")));
         assertThat(result(), containsString(stylesheet("/demo/local-path")));
