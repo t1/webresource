@@ -14,7 +14,6 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
 
     private Item item;
     private final String linkId;
-    private HtmlId ref;
 
     public HtmlLinkWriter(String linkId) {
         this.linkId = linkId;
@@ -23,26 +22,13 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
     @Override
     public void write(Item item) {
         this.item = item;
-        this.ref = HtmlId.of(item);
-        try (Tag a = new Tag("a", hrefAttribute(), idAttribute(), classAttribute())) {
+        try (Tag a = new Tag("a", new HrefAttribute(uriResolver, item), idAttribute(), new ClassAttribute(item))) {
             write(body());
         }
     }
 
-    private Attribute hrefAttribute() {
-        return new Attribute("href", href());
-    }
-
-    private String href() {
-        return uriResolver.resolveBase(item.type() + "/" + ref + ".html").toString();
-    }
-
     private Attribute idAttribute() {
         return new Attribute("id", linkId + "-href");
-    }
-
-    private Attribute classAttribute() {
-        return new Attribute("class", item.type());
     }
 
     private Object body() {
@@ -60,7 +46,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
             return item.get(linkTextTraits.get(0)).toString();
         }
 
-        Trait webResourceKeyTrait = ref.getWebResourceKey();
+        Trait webResourceKeyTrait = HtmlId.of(item).getWebResourceKey();
         if (webResourceKeyTrait != null)
             return item.get(webResourceKeyTrait).toString();
 

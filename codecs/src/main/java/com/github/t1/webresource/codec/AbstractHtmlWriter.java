@@ -141,10 +141,8 @@ public abstract class AbstractHtmlWriter {
         write("\n");
     }
 
-    protected String name(Trait trait) {
-        if (trait.is(HtmlFieldName.class))
-            return trait.get(HtmlFieldName.class).value();
-        return trait.name();
+    protected String id(Trait trait) {
+        return id(new FieldName(trait).toString());
     }
 
     protected String id(String name) {

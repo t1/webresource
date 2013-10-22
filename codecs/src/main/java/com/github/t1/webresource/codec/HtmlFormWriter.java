@@ -12,8 +12,8 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     public void write(Item item) {
         this.item = item;
         try (Tag form = new Tag("form", //
-                new Attribute("id", item.type() + "-form"), //
-                new Attribute("action", uriResolver.resolveBase(item.type()).toString()), //
+                new IdAttribute(item, "form"), //
+                new ActionAttribute(uriResolver, item), //
                 new Attribute("method", "post") //
                 )) {
             Trait idTrait = HtmlId.of(this.item).trait();
@@ -31,11 +31,10 @@ public class HtmlFormWriter extends AbstractHtmlWriter {
     }
 
     private void writeFormDiv(Trait trait) {
-        String name = name(trait);
-        String id = id(name);
+        String id = id(trait);
         try (Tag div = new Tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
-            try (Tag label = new Tag("label", new Attribute("for", id), new Attribute("class", name + "-label"))) {
-                escaped().write(name);
+            try (Tag label = new Tag("label", new Attribute("for", id), new ClassAttribute(trait, "label"))) {
+                escaped().append(new FieldName(trait));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

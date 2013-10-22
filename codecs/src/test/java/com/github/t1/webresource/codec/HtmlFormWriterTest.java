@@ -203,7 +203,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         write(pojo);
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("set", 0) + ul("strings", "one", "two", "three"))));
+        assertThat(result(), containsString(div(label("set") + ul("strings", "one", "two", "three"))));
     }
 
     @Test

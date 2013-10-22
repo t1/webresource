@@ -29,7 +29,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag th = new Tag("th")) {
-                    escaped().append(name(trait));
+                    escaped().append(new FieldName(trait));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -43,7 +43,7 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
                     Item cellItem = rowItem.get(trait);
-                    String id = id(name(trait));
+                    String id = id(trait);
                     if (cellItem.isSimple()) {
                         Trait simple = SimpleTrait.of(cellItem);
                         writeField(cellItem, simple, id);
