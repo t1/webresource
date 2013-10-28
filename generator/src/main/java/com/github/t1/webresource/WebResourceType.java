@@ -9,12 +9,15 @@ class WebResourceType {
     final TypeElement type;
     final String pkg;
     final String simple;
+    final String entityName;
     final String lower;
     final String plural;
     final String qualified;
     final boolean extended;
-
-    final String entityName;
+    final WebResourceField id;
+    final WebResourceField key;
+    final WebResourceField version;
+    final List<WebResourceField> subResourceFields;
 
     public WebResourceType(TypeElement type) {
         this.type = type;
@@ -25,6 +28,10 @@ class WebResourceType {
         this.plural = new WebResourceTypeInfo(simple).plural;
         this.qualified = qualified();
         this.extended = isExtended();
+        this.id = id();
+        this.key = key();
+        this.version = version();
+        this.subResourceFields = subResourceFields();
     }
 
     private String pkg() {
@@ -58,22 +65,26 @@ class WebResourceType {
         return type.getSimpleName().toString();
     }
 
-    public WebResourceField getIdField() {
+    private WebResourceField id() {
         // don't use the Id type itself, it may not be available at compile-time
         return WebResourceField.findField(type, "javax.persistence.Id");
     }
 
-    public WebResourceField getKeyField() {
+    private WebResourceField key() {
         WebResourceField keyField = WebResourceField.findField(type, WebResourceKey.class.getName());
-        return (keyField == null) ? getIdField() : keyField;
+        return (keyField == null) ? id : keyField;
     }
 
-    public WebResourceField getVersionField() {
+    private WebResourceField version() {
         // don't use the Version type itself, it may not be available at compile-time
         return WebResourceField.findField(type, "javax.persistence.Version");
     }
 
-    public List<WebResourceField> getSubResourceFields() {
+    private List<WebResourceField> subResourceFields() {
         return WebResourceField.findFields(type, WebSubResource.class.getName());
+    }
+
+    public boolean primary() {
+        return id.equals(key);
     }
 }
