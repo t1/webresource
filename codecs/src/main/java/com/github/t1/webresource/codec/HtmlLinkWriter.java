@@ -3,6 +3,8 @@ package com.github.t1.webresource.codec;
 import java.util.List;
 import java.util.regex.*;
 
+import javax.inject.Inject;
+
 import lombok.extern.slf4j.Slf4j;
 
 import com.github.t1.webresource.meta.*;
@@ -12,30 +14,24 @@ import com.github.t1.webresource.meta.*;
 public class HtmlLinkWriter extends AbstractHtmlWriter {
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
-    private Item item;
-    private final String linkId;
+    @Inject
+    UriResolver uriResolver;
 
-    public HtmlLinkWriter(String linkId) {
-        this.linkId = linkId;
-    }
-
-    @Override
-    public void write(Item item) {
-        this.item = item;
-        try (Tag a = new Tag("a", new HrefAttribute(uriResolver, item), idAttribute(), new ClassAttribute(item))) {
-            write(body());
+    public void write(Item item, String id) {
+        try (Tag a = new Tag("a", new HrefAttribute(uriResolver, item), idAttribute(id), new ClassAttribute(item))) {
+            write(body(item));
         }
     }
 
-    private Attribute idAttribute() {
-        return new Attribute("id", linkId + "-href");
+    private Attribute idAttribute(String id) {
+        return new Attribute("id", id + "-href");
     }
 
-    private Object body() {
+    private String body(Item item) {
         if (item.is(HtmlLinkText.class)) {
             HtmlLinkText linkText = item.get(HtmlLinkText.class);
             log.debug("found link text {} on type {}", linkText, item);
-            return resolveVariables(linkText.value());
+            return resolveVariables(linkText.value(), item);
         }
 
         List<Trait> linkTextTraits = item.trait(HtmlLinkText.class);
@@ -54,7 +50,7 @@ public class HtmlLinkWriter extends AbstractHtmlWriter {
         return item.toString();
     }
 
-    private String resolveVariables(String text) {
+    private String resolveVariables(String text, Item item) {
         Matcher matcher = VAR.matcher(text);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {

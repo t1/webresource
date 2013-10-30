@@ -3,9 +3,11 @@ package com.github.t1.webresource.codec;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.URI;
 import java.util.List;
 
+import javax.enterprise.inject.Instance;
 import javax.persistence.Id;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.*;
@@ -17,28 +19,61 @@ import com.github.t1.webresource.meta.*;
 abstract class AbstractHtmlWriterTest {
     public static final String BASE_URI = "http://localhost:8080/demo/resource/";
 
-    private final Writer out = new StringWriter();
+    protected final Writer out = new StringWriter();
 
-    public void write(Class<? extends AbstractHtmlWriter> type, Object t) {
+    private final UriResolver uriResolver = mockUriResolver();
+
+    private UriResolver mockUriResolver() {
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
+        UriResolver uriResolver = new UriResolver();
+        uriResolver.uriInfo = uriInfo;
+        return uriResolver;
+    }
+
+
+    public void write(AbstractHtmlWriter writer, Object t) {
+        init(writer);
+        Item item = Items.newItem(t);
+        write(writer, item);
+    }
+
+    private void init(AbstractHtmlWriter writer) {
+        instance(writer);
+        writer.htmlListWriter = instance(new HtmlListWriter());
+        writer.htmlTableWriter = instance(new HtmlTableWriter());
+        writer.htmlFieldWriter = instance(new HtmlFieldWriter());
+        writer.htmlLinkWriter = instance(new HtmlLinkWriter());
+    }
+
+    private <T extends AbstractHtmlWriter> Instance<T> instance(T writer) {
+        writer.out = out;
+        initUriResolver(writer);
+        @SuppressWarnings("unchecked")
+        Instance<T> mock = mock(Instance.class);
+        when(mock.get()).thenReturn(writer);
+        return mock;
+    }
+
+    public void initUriResolver(AbstractHtmlWriter writer) {
         try {
-            write(type.newInstance(), t);
+            Field field = writer.getClass().getDeclaredField("uriResolver");
+            field.setAccessible(true);
+            field.set(writer, uriResolver);
+        } catch (NoSuchFieldException e) {
+            return; // nothing to init
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void write(AbstractHtmlWriter writer, Object t) {
-        writer.out = out;
-        writer.uriResolver = mockUriResolver();
-        writer.ids = new IdGenerator();
-        Item item = Items.newItem(t);
-        writer.write(item);
-    }
-
-    public static UriResolver mockUriResolver() {
-        UriInfo uriInfo = mock(UriInfo.class);
-        when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
-        return new UriResolver(uriInfo);
+    protected void write(AbstractHtmlWriter writer, Item item) {
+        try {
+            Method method = writer.getClass().getMethod("write", Item.class);
+            method.invoke(writer, item);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected String result() {

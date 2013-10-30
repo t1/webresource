@@ -2,12 +2,15 @@ package com.github.t1.webresource.codec;
 
 import java.io.*;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import lombok.Data;
 
 import com.github.t1.webresource.meta.*;
 
+@RequestScoped
 public abstract class AbstractHtmlWriter {
     @Data
     protected static class Attribute {
@@ -41,62 +44,37 @@ public abstract class AbstractHtmlWriter {
     }
 
     @Inject
+    @HtmlWriterQualifier
     Writer out;
+
     @Inject
-    IdGenerator ids;
+    Instance<HtmlListWriter> htmlListWriter;
     @Inject
-    UriResolver uriResolver;
-
-    public abstract void write(Item item);
-
-    private void init(AbstractHtmlWriter that) {
-        that.out = this.out;
-        that.uriResolver = this.uriResolver;
-        that.ids = this.ids;
-    }
-
-    private void writeTo(Class<? extends AbstractHtmlWriter> type, Item item) {
-        try {
-            writeTo(type.newInstance(), item);
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void writeTo(AbstractHtmlWriter writer, Item item) {
-        init(writer);
-        writer.write(item);
-    }
-
-    public void writeHead(Item item) {
-        writeTo(HtmlHeadWriter.class, item);
-    }
-
-    public void writeBody(Item item) {
-        writeTo(HtmlBodyWriter.class, item);
-    }
-
-    public void writeForm(Item item) {
-        writeTo(HtmlFormWriter.class, item);
-    }
+    Instance<HtmlTableWriter> htmlTableWriter;
+    @Inject
+    Instance<HtmlFieldWriter> htmlFieldWriter;
+    @Inject
+    Instance<HtmlLinkWriter> htmlLinkWriter;
 
     public void writeList(Item item) {
-        writeTo(HtmlListWriter.class, item);
-    }
-
-    public void writeField(Item item, Trait trait, String id) {
-        writeTo(new HtmlFieldWriter(trait, id), item);
-    }
-
-    public void writeLink(Item item, String id) {
-        writeTo(new HtmlLinkWriter(id), item);
+        htmlListWriter.get().write(item);
     }
 
     public void writeTable(Item item) {
-        writeTo(HtmlTableWriter.class, item);
+        htmlTableWriter.get().write(item);
+    }
+
+    public void writeField(Item item, Trait trait, String id) {
+        htmlFieldWriter.get().write(item, trait, id);
+    }
+
+    public void writeLink(Item item, String id) {
+        htmlLinkWriter.get().write(item, id);
     }
 
     protected void write(String text) {
+        if (out == null)
+            throw new NullPointerException("no out in " + getClass().getSimpleName());
         try {
             out.write(text);
         } catch (IOException e) {
@@ -104,7 +82,7 @@ public abstract class AbstractHtmlWriter {
         }
     }
 
-    protected void write(Object object) {
+    protected void writeObject(Object object) {
         if (object != null) {
             write(object.toString());
         }
@@ -139,13 +117,5 @@ public abstract class AbstractHtmlWriter {
 
     protected void nl() {
         write("\n");
-    }
-
-    protected String id(Trait trait) {
-        return id(new FieldName(trait).toString());
-    }
-
-    protected String id(String name) {
-        return ids.get(name);
     }
 }

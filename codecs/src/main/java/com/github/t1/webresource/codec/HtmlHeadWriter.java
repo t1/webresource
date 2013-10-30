@@ -3,23 +3,24 @@ package com.github.t1.webresource.codec;
 import java.io.*;
 import java.net.*;
 
+import javax.inject.Inject;
+
 import com.github.t1.webresource.meta.*;
 
 public class HtmlHeadWriter extends AbstractHtmlWriter {
 
-    private Item item;
+    @Inject
+    UriResolver uriResolver;
 
-    @Override
     public void write(Item item) {
-        this.item = item;
         if (!item.isSimple()) {
-            writeTitle();
-            writeStyleSheets();
+            writeTitle(item);
+            writeStyleSheets(item);
         }
     }
 
-    private void writeTitle() {
-        String titleString = titleString();
+    private void writeTitle(Item item) {
+        String titleString = titleString(item);
         if (!titleString.isEmpty()) {
             try (Tag title = new Tag("title")) {
                 try {
@@ -31,7 +32,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         }
     }
 
-    private String titleString() {
+    private String titleString(Item item) {
         StringWriter titleString = new StringWriter();
         Delimiter delim = new Delimiter(titleString, " - ");
         for (Trait trait : item.traits()) {
@@ -43,7 +44,7 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
         return titleString.toString();
     }
 
-    private void writeStyleSheets() {
+    private void writeStyleSheets(Item item) {
         if (item.is(HtmlStyleSheet.class)) {
             nl();
             writeStyleSheet(item.get(HtmlStyleSheet.class));

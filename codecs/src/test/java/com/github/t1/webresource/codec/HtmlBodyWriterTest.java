@@ -9,7 +9,8 @@ import org.junit.Test;
 
 public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
-        write(HtmlBodyWriter.class, t);
+        HtmlBodyWriter writer = new HtmlBodyWriter();
+        write(writer, t);
     }
 
     @Test

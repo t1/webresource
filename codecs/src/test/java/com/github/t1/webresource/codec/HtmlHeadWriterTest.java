@@ -11,7 +11,7 @@ import org.junit.*;
 
 public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
-        write(HtmlHeadWriter.class, t);
+        write(new HtmlHeadWriter(), t);
     }
 
     @AllArgsConstructor

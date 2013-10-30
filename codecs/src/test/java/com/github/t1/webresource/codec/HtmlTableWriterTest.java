@@ -12,7 +12,9 @@ import com.google.common.collect.ImmutableList;
 
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
-        write(HtmlTableWriter.class, t);
+        HtmlTableWriter writer = new HtmlTableWriter();
+        writer.ids = new IdGenerator();
+        write(writer, t);
     }
 
     private String table(String... columns) {

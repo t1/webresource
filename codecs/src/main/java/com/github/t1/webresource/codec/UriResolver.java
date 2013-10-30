@@ -3,15 +3,16 @@ package com.github.t1.webresource.codec;
 import java.net.URI;
 import java.nio.file.*;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import lombok.ToString;
+
+@ToString
 public class UriResolver {
 
-    private final UriInfo uriInfo;
-
-    public UriResolver(UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
-    }
+    @Inject
+    UriInfo uriInfo;
 
     /**
      * The path of the JAX-RS base-uri contains the resource base (often 'rest'), but we need the application base,

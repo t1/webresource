@@ -16,7 +16,9 @@ import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void write(Object t) {
-        write(HtmlFormWriter.class, t);
+        HtmlFormWriter writer = new HtmlFormWriter();
+        writer.ids = new IdGenerator();
+        write(writer, t);
     }
 
     private static String wrappedForm(String type, String action, String id, String body) {

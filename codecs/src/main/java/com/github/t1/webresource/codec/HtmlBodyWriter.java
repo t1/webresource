@@ -3,15 +3,16 @@ package com.github.t1.webresource.codec;
 import java.io.IOException;
 import java.util.*;
 
+import javax.inject.Inject;
+
 import com.github.t1.webresource.meta.*;
 
 public class HtmlBodyWriter extends AbstractHtmlWriter {
 
-    private Item item;
+    @Inject
+    HtmlFormWriter htmlFormWriter;
 
-    @Override
     public void write(Item item) {
-        this.item = item;
         if (item.isNull())
             return;
         nl();
@@ -22,13 +23,13 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
                 throw new RuntimeException(e);
             }
         } else if (item.isList()) {
-            writeItemList();
+            writeItemList(item);
         } else {
-            writeForm(item);
+            htmlFormWriter.write(item);
         }
     }
 
-    private void writeItemList() {
+    private void writeItemList(Item item) {
         List<Item> list = item.getList();
         if (list.isEmpty())
             return;

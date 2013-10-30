@@ -3,29 +3,30 @@ package com.github.t1.webresource.codec;
 import java.io.IOException;
 import java.util.*;
 
+import javax.inject.Inject;
+
 import com.github.t1.webresource.meta.*;
 
 public class HtmlTableWriter extends AbstractHtmlWriter {
-    private List<Item> list;
-    private Collection<Trait> traits;
+    @Inject
+    IdGenerator ids;
 
-    @Override
     public void write(Item listItem) {
-        this.list = listItem.getList();
-        this.traits = list.get(0).traits();
+        List<Item> list = listItem.getList();
+        Collection<Trait> traits = list.get(0).traits();
         try (Tag table = new Tag("table")) {
             try (Tag thead = new Tag("thead")) {
-                writeTableHead();
+                writeTableHead(traits);
             }
             try (Tag tbody = new Tag("tbody")) {
                 for (Item element : list) {
-                    writeTableRow(element);
+                    writeTableRow(traits, element);
                 }
             }
         }
     }
 
-    private void writeTableHead() {
+    private void writeTableHead(Collection<Trait> traits) {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag th = new Tag("th")) {
@@ -38,12 +39,12 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
     }
 
     // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
-    private void writeTableRow(Item rowItem) {
+    private void writeTableRow(Collection<Trait> traits, Item rowItem) {
         try (Tag tr = new Tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = new Tag("td")) {
                     Item cellItem = rowItem.get(trait);
-                    String id = id(trait);
+                    String id = ids.get(trait);
                     if (cellItem.isSimple()) {
                         Trait simple = SimpleTrait.of(cellItem);
                         writeField(cellItem, simple, id);

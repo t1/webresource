@@ -4,6 +4,9 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -18,8 +21,18 @@ import com.github.t1.webresource.meta.Items;
 @javax.ws.rs.Produces("text/html")
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
+    @Inject
+    Instance<HtmlWriter> htmlWriter;
+
     @Context
+    @javax.enterprise.inject.Produces
+    @RequestScoped
     UriInfo uriInfo;
+
+    @javax.enterprise.inject.Produces
+    @RequestScoped
+    @HtmlWriterQualifier
+    private Writer out;
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -36,18 +49,16 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException,
             WebApplicationException {
         log.debug("start html-encoding");
-        Writer out = new OutputStreamWriter(entityStream);
+
         try {
-            HtmlWriter htmlWriter = new HtmlWriter();
-            htmlWriter.out = out;
-            htmlWriter.uriResolver = new UriResolver(uriInfo);
-            htmlWriter.ids = new IdGenerator();
-            htmlWriter.write(Items.newItem(t));
+            out = new OutputStreamWriter(entityStream);
+            htmlWriter.get().write(Items.newItem(t));
         } catch (RuntimeException e) {
             log.error("error while encoding", e);
             throw e;
         } finally {
-            out.flush(); // doesn't work without this :-(
+            out.flush(); // doesn't work without this :-/
+            out = null;
             log.debug("done html-encoding");
         }
     }
