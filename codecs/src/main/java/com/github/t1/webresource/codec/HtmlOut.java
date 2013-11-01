@@ -6,19 +6,19 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import lombok.Data;
+import lombok.*;
 
 import com.github.t1.webresource.meta.*;
 
 @RequestScoped
-public abstract class AbstractHtmlWriter {
+public class HtmlOut {
     @Data
-    protected static class Attribute {
+    public static class Attribute {
         private final String name;
         private final String value;
     }
 
-    protected class Tag implements AutoCloseable {
+    public class Tag implements AutoCloseable {
         private final String name;
 
         public Tag(String name, Attribute... attributes) {
@@ -43,9 +43,8 @@ public abstract class AbstractHtmlWriter {
         }
     }
 
-    @Inject
-    @HtmlWriterQualifier
-    Writer out;
+    @Setter
+    private Writer out;
 
     @Inject
     Instance<HtmlListWriter> htmlListWriter;
@@ -72,7 +71,7 @@ public abstract class AbstractHtmlWriter {
         htmlLinkWriter.get().write(item, id);
     }
 
-    protected void write(String text) {
+    public void write(String text) {
         if (out == null)
             throw new NullPointerException("no out in " + getClass().getSimpleName());
         try {
@@ -82,13 +81,13 @@ public abstract class AbstractHtmlWriter {
         }
     }
 
-    protected void writeObject(Object object) {
+    public void writeObject(Object object) {
         if (object != null) {
             write(object.toString());
         }
     }
 
-    protected void write(InputStream inputStream) {
+    public void write(InputStream inputStream) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         while (true) {
             String line = readLine(reader);
@@ -107,15 +106,19 @@ public abstract class AbstractHtmlWriter {
         }
     }
 
-    protected void write(Exception e) {
+    public void write(Exception e) {
         e.printStackTrace(new PrintWriter(out));
     }
 
-    protected Writer escaped() {
+    public Writer escaped() {
         return new HtmlEscapeWriter(out);
     }
 
-    protected void nl() {
+    public void nl() {
         write("\n");
+    }
+
+    public Tag tag(String name, Attribute... attributes) {
+        return new Tag(name, attributes);
     }
 }

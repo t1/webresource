@@ -5,20 +5,23 @@ import java.util.*;
 
 import javax.inject.Inject;
 
+import com.github.t1.webresource.codec.HtmlOut.Tag;
 import com.github.t1.webresource.meta.*;
 
-public class HtmlTableWriter extends AbstractHtmlWriter {
+public class HtmlTableWriter {
+    @Inject
+    HtmlOut out;
     @Inject
     IdGenerator ids;
 
     public void write(Item listItem) {
         List<Item> list = listItem.getList();
         Collection<Trait> traits = list.get(0).traits();
-        try (Tag table = new Tag("table")) {
-            try (Tag thead = new Tag("thead")) {
+        try (Tag table = out.tag("table")) {
+            try (Tag thead = out.tag("thead")) {
                 writeTableHead(traits);
             }
-            try (Tag tbody = new Tag("tbody")) {
+            try (Tag tbody = out.tag("tbody")) {
                 for (Item element : list) {
                     writeTableRow(traits, element);
                 }
@@ -27,10 +30,10 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
     }
 
     private void writeTableHead(Collection<Trait> traits) {
-        try (Tag tr = new Tag("tr")) {
+        try (Tag tr = out.tag("tr")) {
             for (Trait trait : traits) {
-                try (Tag th = new Tag("th")) {
-                    escaped().append(new FieldName(trait));
+                try (Tag th = out.tag("th")) {
+                    out.escaped().append(new FieldName(trait));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -40,18 +43,18 @@ public class HtmlTableWriter extends AbstractHtmlWriter {
 
     // this duplicates a lot of writeTableHead... closures would be nice, here ;-)
     private void writeTableRow(Collection<Trait> traits, Item rowItem) {
-        try (Tag tr = new Tag("tr")) {
+        try (Tag tr = out.tag("tr")) {
             for (Trait trait : traits) {
-                try (Tag td = new Tag("td")) {
+                try (Tag td = out.tag("td")) {
                     Item cellItem = rowItem.get(trait);
                     String id = ids.get(trait);
                     if (cellItem.isSimple()) {
                         Trait simple = SimpleTrait.of(cellItem);
-                        writeField(cellItem, simple, id);
+                        out.writeField(cellItem, simple, id);
                     } else if (cellItem.isList()) {
-                        writeList(cellItem);
+                        out.writeList(cellItem);
                     } else {
-                        writeLink(cellItem, id);
+                        out.writeLink(cellItem, id);
                     }
                 }
             }

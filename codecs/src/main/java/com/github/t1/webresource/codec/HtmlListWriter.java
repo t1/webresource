@@ -2,20 +2,27 @@ package com.github.t1.webresource.codec;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import com.github.t1.webresource.codec.HtmlOut.Attribute;
+import com.github.t1.webresource.codec.HtmlOut.Tag;
 import com.github.t1.webresource.meta.*;
 
-public class HtmlListWriter extends AbstractHtmlWriter {
+public class HtmlListWriter {
+    @Inject
+    HtmlOut out;
+
     public void write(Item listItem) {
         List<Item> list = listItem.getList();
         String type = list.isEmpty() ? "empty" : list.get(0).type();
 
-        try (Tag ul = new Tag("ul", new Attribute("class", type))) {
+        try (Tag ul = out.tag("ul", new Attribute("class", type))) {
             for (Item item : list) {
-                try (Tag li = new Tag("li")) {
+                try (Tag li = out.tag("li")) {
                     if (item.isSimple()) {
-                        write(item.get(SimpleTrait.of(item)).toString());
+                        out.write(item.get(SimpleTrait.of(item)).toString());
                     } else {
-                        writeLink(item, "id");
+                        out.writeLink(item, "id");
                     }
                 }
             }

@@ -9,9 +9,14 @@ import lombok.*;
 
 import org.junit.*;
 
+import com.github.t1.webresource.meta.Items;
+
 public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
-        write(new HtmlHeadWriter(), t);
+        HtmlHeadWriter writer = new HtmlHeadWriter();
+        writer.out = out;
+        writer.uriResolver = uriResolver;
+        writer.write(Items.newItem(t));
     }
 
     @AllArgsConstructor

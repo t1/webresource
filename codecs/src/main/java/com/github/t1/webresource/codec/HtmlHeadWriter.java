@@ -5,10 +5,13 @@ import java.net.*;
 
 import javax.inject.Inject;
 
+import com.github.t1.webresource.codec.HtmlOut.Tag;
 import com.github.t1.webresource.meta.*;
 
-public class HtmlHeadWriter extends AbstractHtmlWriter {
+public class HtmlHeadWriter {
 
+    @Inject
+    HtmlOut out;
     @Inject
     UriResolver uriResolver;
 
@@ -22,9 +25,9 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     private void writeTitle(Item item) {
         String titleString = titleString(item);
         if (!titleString.isEmpty()) {
-            try (Tag title = new Tag("title")) {
+            try (Tag title = out.tag("title")) {
                 try {
-                    escaped().append(titleString);
+                    out.escaped().append(titleString);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -46,11 +49,11 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
 
     private void writeStyleSheets(Item item) {
         if (item.is(HtmlStyleSheet.class)) {
-            nl();
+            out.nl();
             writeStyleSheet(item.get(HtmlStyleSheet.class));
         }
         if (item.is(HtmlStyleSheets.class)) {
-            nl();
+            out.nl();
             for (HtmlStyleSheet styleSheet : item.get(HtmlStyleSheets.class).value()) {
                 writeStyleSheet(styleSheet);
             }
@@ -60,21 +63,21 @@ public class HtmlHeadWriter extends AbstractHtmlWriter {
     private void writeStyleSheet(HtmlStyleSheet styleSheet) {
         URI uri = URI.create(styleSheet.value());
         if (styleSheet.inline()) {
-            try (Tag style = new Tag("style")) {
-                nl();
+            try (Tag style = out.tag("style")) {
+                out.nl();
                 writeResource(uri);
             }
         } else {
             if (!isRootPath(uri))
                 uri = insertApplicationPath(uri);
-            write("<link rel='stylesheet' href='" + uri + "' type='text/css'/>\n");
+            out.write("<link rel='stylesheet' href='" + uri + "' type='text/css'/>\n");
         }
     }
 
     private void writeResource(URI uri) {
         uri = uriResolver.resolveApp(uri);
         try (InputStream inputStream = uri.toURL().openStream()) {
-            write(inputStream);
+            out.write(inputStream);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

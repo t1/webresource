@@ -9,16 +9,14 @@ import lombok.*;
 import org.junit.Test;
 
 import com.github.t1.webresource.WebResourceKey;
-import com.github.t1.webresource.meta.Item;
+import com.github.t1.webresource.meta.Items;
 
 public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     private void write(Object pojo) {
-        write(new HtmlLinkWriter(), pojo);
-    }
-
-    @Override
-    protected void write(AbstractHtmlWriter writer, Item item) {
-        ((HtmlLinkWriter) writer).write(item, "id");
+        HtmlLinkWriter writer = new HtmlLinkWriter();
+        writer.out = out;
+        writer.uriResolver = uriResolver;
+        writer.write(Items.newItem(pojo), "id");
     }
 
     @Getter

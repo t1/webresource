@@ -17,8 +17,10 @@ import com.google.common.collect.*;
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     public void write(Object t) {
         HtmlFormWriter writer = new HtmlFormWriter();
-        writer.ids = new IdGenerator();
-        write(writer, t);
+        writer.out = out;
+        writer.ids = ids;
+        writer.uriResolver = uriResolver;
+        writer.write(Items.newItem(t));
     }
 
     private static String wrappedForm(String type, String action, String id, String body) {

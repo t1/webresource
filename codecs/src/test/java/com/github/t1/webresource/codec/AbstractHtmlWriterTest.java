@@ -3,7 +3,6 @@ package com.github.t1.webresource.codec;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.net.URI;
 import java.util.List;
 
@@ -14,70 +13,55 @@ import javax.xml.bind.annotation.*;
 
 import lombok.*;
 
-import com.github.t1.webresource.meta.*;
+import org.junit.Before;
 
-abstract class AbstractHtmlWriterTest {
+public abstract class AbstractHtmlWriterTest {
     public static final String BASE_URI = "http://localhost:8080/demo/resource/";
 
-    protected final Writer out = new StringWriter();
+    protected final IdGenerator ids = new IdGenerator();
+    protected final UriResolver uriResolver = new UriResolver();
+    protected final Writer writer = new StringWriter();
+    protected final HtmlOut out = new HtmlOut();
 
-    private final UriResolver uriResolver = mockUriResolver();
+    @Before
+    public void mockHtmlOut() {
+        out.setOut(writer);
 
-    private UriResolver mockUriResolver() {
-        UriInfo uriInfo = mock(UriInfo.class);
-        when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
-        UriResolver uriResolver = new UriResolver();
-        uriResolver.uriInfo = uriInfo;
-        return uriResolver;
+        HtmlListWriter listWriter = new HtmlListWriter();
+        listWriter.out = out;
+        out.htmlListWriter = instance(listWriter);
+
+        HtmlTableWriter tableWriter = new HtmlTableWriter();
+        tableWriter.out = out;
+        tableWriter.ids = ids;
+        out.htmlTableWriter = instance(tableWriter);
+
+        HtmlFieldWriter fieldWriter = new HtmlFieldWriter();
+        fieldWriter.out = out;
+        out.htmlFieldWriter = instance(fieldWriter);
+
+        HtmlLinkWriter linkWriter = new HtmlLinkWriter();
+        linkWriter.out = out;
+        linkWriter.uriResolver = uriResolver;
+        out.htmlLinkWriter = instance(linkWriter);
     }
 
-
-    public void write(AbstractHtmlWriter writer, Object t) {
-        init(writer);
-        Item item = Items.newItem(t);
-        write(writer, item);
-    }
-
-    private void init(AbstractHtmlWriter writer) {
-        instance(writer);
-        writer.htmlListWriter = instance(new HtmlListWriter());
-        writer.htmlTableWriter = instance(new HtmlTableWriter());
-        writer.htmlFieldWriter = instance(new HtmlFieldWriter());
-        writer.htmlLinkWriter = instance(new HtmlLinkWriter());
-    }
-
-    private <T extends AbstractHtmlWriter> Instance<T> instance(T writer) {
-        writer.out = out;
-        initUriResolver(writer);
+    private <T> Instance<T> instance(T writer) {
         @SuppressWarnings("unchecked")
         Instance<T> mock = mock(Instance.class);
         when(mock.get()).thenReturn(writer);
         return mock;
     }
 
-    public void initUriResolver(AbstractHtmlWriter writer) {
-        try {
-            Field field = writer.getClass().getDeclaredField("uriResolver");
-            field.setAccessible(true);
-            field.set(writer, uriResolver);
-        } catch (NoSuchFieldException e) {
-            return; // nothing to init
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void write(AbstractHtmlWriter writer, Item item) {
-        try {
-            Method method = writer.getClass().getMethod("write", Item.class);
-            method.invoke(writer, item);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
+    @Before
+    public void mockUriInfo() {
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
+        uriResolver.uriInfo = uriInfo;
     }
 
     protected String result() {
-        return out.toString().replaceAll("\n", "").replace('\"', '\'');
+        return writer.toString().replaceAll("\n", "").replace('\"', '\'');
     }
 
     protected String div(String body) {

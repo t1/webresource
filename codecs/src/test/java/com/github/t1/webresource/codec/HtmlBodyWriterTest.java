@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.github.t1.webresource.meta.Items;
+
 public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
         HtmlBodyWriter writer = new HtmlBodyWriter();
-        write(writer, t);
+        writer.out = out;
+        writer.write(Items.newItem(t));
     }
 
     @Test

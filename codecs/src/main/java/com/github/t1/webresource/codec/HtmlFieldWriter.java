@@ -2,23 +2,28 @@ package com.github.t1.webresource.codec;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import lombok.extern.slf4j.Slf4j;
 
 import com.github.t1.webresource.meta.*;
 
 @Slf4j
-public class HtmlFieldWriter extends AbstractHtmlWriter {
+public class HtmlFieldWriter {
+    @Inject
+    HtmlOut out;
+
     public void write(Item item, Trait trait, String id) {
         if (item.isSimple()) {
             try {
-                escaped().append(item.get(trait).toString());
+                out.escaped().append(item.get(trait).toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
             Item fieldItem = item.get(trait);
             if (fieldItem.isList()) {
-                writeList(fieldItem);
+                out.writeList(fieldItem);
             } else {
                 writeInput(item, trait, id);
             }
@@ -26,14 +31,14 @@ public class HtmlFieldWriter extends AbstractHtmlWriter {
     }
 
     private void writeInput(Item item, Trait trait, String id) {
-        write("<input");
+        out.write("<input");
         if (id != null)
-            write(" id='" + id + "'");
-        write(" name='" + trait.name() + "'");
-        write(" class='" + trait.type() + "'");
-        write(" type='" + inputType(trait) + "'");
-        write(" value='" + item.get(trait) + "'");
-        write("/>\n");
+            out.write(" id='" + id + "'");
+        out.write(" name='" + trait.name() + "'");
+        out.write(" class='" + trait.type() + "'");
+        out.write(" type='" + inputType(trait) + "'");
+        out.write(" value='" + item.get(trait) + "'");
+        out.write("/>\n");
     }
 
     private String inputType(Trait trait) {

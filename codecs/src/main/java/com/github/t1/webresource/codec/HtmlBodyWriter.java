@@ -7,18 +7,19 @@ import javax.inject.Inject;
 
 import com.github.t1.webresource.meta.*;
 
-public class HtmlBodyWriter extends AbstractHtmlWriter {
-
+public class HtmlBodyWriter {
+    @Inject
+    HtmlOut out;
     @Inject
     HtmlFormWriter htmlFormWriter;
 
     public void write(Item item) {
         if (item.isNull())
             return;
-        nl();
+        out.nl();
         if (item.isSimple()) {
             try {
-                escaped().write(item.toString());
+                out.escaped().write(item.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -37,9 +38,9 @@ public class HtmlBodyWriter extends AbstractHtmlWriter {
         if (traits.isEmpty())
             return;
         if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
-            writeList(item);
+            out.writeList(item);
         } else {
-            writeTable(item);
+            out.writeTable(item);
         }
     }
 }

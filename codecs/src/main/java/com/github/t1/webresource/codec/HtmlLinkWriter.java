@@ -7,19 +7,23 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.webresource.codec.HtmlOut.Attribute;
+import com.github.t1.webresource.codec.HtmlOut.Tag;
 import com.github.t1.webresource.meta.*;
 
 // TODO escape strings?
 @Slf4j
-public class HtmlLinkWriter extends AbstractHtmlWriter {
+public class HtmlLinkWriter {
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
+    @Inject
+    HtmlOut out;
     @Inject
     UriResolver uriResolver;
 
     public void write(Item item, String id) {
-        try (Tag a = new Tag("a", new HrefAttribute(uriResolver, item), idAttribute(id), new ClassAttribute(item))) {
-            write(body(item));
+        try (Tag a = out.tag("a", new HrefAttribute(uriResolver, item), idAttribute(id), new ClassAttribute(item))) {
+            out.write(body(item));
         }
     }
 

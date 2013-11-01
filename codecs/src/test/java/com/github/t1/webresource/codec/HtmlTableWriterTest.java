@@ -7,14 +7,16 @@ import java.util.*;
 
 import org.junit.Test;
 
+import com.github.t1.webresource.meta.Items;
 import com.google.common.collect.ImmutableList;
 
 
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     private void write(Object t) {
         HtmlTableWriter writer = new HtmlTableWriter();
-        writer.ids = new IdGenerator();
-        write(writer, t);
+        writer.ids = ids;
+        writer.out = out;
+        writer.write(Items.newItem(t));
     }
 
     private String table(String... columns) {

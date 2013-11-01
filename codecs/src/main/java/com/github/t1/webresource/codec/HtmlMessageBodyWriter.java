@@ -25,14 +25,12 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     Instance<HtmlWriter> htmlWriter;
 
     @Context
-    @javax.enterprise.inject.Produces
     @RequestScoped
+    @javax.enterprise.inject.Produces
     UriInfo uriInfo;
 
-    @javax.enterprise.inject.Produces
-    @RequestScoped
-    @HtmlWriterQualifier
-    private Writer out;
+    @Inject
+    HtmlOut htmlOut;
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -50,15 +48,16 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             WebApplicationException {
         log.debug("start html-encoding");
 
+        OutputStreamWriter out = new OutputStreamWriter(entityStream);
         try {
-            out = new OutputStreamWriter(entityStream);
+            htmlOut.setOut(out);
             htmlWriter.get().write(Items.newItem(t));
         } catch (RuntimeException e) {
             log.error("error while encoding", e);
             throw e;
         } finally {
             out.flush(); // doesn't work without this :-/
-            out = null;
+            htmlOut.setOut(null);
             log.debug("done html-encoding");
         }
     }
