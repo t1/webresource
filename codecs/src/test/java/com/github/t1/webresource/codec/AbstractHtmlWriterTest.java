@@ -40,9 +40,12 @@ public abstract class AbstractHtmlWriterTest {
         fieldWriter.out = out;
         out.htmlFieldWriter = instance(fieldWriter);
 
+        HtmlTitleWriter titleWriter = new HtmlTitleWriter();
+
         HtmlLinkWriter linkWriter = new HtmlLinkWriter();
         linkWriter.out = out;
         linkWriter.uriResolver = uriResolver;
+        linkWriter.titleWriter = titleWriter;
         out.htmlLinkWriter = instance(linkWriter);
     }
 
@@ -111,7 +114,7 @@ public abstract class AbstractHtmlWriterTest {
     @Data
     @AllArgsConstructor
     protected static class NestedPojo {
-        @HtmlLinkText
+        @HtmlTitle
         public String str;
         @Id
         public Integer i;

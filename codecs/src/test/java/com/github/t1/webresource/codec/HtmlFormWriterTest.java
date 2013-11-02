@@ -238,7 +238,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     private static class LinkNestedPojo {
         @Id
         public String ref;
-        @HtmlLinkText
+        @HtmlTitle
         public String body;
     }
 

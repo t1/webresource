@@ -6,7 +6,7 @@ import java.net.*;
 import javax.inject.Inject;
 
 import com.github.t1.webresource.codec.HtmlOut.Tag;
-import com.github.t1.webresource.meta.*;
+import com.github.t1.webresource.meta.Item;
 
 public class HtmlHeadWriter {
 
@@ -14,6 +14,8 @@ public class HtmlHeadWriter {
     HtmlOut out;
     @Inject
     UriResolver uriResolver;
+    @Inject
+    HtmlTitleWriter titleWriter;
 
     public void write(Item item) {
         if (!item.isSimple()) {
@@ -23,7 +25,7 @@ public class HtmlHeadWriter {
     }
 
     private void writeTitle(Item item) {
-        String titleString = titleString(item);
+        String titleString = titleWriter.title(item);
         if (!titleString.isEmpty()) {
             try (Tag title = out.tag("title")) {
                 try {
@@ -33,18 +35,6 @@ public class HtmlHeadWriter {
                 }
             }
         }
-    }
-
-    private String titleString(Item item) {
-        StringWriter titleString = new StringWriter();
-        Delimiter delim = new Delimiter(titleString, " - ");
-        for (Trait trait : item.traits()) {
-            if (trait.is(HtmlHead.class)) {
-                delim.write();
-                titleString.append(item.get(trait).toString());
-            }
-        }
-        return titleString.toString();
     }
 
     private void writeStyleSheets(Item item) {

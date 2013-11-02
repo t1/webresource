@@ -16,19 +16,20 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
         HtmlHeadWriter writer = new HtmlHeadWriter();
         writer.out = out;
         writer.uriResolver = uriResolver;
+        writer.titleWriter = new HtmlTitleWriter();
         writer.write(Items.newItem(t));
     }
 
     @AllArgsConstructor
-    private static class PojoWithOneHtmlHead {
-        @HtmlHead
+    private static class PojoWithOneHtmlTitle {
+        @HtmlTitle
         public String str;
         public Integer i;
     }
 
     @Test
-    public void shouldWritePojoWithOneHtmlHead() throws Exception {
-        PojoWithOneHtmlHead pojo = new PojoWithOneHtmlHead("dummy", 123);
+    public void shouldWritePojoWithOneHtmlTitle() throws Exception {
+        PojoWithOneHtmlTitle pojo = new PojoWithOneHtmlTitle("dummy", 123);
         assertEquals(123, (int) pojo.i); // cover
 
         write(pojo);
@@ -37,20 +38,20 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @AllArgsConstructor
-    private static class PojoWithTwoHtmlHeads {
-        @HtmlHead
+    private static class PojoWithTwoHtmlTitles {
+        @HtmlTitle
         public String str0;
-        @HtmlHead
+        @HtmlTitle
         public String str1;
     }
 
     @Test
-    public void shouldWritePojoWithTwoHtmlHead() throws Exception {
-        PojoWithTwoHtmlHeads pojo = new PojoWithTwoHtmlHeads("dummy0", "dummy1");
+    public void shouldWritePojoWithTwoHtmlTitle() throws Exception {
+        PojoWithTwoHtmlTitles pojo = new PojoWithTwoHtmlTitles("dummy0", "dummy1");
 
         write(pojo);
 
-        assertThat(result(), containsString("<title>dummy0 - dummy1</title>"));
+        assertThat(result(), containsString("<title>dummy0 dummy1</title>"));
     }
 
     @Data

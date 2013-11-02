@@ -16,6 +16,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
         HtmlLinkWriter writer = new HtmlLinkWriter();
         writer.out = out;
         writer.uriResolver = uriResolver;
+        writer.titleWriter = new HtmlTitleWriter();
         writer.write(Items.newItem(pojo), "id");
     }
 
@@ -44,7 +45,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     @Getter
     @AllArgsConstructor
     public static class OneLinkFieldPojo {
-        @HtmlLinkText
+        @HtmlTitle
         String str1;
         String str2;
 
@@ -87,7 +88,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     @Getter
     @AllArgsConstructor
     @XmlRootElement
-    @HtmlLinkText("${str1}-${str2}")
+    @HtmlTitle("${str1}-${str2}")
     public static class TextLinkVariablePojo {
         String str1;
         String str2;
