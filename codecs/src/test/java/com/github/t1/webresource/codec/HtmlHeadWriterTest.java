@@ -1,6 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.*;
@@ -12,6 +11,8 @@ import org.junit.*;
 import com.github.t1.webresource.meta.Items;
 
 public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
+    private static final String TITLE = "<title>TITLE</title>";
+
     private void write(Object t) {
         HtmlHeadWriter writer = new HtmlHeadWriter();
         writer.out = out;
@@ -34,7 +35,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString("<title>dummy</title>"));
+        assertEquals("<title>dummy</title>", result());
     }
 
     @AllArgsConstructor
@@ -51,10 +52,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString("<title>dummy0 dummy1</title>"));
+        assertEquals("<title>dummy0 dummy1</title>", result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheet("/root-path")
     private static class PojoWithRootPathCss {
@@ -67,7 +69,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(stylesheet("/root-path")));
+        assertEquals(TITLE + stylesheet("/root-path"), result());
     }
 
     private String stylesheet(String href) {
@@ -82,10 +84,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertThat(result(), containsString(stylesheet("/root-path")));
+        assertEquals(TITLE + stylesheet("/root-path"), result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheet(value = "file:src/test/resources/testfile.txt", inline = true)
     private static class PojoWithInlineFileCss {
@@ -98,10 +101,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString("<style>test-file-contents</style>"));
+        assertEquals(TITLE + "<style>test-file-contents</style>", result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheet(value = "/stylesheets/main.css", inline = true)
     private static class PojoWithInlineRootResourceCss {
@@ -115,10 +119,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString("<head><style>test-file-contents</style></head>"));
+        assertEquals(TITLE + "<style>test-file-contents</style>", result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheet(value = "stylesheets/main.css", inline = true)
     private static class PojoWithInlineLocalResourceCss {
@@ -132,10 +137,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString("<style>test-file-contents</style>"));
+        assertEquals(TITLE + "<style>test-file-contents</style>", result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheet("local-path")
     private static class PojoWithLocalCss {
@@ -148,10 +154,11 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(stylesheet("/demo/local-path")));
+        assertEquals(TITLE + stylesheet("/demo/local-path"), result());
     }
 
     @Data
+    @HtmlTitle("TITLE")
     @AllArgsConstructor
     @HtmlStyleSheets({ @HtmlStyleSheet("/root-path"), @HtmlStyleSheet("local-path") })
     private static class PojoWithTwoCss {
@@ -164,7 +171,6 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(stylesheet("/root-path")));
-        assertThat(result(), containsString(stylesheet("/demo/local-path")));
+        assertEquals(TITLE + stylesheet("/root-path") + stylesheet("/demo/local-path"), result());
     }
 }
