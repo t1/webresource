@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import lombok.*;
 
-import com.github.t1.webresource.meta.*;
+import com.github.t1.webresource.meta.Item;
 
 @RequestScoped
 public class HtmlOut {
@@ -47,19 +47,7 @@ public class HtmlOut {
     private Writer out;
 
     @Inject
-    Instance<HtmlTableWriter> htmlTableWriter;
-    @Inject
-    Instance<HtmlFieldWriter> htmlFieldWriter;
-    @Inject
     Instance<HtmlLinkWriter> htmlLinkWriter;
-
-    public void writeTable(Item item) {
-        htmlTableWriter.get().write(item);
-    }
-
-    public void writeField(Item item, Trait trait, String id) {
-        htmlFieldWriter.get().write(item, trait, id);
-    }
 
     public void writeLink(Item item, String id) {
         htmlLinkWriter.get().write(item, id);

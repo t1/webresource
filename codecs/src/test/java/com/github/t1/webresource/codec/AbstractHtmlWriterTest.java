@@ -47,15 +47,6 @@ public abstract class AbstractHtmlWriterTest {
     public void mockHtmlOut() {
         out.setOut(writer);
 
-        HtmlTableWriter tableWriter = new HtmlTableWriter();
-        tableWriter.out = out;
-        tableWriter.ids = ids;
-        out.htmlTableWriter = instance(tableWriter);
-
-        HtmlFieldWriter fieldWriter = new HtmlFieldWriter();
-        fieldWriter.out = out;
-        out.htmlFieldWriter = instance(fieldWriter);
-
         HtmlLinkWriter linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeAnswer("link")).when(linkWriter).write(any(Item.class), anyString());
         out.htmlLinkWriter = instance(linkWriter);
@@ -66,6 +57,16 @@ public abstract class AbstractHtmlWriterTest {
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
         uriResolver.uriInfo = uriInfo;
+    }
+
+    protected Answer<Void> writeDummyAnswer(final String prefix) {
+        return new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                out.write("{" + prefix + "}");
+                return null;
+            }
+        };
     }
 
     protected Answer<Void> writeAnswer(final String prefix) {
@@ -117,6 +118,11 @@ public abstract class AbstractHtmlWriterTest {
     @AllArgsConstructor
     protected static class OneStringPojo {
         private String string;
+
+        @Override
+        public String toString() {
+            return "{" + string + "}";
+        }
     }
 
     @Data
@@ -127,6 +133,7 @@ public abstract class AbstractHtmlWriterTest {
     }
 
     @AllArgsConstructor
+    @XmlType(propOrder = { "str", "i" })
     protected static class TwoFieldPojo {
         public String str;
         public Integer i;
@@ -135,7 +142,7 @@ public abstract class AbstractHtmlWriterTest {
     @Data
     @AllArgsConstructor
     @XmlRootElement
-    @XmlType(propOrder = { "list", "str" })
+    @XmlType(propOrder = { "str", "list" })
     protected static class ListPojo {
         private String str;
         private List<String> list;
@@ -143,6 +150,8 @@ public abstract class AbstractHtmlWriterTest {
 
     @Data
     @AllArgsConstructor
+    @XmlRootElement
+    @XmlType(propOrder = { "str", "i" })
     protected static class NestedPojo {
         @HtmlTitle
         public String str;
@@ -153,7 +162,7 @@ public abstract class AbstractHtmlWriterTest {
     @Data
     @AllArgsConstructor
     @XmlRootElement
-    @XmlType(propOrder = { "nested", "str" })
+    @XmlType(propOrder = { "str", "nested" })
     protected static class ContainerPojo {
         private String str;
         private NestedPojo nested;

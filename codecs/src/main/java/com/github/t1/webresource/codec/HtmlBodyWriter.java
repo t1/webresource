@@ -13,6 +13,8 @@ public class HtmlBodyWriter {
     HtmlFormWriter formWriter;
     @Inject
     HtmlListWriter listWriter;
+    @Inject
+    HtmlTableWriter tableWriter;
 
     public void write(Item item) {
         if (item.isNull())
@@ -39,7 +41,7 @@ public class HtmlBodyWriter {
         if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
             listWriter.write(item);
         } else {
-            out.writeTable(item);
+            tableWriter.write(item);
         }
     }
 }

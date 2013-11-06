@@ -14,6 +14,8 @@ public class HtmlTableWriter {
     IdGenerator ids;
     @Inject
     HtmlListWriter listWriter;
+    @Inject
+    HtmlFieldWriter fieldWriter;
 
     public void write(Item listItem) {
         List<Item> list = listItem.getList();
@@ -49,7 +51,7 @@ public class HtmlTableWriter {
                     String id = ids.get(trait);
                     if (cellItem.isSimple()) {
                         Trait simple = SimpleTrait.of(cellItem);
-                        out.writeField(cellItem, simple, id);
+                        fieldWriter.write(cellItem, simple, id);
                     } else if (cellItem.isList()) {
                         listWriter.write(cellItem);
                     } else {

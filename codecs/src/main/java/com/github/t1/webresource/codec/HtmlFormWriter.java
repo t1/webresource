@@ -16,6 +16,8 @@ public class HtmlFormWriter {
     IdGenerator ids;
     @Inject
     HtmlListWriter listWriter;
+    @Inject
+    HtmlFieldWriter fieldWriter;
 
     public void write(Item item) {
         try (Tag form = out.tag("form", //
@@ -51,7 +53,7 @@ public class HtmlFormWriter {
     private void writeItem(Item item, Trait trait, String id) {
         Item value = item.get(trait);
         if (value.isSimple()) {
-            out.writeField(item, trait, id);
+            fieldWriter.write(item, trait, id);
         } else if (value.isList()) {
             listWriter.write(value);
         } else {

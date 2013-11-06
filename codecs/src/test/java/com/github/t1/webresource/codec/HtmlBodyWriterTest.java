@@ -79,13 +79,14 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeTable() throws Exception {
+        writer.tableWriter = mock(HtmlTableWriter.class);
         List<OneStringPojo> list =
                 asList(new OneStringPojo("one"), new OneStringPojo("two"), new OneStringPojo("three"));
 
         write(list);
 
-        assertEquals("<table><thead><tr><th>string</th></tr></thead><tbody>"
-                + "<tr><td>one</td></tr><tr><td>two</td></tr><tr><td>three</td></tr></tbody></table>", result());
+        verify(writer.tableWriter).write(captor.capture());
+        assertEqualsListItem(captor.getValue(), "{one}", "{two}", "{three}");
     }
 
     @Test

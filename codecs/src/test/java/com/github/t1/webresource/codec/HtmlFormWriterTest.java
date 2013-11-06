@@ -1,12 +1,13 @@
 package com.github.t1.webresource.codec;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
 
 import javax.persistence.Id;
+import javax.xml.bind.annotation.*;
 
 import lombok.*;
 
@@ -22,38 +23,39 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
         writer.out = out;
         writer.ids = ids;
         writer.uriResolver = uriResolver;
+        writer.fieldWriter = mock(HtmlFieldWriter.class);
+        doAnswer(writeDummyAnswer("field")).when(writer.fieldWriter).write(any(Item.class), any(Trait.class),
+                anyString());
         writer.write(Items.newItem(t));
     }
 
-    private static String wrappedForm(String type, String action, String id, String body) {
-        return "<form id='" + type + "-form' action='" + action + "' method='post'>" //
-                + ((id == null) ? "" : "<input name='id' type='hidden' value='" + id + "'/>") //
-                + body //
-                + "<input type='submit' value='submit'/></form>";
+    private void mockListWriter() {
+        writer.listWriter = mock(HtmlListWriter.class);
+        doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
     }
 
-    private String field(String name, String value) {
-        return field(name, value, 0);
+    private static String form(String type, String body) {
+        return startForm(type) + body + endForm();
     }
 
-    private String field(String name, String value, int id) {
-        return field(name, name, value, id, "string", "text");
+    private static String startForm(String type) {
+        return "<form id='" + type + "-form' action='" + BASE_URI + type + "' method='post'>";
     }
 
-    private String field(String type, String name, String value, int id, String cssClass, String fieldType) {
-        return div(label(type, id) //
-                + "<input id='" + type + "-" + id + "' name='" + name + "' class='" + cssClass + "' type='"
-                + fieldType
-                + "' value='" + value + "'/>" //
-        );
+    private static String endForm() {
+        return "<input type='submit' value='submit'/></form>";
+    }
+
+    private String field(String type) {
+        return div(label(type) + "{field}");
+    }
+
+    private String list(String type) {
+        return div(label(type) + "{list}");
     }
 
     private String label(String name) {
-        return label(name, 0);
-    }
-
-    private String label(String name, int id) {
-        return "<label for='" + name + "-" + id + "' class='" + name + "-label'>" + name + "</label>";
+        return "<label for='" + name + "-0' class='" + name + "-label'>" + name + "</label>";
     }
 
     @Test
@@ -62,7 +64,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(map);
 
-        assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null, ""), result());
+        assertEquals(form("linkedhashmaps", ""), result());
     }
 
     @Test
@@ -72,7 +74,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(map);
 
-        assertEquals(wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null, field("one", "111")), result());
+        assertEquals(form("linkedhashmaps", field("one")), result());
     }
 
     @Test
@@ -84,9 +86,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(map);
 
-        assertEquals(
-                wrappedForm("linkedhashmaps", BASE_URI + "linkedhashmaps", null,
-                        field("one", "111") + field("two", "222") + field("three", "333")), result());
+        assertEquals(form("linkedhashmaps", field("one") + field("two") + field("three")), result());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", null, field("string", "str")), result());
+        assertEquals(form("onestringpojos", field("string")), result());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(wrappedForm("onestringpojos", BASE_URI + "onestringpojos", null, field("string", "")), result());
+        assertEquals(form("onestringpojos", field("string")), result());
     }
 
     @Test
@@ -117,9 +117,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(
-                wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos", null,
-                        field("foo", "string", "str", 0, "string", "text")), result());
+        assertEquals(form("onestringinputnamedpojos", field("foo")), result());
     }
 
     @Test
@@ -128,9 +126,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(
-                wrappedForm("onestringinputnamedpojos", BASE_URI + "onestringinputnamedpojos", null,
-                        field("foo", "string", "", 0, "string", "text")), result());
+        assertEquals(form("onestringinputnamedpojos", field("foo")), result());
     }
 
     @Data
@@ -146,9 +142,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(
-                wrappedForm("onestringinputtypedpojos", BASE_URI + "onestringinputtypedpojos", null,
-                        field("string", "string", "str", 0, "string", "test")), result());
+        assertEquals(form("onestringinputtypedpojos", field("string")), result());
     }
 
     @Test
@@ -157,12 +151,13 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(field("i", "i", "123", 0, "number", "text")));
-        assertThat(result(), containsString(field("str", "dummy")));
+        assertEquals(form("twofieldpojos", field("str") + field("i")), result());
     }
 
     @Data
     @AllArgsConstructor
+    @XmlRootElement
+    @XmlType(propOrder = { "b", "str" })
     private static class TwoFieldsOneBooleanPojo {
         private boolean b;
         private String str;
@@ -174,8 +169,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(field("b", "b", "true", 0, "boolean", "checkbox")));
-        assertThat(result(), containsString(field("str", "dummy")));
+        assertEquals(form("twofieldsonebooleanpojos", field("b") + field("str")), result());
     }
 
     @AllArgsConstructor
@@ -191,12 +185,15 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals(wrappedForm("pojowithids", BASE_URI + "pojowithids", "123", //
-                field("str", "str", "dummy", 0, "string", "text")), result());
+        assertEquals(startForm("pojowithids") //
+                + "<input name='id' type='hidden' value='123'/>" //
+                + field("str") + endForm(), result());
     }
 
     @Data
     @AllArgsConstructor
+    @XmlRootElement
+    @XmlType(propOrder = { "str", "set" })
     private static class SetPojo {
         private String str;
         private Set<String> set;
@@ -204,24 +201,24 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeSetPojo() throws Exception {
-        writer.listWriter = mock(HtmlListWriter.class);
+        mockListWriter();
         SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
 
         write(pojo);
 
-        assertThat(result(), containsString(field("str", "dummy")));
+        assertEquals(form("setpojos", field("str") + list("set")), result());
         verify(writer.listWriter).write(captor.capture());
         assertEqualsListItem(captor.getValue(), "one", "two", "three");
     }
 
     @Test
     public void shouldEncodeListPojo() throws Exception {
-        writer.listWriter = mock(HtmlListWriter.class);
+        mockListWriter();
         ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
 
         write(pojo);
 
-        assertThat(result(), containsString(field("str", "dummy")));
+        assertEquals(form("listpojos", field("str") + list("list")), result());
         verify(writer.listWriter).write(captor.capture());
         assertEqualsListItem(captor.getValue(), "one", "two", "three");
     }
@@ -232,9 +229,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(div(label("nested")
-                + "{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}")));
-        assertThat(result(), containsString(field("str", "dummy")));
+        assertEquals(
+                form("containerpojos", field("str")
+                        + div(label("nested") + "{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}")), result());
     }
 
     @Data
@@ -258,7 +255,8 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(result(), containsString(div(label("nested")
-                + "{link:HtmlFormWriterTest.LinkNestedPojo(ref=foo, body=bar)}")));
+        assertEquals(
+                form("linkcontainerpojos", div(label("nested")
+                        + "{link:HtmlFormWriterTest.LinkNestedPojo(ref=foo, body=bar)}")), result());
     }
 }

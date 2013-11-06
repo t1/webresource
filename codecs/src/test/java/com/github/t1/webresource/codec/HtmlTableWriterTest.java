@@ -2,6 +2,7 @@ package com.github.t1.webresource.codec;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -11,13 +12,14 @@ import org.junit.Test;
 import com.github.t1.webresource.meta.*;
 import com.google.common.collect.ImmutableList;
 
-
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     HtmlTableWriter writer = new HtmlTableWriter();
 
     private void write(Object t) {
         writer.ids = ids;
         writer.out = out;
+        writer.fieldWriter = mock(HtmlFieldWriter.class);
+        doAnswer(writeAnswer("field")).when(writer.fieldWriter).write(any(Item.class), any(Trait.class), anyString());
         writer.write(Items.newItem(t));
     }
 
@@ -36,7 +38,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     private String tr(String... columns) {
         String tds = "";
         for (String column : columns) {
-            tds += "<td>" + column + "</td>";
+            tds += "<td>{field:" + column + "}</td>";
         }
         return "<tr>" + tds + "</tr>";
     }
@@ -115,13 +117,15 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     @Test
     public void shouldEncodeTableWithListPojo() throws Exception {
         writer.listWriter = mock(HtmlListWriter.class);
+        doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
         ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
         ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
         List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
 
         write(list);
 
-        assertEquals(startTable("list", "str") + tr("", "dummy1") + tr("", "dummy2") + endTable(), result());
+        assertEquals(startTable("str", "list") + "<tr><td>{field:dummy1}</td><td>{list}</td></tr>"
+                + "<tr><td>{field:dummy2}</td><td>{list}</td></tr>" + endTable(), result());
         verify(writer.listWriter, times(2)).write(captor.capture());
         List<Item> allValues = captor.getAllValues();
         assertEqualsListItem(allValues.get(0), "one1", "two1", "three1");
@@ -136,9 +140,9 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(startTable("nested", "str") //
-                + tr("{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}", "dummy1") //
-                + tr("{link:AbstractHtmlWriterTest.NestedPojo(str=bar, i=321)}", "dummy2") //
+        assertEquals(startTable("str", "nested") //
+                + "<tr><td>{field:dummy1}</td><td>{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}</td></tr>" //
+                + "<tr><td>{field:dummy2}</td><td>{link:AbstractHtmlWriterTest.NestedPojo(str=bar, i=321)}</td></tr>" //
                 + endTable(), result());
     }
 }
