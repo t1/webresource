@@ -16,6 +16,8 @@ public class HtmlTableWriter {
     HtmlListWriter listWriter;
     @Inject
     HtmlFieldWriter fieldWriter;
+    @Inject
+    HtmlLinkWriter linkWriter;
 
     public void write(Item listItem) {
         List<Item> list = listItem.getList();
@@ -55,7 +57,7 @@ public class HtmlTableWriter {
                     } else if (cellItem.isList()) {
                         listWriter.write(cellItem);
                     } else {
-                        out.writeLink(cellItem, id);
+                        linkWriter.write(cellItem, id);
                     }
                 }
             }

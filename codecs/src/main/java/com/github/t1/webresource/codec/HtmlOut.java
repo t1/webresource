@@ -3,12 +3,8 @@ package com.github.t1.webresource.codec;
 import java.io.*;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
 import lombok.*;
-
-import com.github.t1.webresource.meta.Item;
 
 @RequestScoped
 public class HtmlOut {
@@ -45,13 +41,6 @@ public class HtmlOut {
 
     @Setter
     private Writer out;
-
-    @Inject
-    Instance<HtmlLinkWriter> htmlLinkWriter;
-
-    public void writeLink(Item item, String id) {
-        htmlLinkWriter.get().write(item, id);
-    }
 
     public void write(String text) {
         if (out == null)

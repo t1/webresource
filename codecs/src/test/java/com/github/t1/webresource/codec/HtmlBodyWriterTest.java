@@ -2,6 +2,7 @@ package com.github.t1.webresource.codec;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -103,8 +104,13 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldLinkToType() throws Exception {
+        writer.linkWriter = mock(HtmlLinkWriter.class);
+        doAnswer(writeAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
+
         write(NoTraitPojo.class);
 
         assertEquals("{link:notraitpojos}", result());
+        verify(writer.linkWriter).write(captor.capture(), anyString());
+        assertEquals("notraitpojos", captor.getValue().toString());
     }
 }

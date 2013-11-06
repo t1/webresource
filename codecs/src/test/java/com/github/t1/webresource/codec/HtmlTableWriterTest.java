@@ -134,6 +134,8 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeTableWithContainerPojo() throws Exception {
+        writer.linkWriter = mock(HtmlLinkWriter.class);
+        doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         ContainerPojo pojo1 = new ContainerPojo("dummy1", new NestedPojo("foo", 123));
         ContainerPojo pojo2 = new ContainerPojo("dummy2", new NestedPojo("bar", 321));
         List<ContainerPojo> list = ImmutableList.of(pojo1, pojo2);
@@ -141,8 +143,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         write(list);
 
         assertEquals(startTable("str", "nested") //
-                + "<tr><td>{field:dummy1}</td><td>{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}</td></tr>" //
-                + "<tr><td>{field:dummy2}</td><td>{link:AbstractHtmlWriterTest.NestedPojo(str=bar, i=321)}</td></tr>" //
+                + "<tr><td>{field:dummy1}</td><td>{link}</td></tr>" //
+                + "<tr><td>{field:dummy2}</td><td>{link}</td></tr>" //
                 + endTable(), result());
+        verify(writer.linkWriter, times(2)).write(captor.capture(), anyString());
+        List<Item> allValues = captor.getAllValues();
+        assertEquals("AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)", allValues.get(0).toString());
+        assertEquals("AbstractHtmlWriterTest.NestedPojo(str=bar, i=321)", allValues.get(1).toString());
     }
 }

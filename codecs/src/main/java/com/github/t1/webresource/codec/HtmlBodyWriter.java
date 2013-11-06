@@ -15,13 +15,15 @@ public class HtmlBodyWriter {
     HtmlListWriter listWriter;
     @Inject
     HtmlTableWriter tableWriter;
+    @Inject
+    HtmlLinkWriter linkWriter;
 
     public void write(Item item) {
         if (item.isNull())
             return;
         out.nl();
         if (item.isType()) {
-            out.writeLink(item, null);
+            linkWriter.write(item, null);
         } else if (item.isSimple()) {
             out.writeEscapedObject(item);
         } else if (item.isList()) {

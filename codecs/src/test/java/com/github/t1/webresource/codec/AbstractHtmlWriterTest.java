@@ -1,7 +1,6 @@
 package com.github.t1.webresource.codec;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
@@ -46,10 +45,6 @@ public abstract class AbstractHtmlWriterTest {
     @Before
     public void mockHtmlOut() {
         out.setOut(writer);
-
-        HtmlLinkWriter linkWriter = mock(HtmlLinkWriter.class);
-        doAnswer(writeAnswer("link")).when(linkWriter).write(any(Item.class), anyString());
-        out.htmlLinkWriter = instance(linkWriter);
     }
 
     @Before

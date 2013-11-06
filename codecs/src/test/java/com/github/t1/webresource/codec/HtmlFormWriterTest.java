@@ -225,13 +225,13 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeNestedPojo() throws Exception {
+        writer.linkWriter = mock(HtmlLinkWriter.class);
+        doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         ContainerPojo pojo = new ContainerPojo("dummy", new NestedPojo("foo", 123));
 
         write(pojo);
 
-        assertEquals(
-                form("containerpojos", field("str")
-                        + div(label("nested") + "{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}")), result());
+        assertEquals(form("containerpojos", field("str") + div(label("nested") + "{link}")), result());
     }
 
     @Data
@@ -251,12 +251,12 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeLinkNestedPojo() throws Exception {
+        writer.linkWriter = mock(HtmlLinkWriter.class);
+        doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         LinkContainerPojo pojo = new LinkContainerPojo(new LinkNestedPojo("foo", "bar"));
 
         write(pojo);
 
-        assertEquals(
-                form("linkcontainerpojos", div(label("nested")
-                        + "{link:HtmlFormWriterTest.LinkNestedPojo(ref=foo, body=bar)}")), result());
+        assertEquals(form("linkcontainerpojos", div(label("nested") + "{link}")), result());
     }
 }

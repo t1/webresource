@@ -18,6 +18,8 @@ public class HtmlFormWriter {
     HtmlListWriter listWriter;
     @Inject
     HtmlFieldWriter fieldWriter;
+    @Inject
+    HtmlLinkWriter linkWriter;
 
     public void write(Item item) {
         try (Tag form = out.tag("form", //
@@ -57,7 +59,7 @@ public class HtmlFormWriter {
         } else if (value.isList()) {
             listWriter.write(value);
         } else {
-            out.writeLink(value, id);
+            linkWriter.write(value, id);
         }
     }
 }

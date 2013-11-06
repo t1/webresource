@@ -11,6 +11,8 @@ import com.github.t1.webresource.meta.*;
 public class HtmlListWriter {
     @Inject
     HtmlOut out;
+    @Inject
+    HtmlLinkWriter linkWriter;
 
     public void write(Item listItem) {
         List<Item> list = listItem.getList();
@@ -22,7 +24,7 @@ public class HtmlListWriter {
                     if (item.isSimple()) {
                         out.write(item.get(SimpleTrait.of(item)).toString());
                     } else {
-                        out.writeLink(item, "id");
+                        linkWriter.write(item, "id");
                     }
                 }
             }
