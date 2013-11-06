@@ -26,7 +26,7 @@ public class HtmlOut {
             try {
                 out.append('<').append(name);
                 for (Attribute attribute : attributes)
-                    out.append(' ').append(attribute.name).append("='").append(attribute.value).append('\'');
+                    out.append(' ').append(attribute.getName()).append("='").append(attribute.getValue()).append('\'');
                 out.append(">");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -110,8 +110,16 @@ public class HtmlOut {
         e.printStackTrace(new PrintWriter(out));
     }
 
-    public Writer escaped() {
-        return new HtmlEscapeWriter(out);
+    public void writeEscapedObject(Object object) {
+        writeEscaped(object.toString());
+    }
+
+    public void writeEscaped(String string) {
+        try {
+            new HtmlEscapeWriter(out).write(string);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void nl() {

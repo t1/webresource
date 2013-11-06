@@ -226,10 +226,8 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(
-                result(),
-                containsString(div(label("nested")
-                        + a("href='" + BASE_URI + "nestedpojos/123.html' id='nested-0-href' class='nestedpojos'", "foo"))));
+        assertThat(result(), containsString(div(label("nested")
+                + "{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}")));
         assertThat(result(), containsString(field("str", "dummy")));
     }
 
@@ -254,10 +252,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertThat(
-                result(),
-                containsString(div(label("nested")
-                        + a("href='" + BASE_URI
-                                + "linknestedpojos/foo.html' id='nested-0-href' class='linknestedpojos'", "bar"))));
+        assertThat(result(), containsString(div(label("nested")
+                + "{link:HtmlFormWriterTest.LinkNestedPojo(ref=foo, body=bar)}")));
     }
 }

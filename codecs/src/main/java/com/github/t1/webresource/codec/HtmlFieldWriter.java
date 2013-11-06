@@ -1,7 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +13,7 @@ public class HtmlFieldWriter {
 
     public void write(Item item, Trait trait, String id) {
         if (item.isSimple()) {
-            try {
-                out.escaped().append(item.get(trait).toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            out.writeEscapedObject(item.get(trait));
         } else {
             Item fieldItem = item.get(trait);
             if (fieldItem.isList()) {

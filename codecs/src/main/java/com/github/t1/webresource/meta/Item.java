@@ -28,6 +28,9 @@ public interface Item {
     /** Is this item a list of items? */
     public boolean isList();
 
+    /** Is this item an item type (a.k.a. class)? */
+    public boolean isType();
+
     /** The list of elements in this {@link #isList() list-trait} */
     public List<Item> getList();
 

@@ -19,7 +19,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
         writer.write(Items.newItem(t));
     }
 
-    private String table(String... columns) {
+    private String startTable(String... columns) {
         String ths = "";
         for (String column : columns) {
             ths += "<th>" + column + "</th>";
@@ -49,7 +49,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(Arrays.asList(map0, map1));
 
-        assertEquals(table("one") + tr("111") + tr("aaa") + endTable(), result());
+        assertEquals(startTable("one") + tr("111") + tr("aaa") + endTable(), result());
     }
 
     @Test
@@ -66,7 +66,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(Arrays.asList(map0, map1));
 
-        assertEquals(table("one", "two", "three") //
+        assertEquals(startTable("one", "two", "three") //
                 + tr("111", "222", "333") //
                 + tr("aaa", "bbb", "ccc") //
                 + endTable(), result());
@@ -81,7 +81,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(table("string") + tr("one") + tr("two") + tr("three") + endTable(), result());
+        assertEquals(startTable("string") + tr("one") + tr("two") + tr("three") + endTable(), result());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(table("foo") + tr("one") + tr("two") + tr("three") + endTable(), result());
+        assertEquals(startTable("foo") + tr("one") + tr("two") + tr("three") + endTable(), result());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(table("str", "i") //
+        assertEquals(startTable("str", "i") //
                 + tr("one", "111") //
                 + tr("two", "222") //
                 + endTable(), result());
@@ -118,7 +118,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(table("list", "str") //
+        assertEquals(startTable("list", "str") //
                 + tr(ul("strings", "one1", "two1", "three1"), "dummy1") //
                 + tr(ul("strings", "one2", "two2", "three2"), "dummy2") //
                 + endTable(), result());
@@ -132,12 +132,9 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(
-                table("nested", "str") //
-                        + tr(a("href='" + BASE_URI + "nestedpojos/123.html' id='nested-0-href' class='nestedpojos'",
-                                "foo"), "dummy1") //
-                        + tr(a("href='" + BASE_URI + "nestedpojos/321.html' id='nested-1-href' class='nestedpojos'",
-                                "bar"), "dummy2") //
-                        + endTable(), result());
+        assertEquals(startTable("nested", "str") //
+                + tr("{link:AbstractHtmlWriterTest.NestedPojo(str=foo, i=123)}", "dummy1") //
+                + tr("{link:AbstractHtmlWriterTest.NestedPojo(str=bar, i=321)}", "dummy2") //
+                + endTable(), result());
     }
 }

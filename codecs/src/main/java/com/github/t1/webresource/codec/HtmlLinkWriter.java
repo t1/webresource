@@ -10,12 +10,12 @@ public class HtmlLinkWriter {
     @Inject
     HtmlOut out;
     @Inject
-    UriResolver uriResolver;
+    HrefAttribute href;
     @Inject
     HtmlTitleWriter titleWriter;
 
     public void write(Item item, String id) {
-        try (Tag a = out.tag("a", new HrefAttribute(uriResolver, item), idAttribute(id), new ClassAttribute(item))) {
+        try (Tag a = out.tag("a", href.to(item), idAttribute(id), new ClassAttribute(item))) {
             out.write(titleWriter.title(item));
         }
     }

@@ -1,21 +1,35 @@
 package com.github.t1.webresource.codec;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import lombok.*;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.github.t1.webresource.WebResourceKey;
-import com.github.t1.webresource.meta.Items;
+import com.github.t1.webresource.codec.HtmlOut.Attribute;
+import com.github.t1.webresource.meta.*;
 
 public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     private void write(Object pojo) {
+        HrefAttribute href = mock(HrefAttribute.class);
+        when(href.to(any(Item.class))).thenAnswer(new Answer<Attribute>() {
+            @Override
+            public Attribute answer(InvocationOnMock invocation) throws Throwable {
+                Item item = (Item) invocation.getArguments()[0];
+                return new Attribute("href", item.type() + "/" + HtmlId.of(item));
+            }
+        });
+
         HtmlLinkWriter writer = new HtmlLinkWriter();
         writer.out = out;
-        writer.uriResolver = uriResolver;
+        writer.href = href;
         writer.titleWriter = new HtmlTitleWriter();
         writer.write(Items.newItem(pojo), "id");
     }
@@ -38,8 +52,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals("<a href='" + BASE_URI + "simplepojos/" + pojo + ".html' id='id-href' class='simplepojos'>" + pojo
-                + "</a>", result());
+        assertEquals("<a href='simplepojos/one-two' id='id-href' class='simplepojos'>" + pojo + "</a>", result());
     }
 
     @Getter
@@ -61,8 +74,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals("<a href='" + BASE_URI + "onelinkfieldpojos/" + pojo
-                + ".html' id='id-href' class='onelinkfieldpojos'>one</a>", result());
+        assertEquals("<a href='onelinkfieldpojos/one-two' id='id-href' class='onelinkfieldpojos'>one</a>", result());
     }
 
     @Getter
@@ -80,7 +92,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals("<a href='" + BASE_URI + "textlinkwebresourcekeypojos/one.html' "
+        assertEquals("<a href='textlinkwebresourcekeypojos/one' "
                 + "id='id-href' class='textlinkwebresourcekeypojos'>one</a>", result());
     }
 
@@ -105,7 +117,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
         write(pojo);
 
-        assertEquals("<a href='" + BASE_URI + "textlinkvariablepojos/" + pojo
-                + ".html' id='id-href' class='textlinkvariablepojos'>one-two</a>", result());
+        assertEquals("<a href='textlinkvariablepojos/one-two' id='id-href' class='textlinkvariablepojos'>one-two</a>",
+                result());
     }
 }

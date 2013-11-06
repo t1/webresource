@@ -28,11 +28,7 @@ public class HtmlHeadWriter {
         String titleString = titleWriter.title(item);
         if (!titleString.isEmpty()) {
             try (Tag title = out.tag("title")) {
-                try {
-                    out.escaped().append(titleString);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                out.writeEscaped(titleString);
             }
         }
     }

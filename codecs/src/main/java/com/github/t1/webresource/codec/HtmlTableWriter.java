@@ -1,6 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.inject.Inject;
@@ -33,9 +32,7 @@ public class HtmlTableWriter {
         try (Tag tr = out.tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag th = out.tag("th")) {
-                    out.escaped().append(new FieldName(trait));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    out.writeEscapedObject(new FieldName(trait));
                 }
             }
         }

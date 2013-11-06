@@ -1,15 +1,22 @@
 package com.github.t1.webresource.codec;
 
+import javax.inject.Inject;
+
 import com.github.t1.webresource.codec.HtmlOut.Attribute;
 import com.github.t1.webresource.meta.Item;
 
-public class HrefAttribute extends Attribute {
+public class HrefAttribute {
 
-    private static String href(UriResolver uriResolver, Item item) {
-        return uriResolver.resolveBase(item.type() + "/" + HtmlId.of(item) + ".html").toString();
+    @Inject
+    UriResolver uriResolver;
+
+    public Attribute to(Item item) {
+        return new Attribute("href", String.valueOf(uriResolver.resolveBase(href(item))));
     }
 
-    public HrefAttribute(UriResolver uriResolver, Item item) {
-        super("href", href(uriResolver, item));
+    private String href(Item item) {
+        if (item.isType())
+            return item.type();
+        return item.type() + "/" + HtmlId.of(item);
     }
 }

@@ -1,6 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.inject.Inject;
@@ -17,12 +16,10 @@ public class HtmlBodyWriter {
         if (item.isNull())
             return;
         out.nl();
-        if (item.isSimple()) {
-            try {
-                out.escaped().write(item.toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        if (item.isType()) {
+            out.writeLink(item, null);
+        } else if (item.isSimple()) {
+            out.writeEscapedObject(item);
         } else if (item.isList()) {
             writeItemList(item);
         } else {

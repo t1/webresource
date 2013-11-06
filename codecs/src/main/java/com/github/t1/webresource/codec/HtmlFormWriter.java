@@ -1,7 +1,5 @@
 package com.github.t1.webresource.codec;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 
 import com.github.t1.webresource.codec.HtmlOut.Attribute;
@@ -42,9 +40,7 @@ public class HtmlFormWriter {
         String id = ids.get(trait);
         try (Tag div = out.tag("div" /* TODO , new Attribute("class", name + "-item") */)) {
             try (Tag label = out.tag("label", new Attribute("for", id), new ClassAttribute(trait, "label"))) {
-                out.escaped().append(new FieldName(trait));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                out.writeEscapedObject(new FieldName(trait));
             }
             writeItem(item, trait, id);
         }

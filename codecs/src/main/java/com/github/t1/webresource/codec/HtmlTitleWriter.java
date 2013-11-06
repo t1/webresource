@@ -14,6 +14,10 @@ public class HtmlTitleWriter {
     private static final Pattern VAR = Pattern.compile("\\$\\{([^}]*)\\}");
 
     public String title(Item item) {
+        if (item.isList()) {
+            return "List of " + item.type();
+        }
+
         if (item.is(HtmlTitle.class)) {
             HtmlTitle htmlTitle = item.get(HtmlTitle.class);
             log.debug("found link text {} on type {}", htmlTitle, item);
@@ -36,7 +40,7 @@ public class HtmlTitleWriter {
         if (webResourceKeyTrait != null)
             return item.get(webResourceKeyTrait).toString();
 
-        log.debug("found no text link annotations on {}; fall back to toString", item);
+        log.debug("found no title annotations on {}; fall back to toString", item);
         return item.toString();
     }
 

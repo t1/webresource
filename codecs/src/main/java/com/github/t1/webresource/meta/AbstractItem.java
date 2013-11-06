@@ -36,6 +36,11 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
+    public boolean isType() {
+        return false;
+    }
+
+    @Override
     public boolean isList() {
         return false;
     }

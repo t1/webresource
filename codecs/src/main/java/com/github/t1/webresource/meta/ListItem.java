@@ -4,6 +4,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
+import com.github.t1.webresource.WebResourceTypeInfo;
 
 class ListItem extends AbstractItem {
 
@@ -26,6 +27,11 @@ class ListItem extends AbstractItem {
 
     private Collection<?> collection() {
         return (Collection<?>) object;
+    }
+
+    @Override
+    public String type() {
+        return new WebResourceTypeInfo(elementType().getSimpleName()).plural;
     }
 
     private Class<? extends Object> elementType() {

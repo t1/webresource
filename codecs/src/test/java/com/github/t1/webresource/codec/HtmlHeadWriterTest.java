@@ -84,7 +84,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
         write(list);
 
-        assertEquals(TITLE + stylesheet("/root-path"), result());
+        assertEquals("<title>List of pojowithrootpathcsss</title>" + stylesheet("/root-path"), result());
     }
 
     @Data

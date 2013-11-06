@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.*;
@@ -14,8 +15,19 @@ import javax.xml.bind.annotation.*;
 import lombok.*;
 
 import org.junit.Before;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.github.t1.webresource.meta.Item;
 
 public abstract class AbstractHtmlWriterTest {
+    public static <T> Instance<T> instance(T instance) {
+        @SuppressWarnings("unchecked")
+        Instance<T> mock = mock(Instance.class);
+        when(mock.get()).thenReturn(instance);
+        return mock;
+    }
+
     public static final String BASE_URI = "http://localhost:8080/demo/resource/";
 
     protected final IdGenerator ids = new IdGenerator();
@@ -40,20 +52,9 @@ public abstract class AbstractHtmlWriterTest {
         fieldWriter.out = out;
         out.htmlFieldWriter = instance(fieldWriter);
 
-        HtmlTitleWriter titleWriter = new HtmlTitleWriter();
-
-        HtmlLinkWriter linkWriter = new HtmlLinkWriter();
-        linkWriter.out = out;
-        linkWriter.uriResolver = uriResolver;
-        linkWriter.titleWriter = titleWriter;
+        HtmlLinkWriter linkWriter = mock(HtmlLinkWriter.class);
+        doAnswer(writeAnswer("link")).when(linkWriter).write(any(Item.class), anyString());
         out.htmlLinkWriter = instance(linkWriter);
-    }
-
-    private <T> Instance<T> instance(T writer) {
-        @SuppressWarnings("unchecked")
-        Instance<T> mock = mock(Instance.class);
-        when(mock.get()).thenReturn(writer);
-        return mock;
     }
 
     @Before
@@ -61,6 +62,16 @@ public abstract class AbstractHtmlWriterTest {
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getBaseUri()).thenReturn(URI.create(BASE_URI));
         uriResolver.uriInfo = uriInfo;
+    }
+
+    protected Answer<Void> writeAnswer(final String prefix) {
+        return new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                out.write("{" + prefix + ":" + invocation.getArguments()[0] + "}");
+                return null;
+            }
+        };
     }
 
     protected String result() {
@@ -81,6 +92,13 @@ public abstract class AbstractHtmlWriterTest {
 
     protected String a(String attributes, String body) {
         return "<a " + attributes + ">" + body + "</a>";
+    }
+
+    public static class NoTraitPojo {
+        @Override
+        public String toString() {
+            return "the-pojo";
+        }
     }
 
     @Data

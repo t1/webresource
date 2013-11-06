@@ -11,9 +11,7 @@ import javax.enterprise.inject.Instance;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import com.github.t1.webresource.meta.*;
 
@@ -41,16 +39,6 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
 
     private void givenDecorators(HtmlDecorator... decoratorArray) {
         when(decorators.iterator()).thenReturn(Arrays.asList(decoratorArray).iterator());
-    }
-
-    private Answer<Void> writeAnswer(final String prefix) {
-        return new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                out.write("{" + prefix + ":" + invocation.getArguments()[0] + "}");
-                return null;
-            }
-        };
     }
 
     private void write(Object t) {

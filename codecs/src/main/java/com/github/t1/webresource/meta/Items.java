@@ -14,6 +14,8 @@ public class Items {
     }
 
     private Item create() {
+        if (isType())
+            return new TypeItem(object);
         if (isSimple())
             return new SimplePojoItem(object);
         if (isMap())
@@ -21,6 +23,10 @@ public class Items {
         if (isList())
             return new ListItem(object);
         return new PojoItem(object);
+    }
+
+    private boolean isType() {
+        return Class.class.isInstance(object);
     }
 
     private boolean isSimple() {
