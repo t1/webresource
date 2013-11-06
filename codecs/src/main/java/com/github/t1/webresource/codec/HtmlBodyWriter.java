@@ -10,7 +10,9 @@ public class HtmlBodyWriter {
     @Inject
     HtmlOut out;
     @Inject
-    HtmlFormWriter htmlFormWriter;
+    HtmlFormWriter formWriter;
+    @Inject
+    HtmlListWriter listWriter;
 
     public void write(Item item) {
         if (item.isNull())
@@ -23,7 +25,7 @@ public class HtmlBodyWriter {
         } else if (item.isList()) {
             writeItemList(item);
         } else {
-            htmlFormWriter.write(item);
+            formWriter.write(item);
         }
     }
 
@@ -35,7 +37,7 @@ public class HtmlBodyWriter {
         if (traits.isEmpty())
             return;
         if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
-            out.writeList(item);
+            listWriter.write(item);
         } else {
             out.writeTable(item);
         }

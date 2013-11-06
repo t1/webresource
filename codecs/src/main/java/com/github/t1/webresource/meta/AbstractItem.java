@@ -47,7 +47,7 @@ public abstract class AbstractItem implements Item {
 
     @Override
     public List<Item> getList() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("a " + getClass().getSimpleName() + " is not a list item");
     }
 
     @Override

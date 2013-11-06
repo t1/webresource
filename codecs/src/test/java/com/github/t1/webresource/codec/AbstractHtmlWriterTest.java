@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -15,11 +16,15 @@ import javax.xml.bind.annotation.*;
 import lombok.*;
 
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.*;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import com.github.t1.webresource.meta.Item;
 
+@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractHtmlWriterTest {
     public static <T> Instance<T> instance(T instance) {
         @SuppressWarnings("unchecked")
@@ -35,13 +40,12 @@ public abstract class AbstractHtmlWriterTest {
     protected final Writer writer = new StringWriter();
     protected final HtmlOut out = new HtmlOut();
 
+    @Captor
+    protected ArgumentCaptor<Item> captor;
+
     @Before
     public void mockHtmlOut() {
         out.setOut(writer);
-
-        HtmlListWriter listWriter = new HtmlListWriter();
-        listWriter.out = out;
-        out.htmlListWriter = instance(listWriter);
 
         HtmlTableWriter tableWriter = new HtmlTableWriter();
         tableWriter.out = out;
@@ -76,6 +80,14 @@ public abstract class AbstractHtmlWriterTest {
 
     protected String result() {
         return writer.toString().replaceAll("\n", "").replace('\"', '\'');
+    }
+
+    protected static void assertEqualsListItem(Item item, String... values) {
+        List<Item> list = item.getList();
+        assertEquals("list item size", values.length, list.size());
+        for (int i = 0; i < values.length; i++) {
+            assertEquals("item " + i + " of list item", values[i], list.get(i).toString());
+        }
     }
 
     protected String div(String body) {

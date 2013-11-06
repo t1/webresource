@@ -2,18 +2,20 @@ package com.github.t1.webresource.codec;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.*;
 
 import org.junit.Test;
 
-import com.github.t1.webresource.meta.Items;
+import com.github.t1.webresource.meta.*;
 import com.google.common.collect.ImmutableList;
 
 
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
+    HtmlTableWriter writer = new HtmlTableWriter();
+
     private void write(Object t) {
-        HtmlTableWriter writer = new HtmlTableWriter();
         writer.ids = ids;
         writer.out = out;
         writer.write(Items.newItem(t));
@@ -112,16 +114,18 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeTableWithListPojo() throws Exception {
+        writer.listWriter = mock(HtmlListWriter.class);
         ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
         ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
         List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
 
         write(list);
 
-        assertEquals(startTable("list", "str") //
-                + tr(ul("strings", "one1", "two1", "three1"), "dummy1") //
-                + tr(ul("strings", "one2", "two2", "three2"), "dummy2") //
-                + endTable(), result());
+        assertEquals(startTable("list", "str") + tr("", "dummy1") + tr("", "dummy2") + endTable(), result());
+        verify(writer.listWriter, times(2)).write(captor.capture());
+        List<Item> allValues = captor.getAllValues();
+        assertEqualsListItem(allValues.get(0), "one1", "two1", "three1");
+        assertEqualsListItem(allValues.get(1), "one2", "two2", "three2");
     }
 
     @Test

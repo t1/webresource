@@ -47,17 +47,11 @@ public class HtmlOut {
     private Writer out;
 
     @Inject
-    Instance<HtmlListWriter> htmlListWriter;
-    @Inject
     Instance<HtmlTableWriter> htmlTableWriter;
     @Inject
     Instance<HtmlFieldWriter> htmlFieldWriter;
     @Inject
     Instance<HtmlLinkWriter> htmlLinkWriter;
-
-    public void writeList(Item item) {
-        htmlListWriter.get().write(item);
-    }
 
     public void writeTable(Item item) {
         htmlTableWriter.get().write(item);

@@ -2,6 +2,7 @@ package com.github.t1.webresource.codec;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.*;
 
@@ -15,8 +16,9 @@ import com.github.t1.webresource.meta.*;
 import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
+    HtmlFormWriter writer = new HtmlFormWriter();
+
     public void write(Object t) {
-        HtmlFormWriter writer = new HtmlFormWriter();
         writer.out = out;
         writer.ids = ids;
         writer.uriResolver = uriResolver;
@@ -202,22 +204,26 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeSetPojo() throws Exception {
+        writer.listWriter = mock(HtmlListWriter.class);
         SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
 
         write(pojo);
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("set") + ul("strings", "one", "two", "three"))));
+        verify(writer.listWriter).write(captor.capture());
+        assertEqualsListItem(captor.getValue(), "one", "two", "three");
     }
 
     @Test
     public void shouldEncodeListPojo() throws Exception {
+        writer.listWriter = mock(HtmlListWriter.class);
         ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
 
         write(pojo);
 
         assertThat(result(), containsString(field("str", "dummy")));
-        assertThat(result(), containsString(div(label("list") + ul("strings", "one", "two", "three"))));
+        verify(writer.listWriter).write(captor.capture());
+        assertEqualsListItem(captor.getValue(), "one", "two", "three");
     }
 
     @Test

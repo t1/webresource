@@ -2,23 +2,16 @@ package com.github.t1.webresource.codec;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.InjectMocks;
 
 import com.github.t1.webresource.meta.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
-
-    @Mock
-    HtmlFormWriter formWriter;
     @InjectMocks
     HtmlBodyWriter writer;
 
@@ -75,11 +68,13 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeStringList() throws Exception {
+        writer.listWriter = mock(HtmlListWriter.class);
         List<String> list = asList("one", "two", "three");
 
         write(list);
 
-        assertEquals(ul("strings", "one", "two", "three"), result());
+        verify(writer.listWriter).write(captor.capture());
+        assertEqualsListItem(captor.getValue(), "one", "two", "three");
     }
 
     @Test
@@ -95,12 +90,14 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldEncodeForm() throws Exception {
-        doAnswer(writeAnswer("body")).when(formWriter).write(any(Item.class));
+        writer.formWriter = mock(HtmlFormWriter.class);
         NoTraitPojo pojo = new NoTraitPojo();
 
         write(pojo);
 
-        assertEquals("{body:the-pojo}", result());
+        verify(writer.formWriter).write(captor.capture());
+        Item item = captor.getValue();
+        assertEquals("the-pojo", item.toString());
     }
 
     @Test

@@ -10,6 +10,8 @@ import com.github.t1.webresource.meta.*;
 public class HtmlFieldWriter {
     @Inject
     HtmlOut out;
+    @Inject
+    HtmlListWriter listWriter;
 
     public void write(Item item, Trait trait, String id) {
         if (item.isSimple()) {
@@ -17,7 +19,7 @@ public class HtmlFieldWriter {
         } else {
             Item fieldItem = item.get(trait);
             if (fieldItem.isList()) {
-                out.writeList(fieldItem);
+                listWriter.write(fieldItem);
             } else {
                 writeInput(item, trait, id);
             }
