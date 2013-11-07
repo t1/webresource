@@ -36,7 +36,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
     @Getter
     @AllArgsConstructor
-    public static class SimplePojo {
+    public static class TwoStringPojo {
         String str1;
         String str2;
 
@@ -47,17 +47,17 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteSimplePojo() throws Exception {
-        SimplePojo pojo = new SimplePojo("one", "two");
+    public void shouldWriteTwoStringPojo() throws Exception {
+        TwoStringPojo pojo = new TwoStringPojo("one", "two");
 
         write(pojo);
 
-        assertEquals("<a href='simplepojos/one-two' id='id-href' class='simplepojos'>" + pojo + "</a>", result());
+        assertEquals("<a href='twostringpojos/one-two' id='id-href' class='twostringpojos'>" + pojo + "</a>", result());
     }
 
     @Getter
     @AllArgsConstructor
-    public static class OneLinkFieldPojo {
+    public static class HtmlTitlePojo {
         @HtmlTitle
         String str1;
         String str2;
@@ -69,31 +69,31 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOneFieldTextLink() throws Exception {
-        OneLinkFieldPojo pojo = new OneLinkFieldPojo("one", "two");
+    public void shouldWriteHtmlTitleLink() throws Exception {
+        HtmlTitlePojo pojo = new HtmlTitlePojo("one", "two");
 
         write(pojo);
 
-        assertEquals("<a href='onelinkfieldpojos/one-two' id='id-href' class='onelinkfieldpojos'>one</a>", result());
+        assertEquals("<a href='htmltitlepojos/one-two' id='id-href' class='htmltitlepojos'>one</a>", result());
     }
 
     @Getter
     @ToString
     @AllArgsConstructor
     @XmlRootElement
-    public static class TextLinkWebResourceKeyPojo {
+    public static class WebResourceKeyPojo {
         @WebResourceKey
         String str1;
     }
 
     @Test
     public void shouldWriteWebResourceKeyLink() throws Exception {
-        TextLinkWebResourceKeyPojo pojo = new TextLinkWebResourceKeyPojo("one");
+        WebResourceKeyPojo pojo = new WebResourceKeyPojo("one");
 
         write(pojo);
 
-        assertEquals("<a href='textlinkwebresourcekeypojos/one' "
-                + "id='id-href' class='textlinkwebresourcekeypojos'>one</a>", result());
+        assertEquals("<a href='webresourcekeypojos/one' " + "id='id-href' class='webresourcekeypojos'>one</a>",
+                result());
     }
 
 
@@ -101,7 +101,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     @AllArgsConstructor
     @XmlRootElement
     @HtmlTitle("${str1}-${str2}")
-    public static class TextLinkVariablePojo {
+    public static class VariablePojo {
         String str1;
         String str2;
 
@@ -113,11 +113,10 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     public void shouldWriteVariableLink() throws Exception {
-        TextLinkVariablePojo pojo = new TextLinkVariablePojo("one", "two");
+        VariablePojo pojo = new VariablePojo("one", "two");
 
         write(pojo);
 
-        assertEquals("<a href='textlinkvariablepojos/one-two' id='id-href' class='textlinkvariablepojos'>one-two</a>",
-                result());
+        assertEquals("<a href='variablepojos/one-two' id='id-href' class='variablepojos'>one-two</a>", result());
     }
 }
