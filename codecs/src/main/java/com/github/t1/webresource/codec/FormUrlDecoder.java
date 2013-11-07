@@ -35,7 +35,7 @@ public class FormUrlDecoder<T> {
             String[] split = assignment.split("=");
             Trait trait = item.trait(split[0]);
             Item value = Items.newItem(split[1]);
-            item.set(trait, value);
+            item.write(trait, value);
         }
     }
 

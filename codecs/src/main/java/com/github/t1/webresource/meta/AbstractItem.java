@@ -46,7 +46,7 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public List<Item> getList() {
+    public List<Item> list() {
         throw new UnsupportedOperationException("a " + getClass().getSimpleName() + " is not a list item");
     }
 
@@ -82,14 +82,14 @@ public abstract class AbstractItem implements Item {
     protected abstract Collection<Trait> fetchAllTraits();
 
     @Override
-    public Item get(Trait trait) {
-        Object value = ((AbstractTrait) trait).of(this.object);
+    public Item read(Trait trait) {
+        Object value = ((AbstractTrait) trait).read(this.object);
         return Items.newItem(value);
     }
 
     @Override
-    public void set(Trait trait, Item value) {
-        ((AbstractTrait) trait).set(this.object, ((AbstractItem) value).object);
+    public void write(Trait trait, Item value) {
+        ((AbstractTrait) trait).write(this.object, ((AbstractItem) value).object);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class HtmlBodyWriter {
     }
 
     private void writeItemList(Item item) {
-        List<Item> list = item.getList();
+        List<Item> list = item.list();
         if (list.isEmpty())
             return;
         Collection<Trait> traits = list.get(0).traits();

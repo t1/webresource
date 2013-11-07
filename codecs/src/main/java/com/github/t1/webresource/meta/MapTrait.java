@@ -28,14 +28,14 @@ public class MapTrait extends AbstractTrait {
     }
 
     @Override
-    Object of(Object object) {
+    Object read(Object object) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) object;
         return map.get(key);
     }
 
     @Override
-    void set(Object object, Object value) {
+    void write(Object object, Object value) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) object;
         map.put(key, value);

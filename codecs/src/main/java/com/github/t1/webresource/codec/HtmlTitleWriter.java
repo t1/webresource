@@ -31,14 +31,14 @@ public class HtmlTitleWriter {
             Delimiter delim = new Delimiter(titleString, " ");
             for (Trait trait : htmlTitleTraits) {
                 delim.write();
-                titleString.append(item.get(trait).toString());
+                titleString.append(item.read(trait).toString());
             }
             return titleString.toString();
         }
 
         Trait webResourceKeyTrait = HtmlId.of(item).getWebResourceKey();
         if (webResourceKeyTrait != null)
-            return item.get(webResourceKeyTrait).toString();
+            return item.read(webResourceKeyTrait).toString();
 
         log.debug("found no title annotations on {}; fall back to toString", item);
         return item.toString();
@@ -50,7 +50,7 @@ public class HtmlTitleWriter {
         while (matcher.find()) {
             String name = matcher.group(1);
             Trait trait = item.trait(name);
-            String value = item.get(trait).toString();
+            String value = item.read(trait).toString();
             matcher.appendReplacement(sb, value);
         }
         matcher.appendTail(sb);

@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.List;
 
-import javax.enterprise.inject.Instance;
 import javax.persistence.Id;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.*;
@@ -25,13 +24,6 @@ import com.github.t1.webresource.meta.Item;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractHtmlWriterTest {
-    public static <T> Instance<T> instance(T instance) {
-        @SuppressWarnings("unchecked")
-        Instance<T> mock = mock(Instance.class);
-        when(mock.get()).thenReturn(instance);
-        return mock;
-    }
-
     public static final String BASE_URI = "http://localhost:8080/demo/resource/";
 
     protected final IdGenerator ids = new IdGenerator();
@@ -79,7 +71,7 @@ public abstract class AbstractHtmlWriterTest {
     }
 
     protected static void assertEqualsListItem(Item item, String... values) {
-        List<Item> list = item.getList();
+        List<Item> list = item.list();
         assertEquals("list item size", values.length, list.size());
         for (int i = 0; i < values.length; i++) {
             assertEquals("item " + i + " of list item", values[i], list.get(i).toString());

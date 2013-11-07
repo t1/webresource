@@ -20,7 +20,7 @@ public class HtmlTableWriter {
     HtmlLinkWriter linkWriter;
 
     public void write(Item listItem) {
-        List<Item> list = listItem.getList();
+        List<Item> list = listItem.list();
         Collection<Trait> traits = list.get(0).traits();
         try (Tag table = out.tag("table")) {
             try (Tag thead = out.tag("thead")) {
@@ -49,7 +49,7 @@ public class HtmlTableWriter {
         try (Tag tr = out.tag("tr")) {
             for (Trait trait : traits) {
                 try (Tag td = out.tag("td")) {
-                    Item cellItem = rowItem.get(trait);
+                    Item cellItem = rowItem.read(trait);
                     String id = ids.get(trait);
                     if (cellItem.isSimple()) {
                         Trait simple = SimpleTrait.of(cellItem);

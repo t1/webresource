@@ -26,7 +26,7 @@ public class HtmlId {
         Trait trait = trait();
         if (trait == null)
             return item.toString();
-        return item.get(trait).toString();
+        return item.read(trait).toString();
     }
 
     public Trait trait() {

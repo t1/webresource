@@ -23,7 +23,7 @@ public class PojoFieldTrait extends PojoTrait {
     }
 
     @Override
-    Object of(Object object) {
+    Object read(Object object) {
         try {
             field.setAccessible(true);
             return field.get(object);
@@ -33,7 +33,7 @@ public class PojoFieldTrait extends PojoTrait {
     }
 
     @Override
-    void set(Object object, Object value) {
+    void write(Object object, Object value) {
         try {
             field.setAccessible(true);
             field.set(object, to(field.getType()).convert(value));

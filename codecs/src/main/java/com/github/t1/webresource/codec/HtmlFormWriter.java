@@ -30,7 +30,7 @@ public class HtmlFormWriter {
             Trait idTrait = HtmlId.of(item).trait();
             if (idTrait != null) {
                 out.nl();
-                out.write("<input name=\"" + idTrait.name() + "\" type=\"hidden\" value=\"" + item.get(idTrait)
+                out.write("<input name=\"" + idTrait.name() + "\" type=\"hidden\" value=\"" + item.read(idTrait)
                         + "\"/>");
             }
             out.nl();
@@ -53,7 +53,7 @@ public class HtmlFormWriter {
     }
 
     private void writeItem(Item item, Trait trait, String id) {
-        Item value = item.get(trait);
+        Item value = item.read(trait);
         if (value.isSimple()) {
             fieldWriter.write(item, trait, id);
         } else if (value.isList()) {

@@ -32,16 +32,16 @@ public interface Item {
     public boolean isType();
 
     /** The list of elements in this {@link #isList() list-trait} */
-    public List<Item> getList();
+    public List<Item> list();
 
     /** The publicly visible traits */
     public Collection<Trait> traits();
 
     /** The value of that trait */
-    public Item get(Trait trait);
+    public Item read(Trait trait);
 
     /** Sets the value of that trait */
-    public void set(Trait trait, Item value);
+    public void write(Trait trait, Item value);
 
     /** The trait with that name... visible or not, transient or not */
     public Trait trait(String traitName);

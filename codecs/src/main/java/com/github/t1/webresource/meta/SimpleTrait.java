@@ -32,12 +32,12 @@ public class SimpleTrait extends ObjectTrait {
     }
 
     @Override
-    Object of(Object object) {
+    Object read(Object object) {
         return object;
     }
 
     @Override
-    void set(Object object, Object value) {
+    void write(Object object, Object value) {
         throw new IllegalStateException("can't set a simple trait");
     }
 

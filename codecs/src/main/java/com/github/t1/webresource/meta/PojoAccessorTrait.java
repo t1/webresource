@@ -26,7 +26,7 @@ public class PojoAccessorTrait extends PojoTrait {
     }
 
     @Override
-    Object of(Object object) {
+    Object read(Object object) {
         try {
             getter.setAccessible(true);
             return getter.invoke(object);
@@ -36,7 +36,7 @@ public class PojoAccessorTrait extends PojoTrait {
     }
 
     @Override
-    void set(Object object, Object value) {
+    void write(Object object, Object value) {
         try {
             Method setter = setter();
             setter.setAccessible(true);

@@ -24,7 +24,7 @@ public class ItemTest {
 
         assertTrue(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("", item.get(new SimpleTrait(null)).toString());
+        assertEquals("", item.read(new SimpleTrait(null)).toString());
         assertEquals("[SimpleTrait[null]]", item.traits().toString());
     }
 
@@ -34,7 +34,7 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("dummy", item.get(new SimpleTrait(String.class)).toString());
+        assertEquals("dummy", item.read(new SimpleTrait(String.class)).toString());
         assertEquals("[SimpleTrait[string]]", item.traits().toString());
     }
 
@@ -44,7 +44,7 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("1234", item.get(new SimpleTrait(Long.class)).toString());
+        assertEquals("1234", item.read(new SimpleTrait(Long.class)).toString());
         assertEquals("[SimpleTrait[number]]", item.traits().toString());
     }
 
@@ -54,7 +54,7 @@ public class ItemTest {
 
         assertFalse(item.isNull());
         assertTrue(item.isSimple());
-        assertEquals("Thu Jan 01 01:00:00 CET 1970", item.get(new SimpleTrait(Date.class)).toString());
+        assertEquals("Thu Jan 01 01:00:00 CET 1970", item.read(new SimpleTrait(Date.class)).toString());
         assertEquals("[SimpleTrait[date]]", item.traits().toString());
     }
 
@@ -72,13 +72,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("one");
-        assertEquals("111", item.get(one).toString());
+        assertEquals("111", item.read(one).toString());
 
         Trait two = item.trait("two");
-        assertEquals("222", item.get(two).toString());
+        assertEquals("222", item.read(two).toString());
 
         Trait three = item.trait("three");
-        assertEquals("333", item.get(three).toString());
+        assertEquals("333", item.read(three).toString());
     }
 
     @AllArgsConstructor
@@ -98,13 +98,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("one");
-        assertEquals("111", item.get(one).toString());
+        assertEquals("111", item.read(one).toString());
 
         Trait two = item.trait("two");
-        assertEquals("222", item.get(two).toString());
+        assertEquals("222", item.read(two).toString());
 
         Trait three = item.trait("three");
-        assertEquals("333", item.get(three).toString());
+        assertEquals("333", item.read(three).toString());
     }
 
     @Data
@@ -141,13 +141,13 @@ public class ItemTest {
         assertEquals(3, item.traits().size());
 
         Trait one = item.trait("xxx");
-        assertEquals("111", item.get(one).toString());
+        assertEquals("111", item.read(one).toString());
 
         Trait two = item.trait("yyy");
-        assertEquals("222", item.get(two).toString());
+        assertEquals("222", item.read(two).toString());
 
         Trait three = item.trait("zzz");
-        assertEquals("333", item.get(three).toString());
+        assertEquals("333", item.read(three).toString());
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -204,9 +204,9 @@ public class ItemTest {
         Item item = Items.newItem(new AdvancedItem());
 
         assertEquals("first, lastName, tags", names(item.traits()));
-        assertEquals("123", item.get(item.trait("id")).toString());
-        assertEquals("fff", item.get(item.trait("first")).toString());
-        assertEquals("lll", item.get(item.trait("last")).toString());
+        assertEquals("123", item.read(item.trait("id")).toString());
+        assertEquals("fff", item.read(item.trait("first")).toString());
+        assertEquals("lll", item.read(item.trait("last")).toString());
         assertEquals(100, item.trait("first").get(Size.class).value());
         assertEquals(50, item.trait("lastName").get(Size.class).value());
         assertTrue(item.trait("tags").is(XmlList.class)); // not the field; the method getTagList!

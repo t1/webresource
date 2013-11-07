@@ -15,14 +15,14 @@ public class HtmlListWriter {
     HtmlLinkWriter linkWriter;
 
     public void write(Item listItem) {
-        List<Item> list = listItem.getList();
+        List<Item> list = listItem.list();
         String type = list.isEmpty() ? "empty" : list.get(0).type();
 
         try (Tag ul = out.tag("ul", new Attribute("class", type))) {
             for (Item item : list) {
                 try (Tag li = out.tag("li")) {
                     if (item.isSimple()) {
-                        out.write(item.get(SimpleTrait.of(item)).toString());
+                        out.write(item.read(SimpleTrait.of(item)).toString());
                     } else {
                         linkWriter.write(item, "id");
                     }

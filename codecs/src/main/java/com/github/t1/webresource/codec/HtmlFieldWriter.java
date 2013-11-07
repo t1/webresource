@@ -15,9 +15,9 @@ public class HtmlFieldWriter {
 
     public void write(Item item, Trait trait, String id) {
         if (item.isSimple()) {
-            out.writeEscapedObject(item.get(trait));
+            out.writeEscapedObject(item.read(trait));
         } else {
-            Item fieldItem = item.get(trait);
+            Item fieldItem = item.read(trait);
             if (fieldItem.isList()) {
                 listWriter.write(fieldItem);
             } else {
@@ -33,7 +33,7 @@ public class HtmlFieldWriter {
         out.write(" name='" + trait.name() + "'");
         out.write(" class='" + trait.type() + "'");
         out.write(" type='" + inputType(trait) + "'");
-        out.write(" value='" + item.get(trait) + "'");
+        out.write(" value='" + item.read(trait) + "'");
         out.write("/>\n");
     }
 

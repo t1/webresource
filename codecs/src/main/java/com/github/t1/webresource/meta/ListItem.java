@@ -44,7 +44,7 @@ class ListItem extends AbstractItem {
     }
 
     @Override
-    public List<Item> getList() {
+    public List<Item> list() {
         List<Item> result = new ArrayList<>();
         for (Object element : collection()) {
             result.add(Items.newItem(element));
