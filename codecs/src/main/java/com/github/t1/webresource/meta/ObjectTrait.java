@@ -6,7 +6,7 @@ public abstract class ObjectTrait extends AbstractTrait {
     public String type() {
         Class<?> typeClass = typeClass();
         if (typeClass == null)
-            return "null";
+            return null;
         String type = typeClass.getSimpleName().toLowerCase();
         switch (type) {
             case "byte":
