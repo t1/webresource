@@ -22,7 +22,7 @@ public class Converter<T> {
             return type.cast(value);
         if (hasValueOf(value.getClass()))
             return valueOf(value);
-        return null;
+        throw new IllegalArgumentException("can't convert [" + value + "] to " + type.getSimpleName());
     }
 
     private boolean hasValueOf(Class<?> valueType) {
@@ -30,19 +30,24 @@ public class Converter<T> {
     }
 
     private Method valueOfMethodOf(Class<?> valueType) {
-        try {
-            Method method = type.getMethod("valueOf", valueType);
-            if (!Modifier.isStatic(method.getModifiers()))
-                return null;
-            return method;
-        } catch (NoSuchMethodException e) {
-            return null; // TODO this may be slow
+        for (Method method : type.getMethods()) {
+            if (isValueOfMethod(method) && method.getParameterTypes()[0].isAssignableFrom(valueType)) {
+                return method;
+            }
         }
+        return null;
+    }
+
+    private boolean isValueOfMethod(Method method) {
+        return "valueOf".equals(method.getName()) //
+                && Modifier.isStatic(method.getModifiers()) //
+                && method.getParameterTypes().length == 1 //
+                && method.getReturnType().isAssignableFrom(type);
     }
 
     private T valueOf(Object value) {
         try {
-            return type.cast(valueOfMethodOf(type).invoke(null, value));
+            return type.cast(valueOfMethodOf(value.getClass()).invoke(null, value));
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
