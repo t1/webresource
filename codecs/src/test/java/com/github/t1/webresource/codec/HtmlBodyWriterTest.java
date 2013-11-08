@@ -103,7 +103,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldLinkToType() throws Exception {
+    public void shouldEncodeType() throws Exception {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
 
@@ -112,5 +112,18 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
         assertEquals("{link:notraitpojos}", result());
         verify(writer.linkWriter).write(captor.capture(), anyString());
         assertEquals("notraitpojos", captor.getValue().toString());
+    }
+
+    @Test
+    public void shouldEncodeListOfTypes() throws Exception {
+        writer.listWriter = mock(HtmlListWriter.class);
+        doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
+        List<Class<? extends Object>> list = Arrays.asList(NoTraitPojo.class, OneStringPojo.class);
+
+        write(list);
+
+        assertEquals("{list}", result());
+        verify(writer.listWriter).write(captor.capture());
+        assertEquals("ListItem[java.util.Arrays$ArrayList]", captor.getValue().toString());
     }
 }

@@ -37,13 +37,18 @@ public class HtmlBodyWriter {
         List<Item> list = item.list();
         if (list.isEmpty())
             return;
-        Collection<Trait> traits = list.get(0).traits();
-        if (traits.isEmpty())
-            return;
-        if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
+        Item first = list.get(0);
+        if (first.isType()) {
             listWriter.write(item);
         } else {
-            tableWriter.write(item);
+            Collection<Trait> traits = first.traits();
+            if (traits.isEmpty())
+                return;
+            if (traits.size() == 1 && traits.iterator().next() instanceof SimpleTrait) {
+                listWriter.write(item);
+            } else {
+                tableWriter.write(item);
+            }
         }
     }
 }
