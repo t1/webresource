@@ -80,6 +80,7 @@ public class ConverterTest {
         converter.convert("123");
     }
 
+
     public static class TwoArgsValueOf {
         public static NonStaticValueOf valueOf(String string1, String string2) {
             throw new UnsupportedOperationException();
@@ -94,5 +95,26 @@ public class ConverterTest {
         Converter<TwoArgsValueOf> converter = Converter.to(TwoArgsValueOf.class);
 
         converter.convert("123");
+    }
+
+    public static class NumberValueOf {
+        public final Number number;
+
+        public NumberValueOf(Number number) {
+            this.number = number;
+        }
+
+        public static NumberValueOf valueOf(Number number) {
+            return new NumberValueOf(number);
+        }
+    }
+
+    @Test
+    public void shouldConvertSuperclassValueOfMethod() throws Exception {
+        Converter<NumberValueOf> converter = Converter.to(NumberValueOf.class);
+
+        NumberValueOf converted = converter.convert(123);
+
+        assertEquals(123, converted.number);
     }
 }
