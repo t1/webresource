@@ -21,7 +21,7 @@ public class HtmlTableWriter {
 
     public void write(Item listItem) {
         List<Item> list = listItem.list();
-        Collection<Trait> traits = list.get(0).traits();
+        Collection<Trait> traits = listItem.traits();
         try (Tag table = out.tag("table")) {
             try (Tag thead = out.tag("thead")) {
                 writeTableHead(traits);

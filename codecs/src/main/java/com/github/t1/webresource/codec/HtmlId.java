@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 import javax.persistence.Id;
@@ -30,25 +31,21 @@ public class HtmlId {
     }
 
     public Trait trait() {
-        Trait webResourceKeyTrait = getWebResourceKey();
+        Trait webResourceKeyTrait = trait(WebResourceKey.class);
         if (webResourceKeyTrait != null)
             return webResourceKeyTrait;
 
-        List<Trait> traits = item.trait(Id.class);
-        if (traits.isEmpty())
-            return null;
-        if (traits.size() > 1)
-            throw new RuntimeException("found more than one id traits: " + traits);
-        return traits.get(0);
+        return trait(Id.class);
     }
 
-    public Trait getWebResourceKey() {
-        List<Trait> traits = item.trait(WebResourceKey.class);
+    public Trait trait(Class<? extends Annotation> type) {
+        List<Trait> traits = item.trait(type);
         if (traits.isEmpty())
             return null;
         if (traits.size() > 1)
-            throw new RuntimeException("found more than one WebResourceKey traits: " + traits);
-        log.debug("found webresource key trait {}", traits);
-        return traits.get(0);
+            throw new RuntimeException("found more than one " + type.getSimpleName() + " traits: " + traits);
+        Trait trait = traits.get(0);
+        log.debug("found {} key trait {}", type, trait);
+        return trait;
     }
 }

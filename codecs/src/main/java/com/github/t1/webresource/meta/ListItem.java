@@ -53,9 +53,10 @@ class ListItem extends AbstractItem {
     }
 
     @Override
-    protected PojoTraits fetchAllTraits() {
+    protected Collection<Trait> fetchAllTraits() {
         if (empty())
             return PojoTraits.EMPTY;
-        return new PojoTraits(elementType());
+        Item elementItem = Items.newItem(collection().iterator().next());
+        return elementItem.traits();
     }
 }

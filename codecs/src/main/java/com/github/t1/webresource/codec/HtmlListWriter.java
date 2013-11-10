@@ -16,9 +16,9 @@ public class HtmlListWriter {
 
     public void write(Item listItem) {
         List<Item> list = listItem.list();
-        String type = list.isEmpty() ? "empty" : list.get(0).type();
+        String listStyle = list.isEmpty() ? "empty" : listItem.type();
 
-        try (Tag ul = out.tag("ul", new Attribute("class", type))) {
+        try (Tag ul = out.tag("ul", new Attribute("class", listStyle))) {
             for (Item item : list) {
                 try (Tag li = out.tag("li")) {
                     if (item.isSimple()) {

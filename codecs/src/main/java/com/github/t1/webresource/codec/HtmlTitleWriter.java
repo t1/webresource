@@ -6,6 +6,7 @@ import java.util.regex.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.webresource.WebResourceKey;
 import com.github.t1.webresource.meta.*;
 
 // TODO escape strings?
@@ -36,7 +37,7 @@ public class HtmlTitleWriter {
             return titleString.toString();
         }
 
-        Trait webResourceKeyTrait = HtmlId.of(item).getWebResourceKey();
+        Trait webResourceKeyTrait = HtmlId.of(item).trait(WebResourceKey.class);
         if (webResourceKeyTrait != null)
             return item.read(webResourceKeyTrait).toString();
 
