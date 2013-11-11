@@ -17,7 +17,7 @@ class ListItem extends AbstractItem {
         if (empty()) {
             return new NullAnnotatedElement();
         } else {
-            return Annotations.on(elementType());
+            return Annotations.on(element().getClass());
         }
     }
 
@@ -31,11 +31,11 @@ class ListItem extends AbstractItem {
 
     @Override
     public String type() {
-        return new WebResourceTypeInfo(elementType().getSimpleName()).plural;
+        return new WebResourceTypeInfo(element().getClass().getSimpleName()).plural;
     }
 
-    private Class<? extends Object> elementType() {
-        return collection().iterator().next().getClass();
+    private Object element() {
+        return collection().iterator().next();
     }
 
     @Override
@@ -55,8 +55,8 @@ class ListItem extends AbstractItem {
     @Override
     protected Collection<Trait> fetchAllTraits() {
         if (empty())
-            return PojoTraits.EMPTY;
-        Item elementItem = Items.newItem(collection().iterator().next());
+            return Collections.emptyList();
+        Item elementItem = Items.newItem(element());
         return elementItem.traits();
     }
 }

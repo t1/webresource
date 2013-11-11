@@ -2,6 +2,7 @@ package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
 import com.google.common.base.Predicate;
@@ -11,13 +12,12 @@ import com.google.common.base.Predicate;
  */
 public abstract class AbstractPojoTraitCollector {
     protected final Class<?> type;
-    private final PojoTraits traits;
     private final AnnotatedElement annotations;
+    private final List<Trait> traits = new ArrayList<>();
 
-    public AbstractPojoTraitCollector(Class<?> type, PojoTraits traits, AnnotatedElement annotations) {
+    public AbstractPojoTraitCollector(Class<?> type) {
         this.type = type;
-        this.traits = traits;
-        this.annotations = annotations;
+        this.annotations = Annotations.on(type);
     }
 
     protected boolean typeIs(Class<? extends Annotation> annotationType) {
@@ -28,10 +28,11 @@ public abstract class AbstractPojoTraitCollector {
         return annotations.getAnnotation(annotationType);
     }
 
-    public void run() {
+    public List<Trait> run() {
         addFields();
         addAccessors();
         sort(traits);
+        return traits;
     }
 
     private void addFields() {
@@ -118,5 +119,5 @@ public abstract class AbstractPojoTraitCollector {
         existingTrait.add(newTrait.annotations);
     }
 
-    protected void sort(PojoTraits traits) {}
+    protected void sort(List<Trait> traits) {}
 }

@@ -12,8 +12,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
 public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
-    public JaxbPojoTraitCollector(Class<?> type, PojoTraits target, AnnotatedElement annotations) {
-        super(type, target, annotations);
+    public JaxbPojoTraitCollector(Class<?> type) {
+        super(type);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
     }
 
     @Override
-    protected void sort(PojoTraits target) {
+    protected void sort(List<Trait> target) {
         String[] propOrder = propOrder();
         if (propOrder != null) {
             orderBy(propOrder, target);
@@ -121,7 +121,7 @@ public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
         return propOrder == null || propOrder.length == 0 || (propOrder.length == 1 && propOrder[0].isEmpty());
     }
 
-    private void orderBy(String[] propOrder, PojoTraits traits) {
+    private void orderBy(String[] propOrder, List<Trait> traits) {
         Map<String, Trait> map = map(traits);
         traits.clear();
         for (String name : propOrder) {
@@ -130,7 +130,7 @@ public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
         addAlphabetically(traits, map); // invisible traits don't have to be in the propOrder
     }
 
-    private Map<String, Trait> map(PojoTraits traits) {
+    private Map<String, Trait> map(List<Trait> traits) {
         Map<String, Trait> map = Maps.newHashMap();
         for (Trait trait : traits) {
             map.put(trait.name(), trait);
@@ -138,7 +138,7 @@ public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
         return map;
     }
 
-    private void addAlphabetically(PojoTraits traits, Map<String, Trait> map) {
+    private void addAlphabetically(List<Trait> traits, Map<String, Trait> map) {
         List<String> keys = new ArrayList<>(map.keySet());
         Collections.sort(keys);
         for (String key : keys) {

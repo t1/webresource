@@ -1,12 +1,10 @@
 package com.github.t1.webresource.meta;
 
-import java.lang.reflect.AnnotatedElement;
-
 import com.google.common.base.Predicate;
 
 public class DefaultPojoTraitCollector extends AbstractPojoTraitCollector {
-    public DefaultPojoTraitCollector(Class<?> type, PojoTraits target, AnnotatedElement annotations) {
-        super(type, target, annotations);
+    public DefaultPojoTraitCollector(Class<?> type) {
+        super(type);
     }
 
     @Override

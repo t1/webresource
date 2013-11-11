@@ -2,6 +2,8 @@ package com.github.t1.webresource.meta;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.*;
 
 import lombok.*;
@@ -17,7 +19,7 @@ public class JaxbTraitProviderTest {
 
     @Test
     public void shouldConsiderPublicGetter() throws Exception {
-        PojoTraits traits = new PojoTraits(Pojo.class);
+        List<Trait> traits = new JaxbPojoTraitCollector(Pojo.class).run();
 
         assertEquals(1, traits.size());
         assertEquals("one", traits.get(0).name());
@@ -32,7 +34,7 @@ public class JaxbTraitProviderTest {
 
     @Test
     public void shouldConsiderAccessorOrder() throws Exception {
-        PojoTraits traits = new PojoTraits(AlphabeticalPojo.class);
+        List<Trait> traits = new JaxbPojoTraitCollector(AlphabeticalPojo.class).run();
 
         assertEquals(2, traits.size());
         assertEquals("one", traits.get(0).name());
@@ -48,7 +50,7 @@ public class JaxbTraitProviderTest {
 
     @Test
     public void shouldConsiderPropOrder1() throws Exception {
-        PojoTraits traits = new PojoTraits(Pojo1.class);
+        List<Trait> traits = new JaxbPojoTraitCollector(Pojo1.class).run();
 
         assertEquals(2, traits.size());
         assertEquals("one", traits.get(0).name());
@@ -64,7 +66,7 @@ public class JaxbTraitProviderTest {
 
     @Test
     public void shouldConsiderPropOrder2() throws Exception {
-        PojoTraits traits = new PojoTraits(Pojo2.class);
+        List<Trait> traits = new JaxbPojoTraitCollector(Pojo2.class).run();
 
         assertEquals(2, traits.size());
         assertEquals("two", traits.get(0).name());
@@ -80,7 +82,7 @@ public class JaxbTraitProviderTest {
 
     @Test
     public void shouldNotFindStaticGetter() throws Exception {
-        PojoTraits traits = new PojoTraits(StaticFieldAndGetter.class);
+        List<Trait> traits = new JaxbPojoTraitCollector(StaticFieldAndGetter.class).run();
 
         assertEquals(0, traits.size());
     }
