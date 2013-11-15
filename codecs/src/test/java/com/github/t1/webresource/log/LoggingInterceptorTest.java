@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 
 import javax.interceptor.InvocationContext;
 
+import lombok.experimental.Value;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -18,6 +20,22 @@ import org.slf4j.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoggingInterceptorTest {
+    private final class StoreMdcAnswer implements Answer<Void> {
+        private final String kEY;
+        private final String[] userId;
+
+        private StoreMdcAnswer(String kEY, String[] userId) {
+            this.kEY = kEY;
+            this.userId = userId;
+        }
+
+        @Override
+        public Void answer(InvocationOnMock invocation) throws Throwable {
+            userId[0] = MDC.get(kEY);
+            return null;
+        }
+    }
+
     @InjectMocks
     LoggingInterceptor interceptor = new LoggingInterceptor() {
         @Override
@@ -226,7 +244,7 @@ public class LoggingInterceptorTest {
     }
 
     @Test
-    public void shouldLogLogContextParameter() throws Exception {
+    public void shouldLogContextParameter() throws Exception {
         final String KEY = "user-id";
         class Container {
             @Logged
@@ -236,13 +254,7 @@ public class LoggingInterceptorTest {
         Method method = Container.class.getMethod("methodWithLogContextParameter", String.class, String.class);
         whenMethod(method, "foo", "bar");
         final String[] userId = new String[1];
-        when(context.proceed()).thenAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                userId[0] = MDC.get(KEY);
-                return null;
-            }
-        });
+        when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, userId));
 
         MDC.put(KEY, "bar");
         interceptor.aroundInvoke(context);
@@ -250,5 +262,38 @@ public class LoggingInterceptorTest {
 
         verify(logger).debug("method with log context parameter", new Object[] { "foo", "bar" });
         assertEquals("foo", userId[0]);
+    }
+
+    @Value
+    static class Pojo {
+        String one, two;
+    }
+
+    static class PojoConverter implements LogContextConverter<Pojo> {
+        @Override
+        public String convert(Pojo object) {
+            return object.one;
+        }
+    }
+
+    @Test
+    public void shouldConvertLogContextParameter() throws Exception {
+        final String KEY = "foobar";
+        class Container {
+            @Logged
+            public void foo(@LogContext(value = KEY, converter = PojoConverter.class) Pojo pojo) {}
+        }
+        whenDebugEnabled();
+        Method method = Container.class.getMethod("foo", Pojo.class);
+        whenMethod(method, new Pojo("a", "b"));
+        final String[] oneValue = new String[1];
+        when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, oneValue));
+
+        MDC.put(KEY, "bar");
+        interceptor.aroundInvoke(context);
+        assertEquals("bar", MDC.get(KEY));
+
+        verify(logger).debug("foo", new Object[] { new Pojo("a", "b") });
+        assertEquals("a", oneValue[0]);
     }
 }

@@ -18,4 +18,7 @@ import java.lang.annotation.*;
 public @interface LogContext {
     /** The name of the MDC variable to put. */
     String value();
+
+    /** converts the value. useful e.g. to extract some property from a complex type */
+    Class<? extends LogContextConverter<?>> converter() default ToStringLogContextConverter.class;
 }

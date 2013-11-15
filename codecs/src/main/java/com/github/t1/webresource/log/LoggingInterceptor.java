@@ -14,7 +14,6 @@ import com.google.common.annotations.VisibleForTesting;
 @Logged
 @Interceptor
 public class LoggingInterceptor {
-
     private class Logging {
         private final InvocationContext context;
         private final Logged loggedAnnotation;
@@ -65,11 +64,22 @@ public class LoggingInterceptor {
                 Annotation[] annotations = parameterAnnotations[i];
                 for (Annotation annotation : annotations) {
                     if (annotation instanceof LogContext) {
-                        String key = ((LogContext) annotation).value();
-                        String value = context.getParameters()[i].toString();
-                        mdc.put(key, value);
+                        LogContext logContext = (LogContext) annotation;
+                        String key = logContext.value();
+                        String valueString = convert(logContext.converter(), context.getParameters()[i]);
+                        mdc.put(key, valueString);
                     }
                 }
+            }
+        }
+
+        private String convert(Class<? extends LogContextConverter<?>> converterType, Object valueObject) {
+            try {
+                @SuppressWarnings("unchecked")
+                LogContextConverter<Object> converter = (LogContextConverter<Object>) converterType.newInstance();
+                return converter.convert(valueObject);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
             }
         }
 
