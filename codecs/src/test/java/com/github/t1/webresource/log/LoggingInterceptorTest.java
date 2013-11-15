@@ -11,7 +11,9 @@ import javax.interceptor.InvocationContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.slf4j.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -115,7 +117,6 @@ public class LoggingInterceptorTest {
         }
         whenDebugEnabled();
         whenMethod(Container.class.getMethod("voidReturnType"));
-        when(context.proceed()).thenReturn(true);
 
         interceptor.aroundInvoke(context);
 
@@ -164,7 +165,6 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        LoggerFactory.getLogger("foo").debug("hi", "there");
         verify(logger).debug("method with two parameters", new Object[] { "foo", "bar" });
     }
 
@@ -223,5 +223,32 @@ public class LoggingInterceptorTest {
         interceptor.aroundInvoke(context);
 
         assertEquals(Integer.class, loggerType);
+    }
+
+    @Test
+    public void shouldLogLogContextParameter() throws Exception {
+        final String KEY = "user-id";
+        class Container {
+            @Logged
+            public void methodWithLogContextParameter(@LogContext(KEY) String one, String two) {}
+        }
+        whenDebugEnabled();
+        Method method = Container.class.getMethod("methodWithLogContextParameter", String.class, String.class);
+        whenMethod(method, "foo", "bar");
+        final String[] userId = new String[1];
+        when(context.proceed()).thenAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                userId[0] = MDC.get(KEY);
+                return null;
+            }
+        });
+
+        assertNull(MDC.get(KEY));
+        interceptor.aroundInvoke(context);
+        assertNull(MDC.get(KEY));
+
+        verify(logger).debug("method with log context parameter", new Object[] { "foo", "bar" });
+        assertEquals("foo", userId[0]);
     }
 }

@@ -2,6 +2,8 @@ package com.github.t1.webresource.log;
 
 import static java.lang.Character.*;
 
+import java.lang.annotation.Annotation;
+
 import javax.interceptor.*;
 
 import org.slf4j.*;
@@ -13,21 +15,24 @@ import com.google.common.annotations.VisibleForTesting;
 @Interceptor
 public class LoggingInterceptor {
 
-    private class LoggingContext {
+    private class Logging {
         private final InvocationContext context;
         private final Logged loggedAnnotation;
-        private final Logger log;
         private final LogLevel logLevel;
+        private final Logger log;
+        private RestorableMdc mdc;
 
-        public LoggingContext(InvocationContext context) {
+        public Logging(InvocationContext context) {
             this.context = context;
             this.loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
+            this.logLevel = loggedAnnotation.level();
             Class<?> loggerType = loggedAnnotation.logger();
             this.log = getLogger((loggerType != null) ? loggerType : context.getTarget().getClass());
-            this.logLevel = loggedAnnotation.level();
         }
 
         public void logCall() {
+            this.mdc = new RestorableMdc();
+            putMdc();
             if (logLevel.isEnabled(log)) {
                 logLevel.log(log, message(), context.getParameters());
             }
@@ -54,6 +59,20 @@ public class LoggingInterceptor {
             return out.toString();
         }
 
+        private void putMdc() {
+            Annotation[][] parameterAnnotations = context.getMethod().getParameterAnnotations();
+            for (int i = 0; i < parameterAnnotations.length; i++) {
+                Annotation[] annotations = parameterAnnotations[i];
+                for (Annotation annotation : annotations) {
+                    if (annotation instanceof LogContext) {
+                        String key = ((LogContext) annotation).value();
+                        String value = context.getParameters()[i].toString();
+                        mdc.put(key, value);
+                    }
+                }
+            }
+        }
+
         public void logResult(Object result) {
             if (context.getMethod().getReturnType() != void.class) {
                 logLevel.log(log, "returns {}", result);
@@ -63,11 +82,15 @@ public class LoggingInterceptor {
         public void logException(Exception e) {
             logLevel.log(log, "failed", e);
         }
+
+        public void done() {
+            mdc.restore();
+        }
     }
 
     @AroundInvoke
     Object aroundInvoke(InvocationContext context) throws Exception {
-        LoggingContext logging = new LoggingContext(context);
+        Logging logging = new Logging(context);
 
         logging.logCall();
 
@@ -78,6 +101,8 @@ public class LoggingInterceptor {
         } catch (Exception e) {
             logging.logException(e);
             throw e;
+        } finally {
+            logging.done();
         }
     }
 
