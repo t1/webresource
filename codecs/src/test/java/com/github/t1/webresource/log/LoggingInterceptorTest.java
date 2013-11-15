@@ -244,9 +244,9 @@ public class LoggingInterceptorTest {
             }
         });
 
-        assertNull(MDC.get(KEY));
+        MDC.put(KEY, "bar");
         interceptor.aroundInvoke(context);
-        assertNull(MDC.get(KEY));
+        assertEquals("bar", MDC.get(KEY));
 
         verify(logger).debug("method with log context parameter", new Object[] { "foo", "bar" });
         assertEquals("foo", userId[0]);
