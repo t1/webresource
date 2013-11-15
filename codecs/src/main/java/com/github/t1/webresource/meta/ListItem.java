@@ -8,16 +8,23 @@ import com.github.t1.webresource.WebResourceTypeInfo;
 
 class ListItem extends AbstractItem {
 
-    public <T> ListItem(T object) {
-        super(object);
+    public ListItem(Object list) {
+        super(list);
+    }
+
+    private Class<?> elementType() {
+        if (empty())
+            return null;
+        Object firstElement = collection().iterator().next();
+        return (firstElement instanceof Class) ? (Class<?>) firstElement : firstElement.getClass();
     }
 
     @Override
-    protected <T> AnnotatedElement annotations() {
+    public AnnotatedElement annotations() {
         if (empty()) {
             return new NullAnnotatedElement();
         } else {
-            return Annotations.on(element().getClass());
+            return Annotations.on(elementType());
         }
     }
 
@@ -31,11 +38,7 @@ class ListItem extends AbstractItem {
 
     @Override
     public String type() {
-        return new WebResourceTypeInfo(element().getClass().getSimpleName()).plural;
-    }
-
-    private Object element() {
-        return collection().iterator().next();
+        return new WebResourceTypeInfo(elementType().getSimpleName()).plural;
     }
 
     @Override
@@ -56,7 +59,7 @@ class ListItem extends AbstractItem {
     protected Collection<Trait> fetchAllTraits() {
         if (empty())
             return Collections.emptyList();
-        Item elementItem = Items.newItem(element());
+        Item elementItem = Items.newItem(collection().iterator().next());
         return elementItem.traits();
     }
 }

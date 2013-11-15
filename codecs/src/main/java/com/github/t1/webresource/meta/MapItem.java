@@ -9,7 +9,7 @@ class MapItem extends AbstractItem {
     }
 
     @Override
-    protected AnnotatedElement annotations() {
+    public AnnotatedElement annotations() {
         return null;
     }
 

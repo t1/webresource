@@ -21,7 +21,8 @@ public abstract class AbstractItem implements Item {
         this.annotations = annotations();
     }
 
-    protected <T> AnnotatedElement annotations() {
+    @Override
+    public AnnotatedElement annotations() {
         return (type == null) ? null : Annotations.on(type);
     }
 

@@ -1,6 +1,7 @@
 package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 
 /**
@@ -60,4 +61,7 @@ public interface Item {
 
     /** The item annotation of that <code>type</code> or <code>null</code> if it's not annotated so. */
     public <A extends Annotation> A get(Class<A> type);
+
+    /** The list of all annotations on the item */
+    public AnnotatedElement annotations();
 }
