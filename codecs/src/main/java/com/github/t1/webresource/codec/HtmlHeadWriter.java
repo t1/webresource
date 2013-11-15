@@ -1,13 +1,18 @@
 package com.github.t1.webresource.codec;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.net.*;
 
 import javax.inject.Inject;
 
-import com.github.t1.webresource.codec.HtmlOut.Tag;
-import com.github.t1.webresource.meta.Item;
+import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.webresource.codec.HtmlOut.Tag;
+import com.github.t1.webresource.log.Logged;
+import com.github.t1.webresource.meta.*;
+
+@Slf4j
 public class HtmlHeadWriter {
 
     @Inject
@@ -17,8 +22,11 @@ public class HtmlHeadWriter {
     @Inject
     HtmlTitleWriter titleWriter;
 
+    @Logged
     public void write(Item item) {
-        if (!item.isSimple()) {
+        if (item.isSimple()) {
+            log.debug("no header for simple item {}", item);
+        } else {
             writeTitle(item);
             writeStyleSheets(item);
         }
@@ -34,6 +42,10 @@ public class HtmlHeadWriter {
     }
 
     private void writeStyleSheets(Item item) {
+        log.debug("{} is annotated as:", item);
+        for (Annotation annotation : ((AbstractItem) item).annotations().getDeclaredAnnotations()) {
+            log.debug("   {}", annotation);
+        }
         if (item.is(HtmlStyleSheet.class)) {
             out.nl();
             writeStyleSheet(item.get(HtmlStyleSheet.class));

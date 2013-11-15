@@ -4,6 +4,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import com.github.t1.webresource.codec.HtmlOut.Tag;
+import com.github.t1.webresource.log.Logged;
 import com.github.t1.webresource.meta.Item;
 
 /** A helper class to write objects as an html string... without the actual binding to JAX-RS, etc. */
@@ -17,6 +18,7 @@ public class HtmlWriter {
     @Inject
     Instance<HtmlDecorator> decorators;
 
+    @Logged
     public void write(Item item) {
         try (Tag html = out.tag("html")) {
             out.nl();
