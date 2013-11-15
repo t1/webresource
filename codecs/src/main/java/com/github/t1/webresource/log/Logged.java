@@ -31,6 +31,10 @@ public @interface Logged {
      */
     public String value() default "";
 
-    // logger-class (other than the method's class)
+    /**
+     * The class used to create the logger. Defaults to the class containing the method being logged.
+     */
+    public Class<?> logger() default void.class;
+
     // markers (from string array)
 }

@@ -20,6 +20,7 @@ public class LoggingInterceptorTest {
     LoggingInterceptor interceptor = new LoggingInterceptor() {
         @Override
         Logger getLogger(java.lang.Class<?> type) {
+            LoggingInterceptorTest.this.loggerType = type;
             return logger;
         };
     };
@@ -27,6 +28,7 @@ public class LoggingInterceptorTest {
     InvocationContext context;
     @Mock
     Logger logger;
+    Class<?> loggerType;
 
     private void whenDebugEnabled() {
         when(logger.isDebugEnabled()).thenReturn(true);
@@ -207,5 +209,19 @@ public class LoggingInterceptorTest {
         interceptor.aroundInvoke(context);
 
         verify(logger).info("at info", new Object[0]);
+    }
+
+    @Test
+    public void shouldLogExplicitClass() throws Exception {
+        class Container {
+            @Logged(logger = Integer.class)
+            public void foo() {}
+        }
+        whenDebugEnabled();
+        whenMethod(Container.class.getMethod("foo"));
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Integer.class, loggerType);
     }
 }

@@ -15,8 +15,9 @@ public class LoggingInterceptor {
 
     @AroundInvoke
     Object aroundInvoke(InvocationContext context) throws Exception {
-        Logger log = getLogger(context.getTarget().getClass());
         Logged loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
+        Class<?> loggerType = loggedAnnotation.logger();
+        Logger log = getLogger((loggerType != null) ? loggerType : context.getTarget().getClass());
         LogLevel logLevel = loggedAnnotation.level();
 
         if (logLevel.isEnabled(log))
