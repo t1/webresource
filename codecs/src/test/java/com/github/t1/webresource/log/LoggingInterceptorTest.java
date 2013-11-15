@@ -104,7 +104,7 @@ public class LoggingInterceptorTest {
         } catch (RuntimeException e) {
             // that's okay
         }
-        verify(logger).debug("failed: method that might fail", exception);
+        verify(logger).debug("failed", exception);
     }
 
     @Test
