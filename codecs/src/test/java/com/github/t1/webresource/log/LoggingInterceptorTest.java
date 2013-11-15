@@ -5,12 +5,14 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 
+import javax.enterprise.inject.Instance;
 import javax.interceptor.InvocationContext;
 
 import lombok.experimental.Value;
 
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.invocation.InvocationOnMock;
@@ -48,10 +50,15 @@ public class LoggingInterceptorTest {
     InvocationContext context;
     @Mock
     Logger logger;
+    @Mock
+    Instance<LogContextScanner> scanners;
+
     Class<?> loggerType;
 
-    private void whenDebugEnabled() {
+    @Before
+    public void setup() {
         when(logger.isDebugEnabled()).thenReturn(true);
+        when(scanners.iterator()).thenReturn(Collections.<LogContextScanner> emptyList().iterator());
     }
 
     private void whenMethod(Method method, Object... args) throws ReflectiveOperationException {
@@ -66,7 +73,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithALongName() {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("methodWithALongName"));
 
         interceptor.aroundInvoke(context);
@@ -80,7 +86,6 @@ public class LoggingInterceptorTest {
             @Logged("bar")
             public void foo() {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("foo"));
 
         interceptor.aroundInvoke(context);
@@ -96,7 +101,6 @@ public class LoggingInterceptorTest {
                 return true;
             }
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("methodWithReturnType"));
         when(context.proceed()).thenReturn(true);
 
@@ -113,7 +117,6 @@ public class LoggingInterceptorTest {
                 return true;
             }
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("methodThatMightFail"));
         RuntimeException exception = new RuntimeException("foo");
         when(context.proceed()).thenThrow(exception);
@@ -133,7 +136,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void voidReturnType() {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("voidReturnType"));
 
         interceptor.aroundInvoke(context);
@@ -149,7 +151,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithIntArgument(int i) {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("methodWithIntArgument", int.class), 3);
 
         interceptor.aroundInvoke(context);
@@ -163,7 +164,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithIntegerArgument(Integer i) {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("methodWithIntegerArgument", Integer.class), 3);
 
         interceptor.aroundInvoke(context);
@@ -177,7 +177,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithTwoParameters(String one, String two) {}
         }
-        whenDebugEnabled();
         Method method = Container.class.getMethod("methodWithTwoParameters", String.class, String.class);
         whenMethod(method, "foo", "bar");
 
@@ -192,7 +191,6 @@ public class LoggingInterceptorTest {
             @Logged(level = OFF)
             public void atOff() {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("atOff"));
 
         interceptor.aroundInvoke(context);
@@ -206,6 +204,7 @@ public class LoggingInterceptorTest {
             @Logged(level = DEBUG)
             public void atDebug() {}
         }
+        when(logger.isDebugEnabled()).thenReturn(false);
         whenMethod(Container.class.getMethod("atDebug"));
 
         interceptor.aroundInvoke(context);
@@ -220,7 +219,6 @@ public class LoggingInterceptorTest {
             @Logged(level = INFO)
             public void atInfo() {}
         }
-        whenDebugEnabled();
         when(logger.isInfoEnabled()).thenReturn(true);
         whenMethod(Container.class.getMethod("atInfo"));
 
@@ -235,7 +233,6 @@ public class LoggingInterceptorTest {
             @Logged(logger = Integer.class)
             public void foo() {}
         }
-        whenDebugEnabled();
         whenMethod(Container.class.getMethod("foo"));
 
         interceptor.aroundInvoke(context);
@@ -250,7 +247,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithLogContextParameter(@LogContext(KEY) String one, String two) {}
         }
-        whenDebugEnabled();
         Method method = Container.class.getMethod("methodWithLogContextParameter", String.class, String.class);
         whenMethod(method, "foo", "bar");
         final String[] userId = new String[1];
@@ -283,7 +279,6 @@ public class LoggingInterceptorTest {
             @Logged
             public void foo(@LogContext(value = KEY, converter = PojoConverter.class) Pojo pojo) {}
         }
-        whenDebugEnabled();
         Method method = Container.class.getMethod("foo", Pojo.class);
         whenMethod(method, new Pojo("a", "b"));
         final String[] oneValue = new String[1];
@@ -295,5 +290,29 @@ public class LoggingInterceptorTest {
 
         verify(logger).debug("foo", new Object[] { new Pojo("a", "b") });
         assertEquals("a", oneValue[0]);
+    }
+
+    @Test
+    public void shouldFindVersionLogContextScanner() throws Exception {
+        String KEY = "version";
+        class Container {
+            @Logged
+            public void foo() {}
+        }
+        whenMethod(Container.class.getMethod("foo"));
+        final String[] version = new String[1];
+        when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, version));
+
+        LogContextScanner scanner = mock(LogContextScanner.class);
+        when(scanner.getKeys()).thenReturn(Collections.singletonList(KEY));
+        when(scanner.valueFor(KEY)).thenReturn("1.0");
+        when(scanners.iterator()).thenReturn(Collections.<LogContextScanner> singletonList(scanner).iterator());
+
+        MDC.put(KEY, "bar");
+        interceptor.aroundInvoke(context);
+        assertEquals("bar", MDC.get(KEY));
+
+        verify(logger).debug("foo", new Object[0]);
+        assertEquals("1.0", version[0]);
     }
 }

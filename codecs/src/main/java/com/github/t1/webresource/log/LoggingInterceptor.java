@@ -4,6 +4,8 @@ import static java.lang.Character.*;
 
 import java.lang.annotation.Annotation;
 
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.interceptor.*;
 
 import org.slf4j.*;
@@ -19,7 +21,7 @@ public class LoggingInterceptor {
         private final Logged loggedAnnotation;
         private final LogLevel logLevel;
         private final Logger log;
-        private RestorableMdc mdc;
+        private final RestorableMdc mdc = new RestorableMdc();
 
         public Logging(InvocationContext context) {
             this.context = context;
@@ -30,35 +32,15 @@ public class LoggingInterceptor {
         }
 
         public void logCall() {
-            this.mdc = new RestorableMdc();
-            putMdc();
+            addParamaterLogContexts();
+            addLogContextScanners();
+
             if (logLevel.isEnabled(log)) {
                 logLevel.log(log, message(), context.getParameters());
             }
         }
 
-        private String message() {
-            if ("".equals(loggedAnnotation.value())) {
-                return camelToSpaces(context.getMethod().getName());
-            } else {
-                return loggedAnnotation.value();
-            }
-        }
-
-        private String camelToSpaces(String string) {
-            StringBuilder out = new StringBuilder();
-            for (Character c : string.toCharArray()) {
-                if (isUpperCase(c)) {
-                    out.append(' ');
-                    out.append(toLowerCase(c));
-                } else {
-                    out.append(c);
-                }
-            }
-            return out.toString();
-        }
-
-        private void putMdc() {
+        private void addParamaterLogContexts() {
             Annotation[][] parameterAnnotations = context.getMethod().getParameterAnnotations();
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] annotations = parameterAnnotations[i];
@@ -83,6 +65,35 @@ public class LoggingInterceptor {
             }
         }
 
+        private void addLogContextScanners() {
+            for (LogContextScanner scanner : scanners) {
+                for (String key : scanner.getKeys()) {
+                    mdc.put(key, scanner.valueFor(key));
+                }
+            }
+        }
+
+        private String message() {
+            if ("".equals(loggedAnnotation.value())) {
+                return camelToSpaces(context.getMethod().getName());
+            } else {
+                return loggedAnnotation.value();
+            }
+        }
+
+        private String camelToSpaces(String string) {
+            StringBuilder out = new StringBuilder();
+            for (Character c : string.toCharArray()) {
+                if (isUpperCase(c)) {
+                    out.append(' ');
+                    out.append(toLowerCase(c));
+                } else {
+                    out.append(c);
+                }
+            }
+            return out.toString();
+        }
+
         public void logResult(Object result) {
             if (context.getMethod().getReturnType() != void.class) {
                 logLevel.log(log, "returns {}", result);
@@ -97,6 +108,9 @@ public class LoggingInterceptor {
             mdc.restore();
         }
     }
+
+    @Inject
+    Instance<LogContextScanner> scanners;
 
     @AroundInvoke
     Object aroundInvoke(InvocationContext context) throws Exception {
