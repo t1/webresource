@@ -5,7 +5,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
@@ -22,7 +21,7 @@ import com.github.t1.webresource.meta.Items;
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
     @Inject
-    Instance<HtmlWriter> htmlWriter;
+    HtmlWriter htmlWriter;
 
     @Context
     @RequestScoped
@@ -51,7 +50,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         OutputStreamWriter out = new OutputStreamWriter(entityStream);
         try {
             htmlOut.setOut(out);
-            htmlWriter.get().write(Items.newItem(t));
+            htmlWriter.write(Items.newItem(t));
         } catch (RuntimeException e) {
             log.error("error while encoding", e);
             throw e;
