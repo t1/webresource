@@ -27,7 +27,7 @@ public class LoggingInterceptor {
                 logLevel.log(log, "returns {}", result);
             return result;
         } catch (Exception e) {
-            logLevel.log(log, "throws {}", context.getMethod());
+            logLevel.log(log, "failed: " + message(context), e);
             throw e;
         }
     }

@@ -1,6 +1,7 @@
 package com.github.t1.webresource.log;
 
 import static com.github.t1.webresource.log.LogLevel.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
@@ -69,6 +70,29 @@ public class LoggingInterceptorTest {
     }
 
     @Test
+    public void shouldLogException() throws Exception {
+        class Container {
+            @Logged
+            public boolean methodThatMightFail() {
+                return true;
+            }
+        }
+        whenDebugEnabled();
+        whenMethod(Container.class.getMethod("methodThatMightFail"));
+        RuntimeException exception = new RuntimeException("foo");
+        when(context.proceed()).thenThrow(exception);
+
+        try {
+            interceptor.aroundInvoke(context);
+            fail("RuntimeException expected");
+        } catch (RuntimeException e) {
+            // that's okay
+        }
+        verify(logger).debug("method that might fail");
+        verify(logger).debug("failed: method that might fail", exception);
+    }
+
+    @Test
     public void shouldNotLogVoidReturnValue() throws Exception {
         class Container {
             @Logged
@@ -128,22 +152,14 @@ public class LoggingInterceptorTest {
         verify(logger).debug("method with two parameters foo bar");
     }
 
-    public static class WithLogLevels {
-        @Logged(level = OFF)
-        public void atOff() {}
-
-        // @Logged(level=TRACE) public void atTrace() {}
-        @Logged(level = DEBUG)
-        public void atDebug() {}
-
-        @Logged(level = INFO)
-        public void atInfo() {}
-    }
-
     @Test
     public void shouldNotLogWhenOff() throws Exception {
+        class Container {
+            @Logged(level = OFF)
+            public void atOff() {}
+        }
         whenDebugEnabled();
-        whenMethod(WithLogLevels.class.getMethod("atOff"));
+        whenMethod(Container.class.getMethod("atOff"));
 
         interceptor.aroundInvoke(context);
 
@@ -152,7 +168,11 @@ public class LoggingInterceptorTest {
 
     @Test
     public void shouldNotLogWhenDebugIsNotEnabled() throws Exception {
-        whenMethod(WithLogLevels.class.getMethod("atDebug"));
+        class Container {
+            @Logged(level = DEBUG)
+            public void atDebug() {}
+        }
+        whenMethod(Container.class.getMethod("atDebug"));
 
         interceptor.aroundInvoke(context);
 
@@ -162,9 +182,13 @@ public class LoggingInterceptorTest {
 
     @Test
     public void shouldLogInfoWhenInfoIsEnabled() throws Exception {
+        class Container {
+            @Logged(level = INFO)
+            public void atInfo() {}
+        }
         whenDebugEnabled();
         when(logger.isInfoEnabled()).thenReturn(true);
-        whenMethod(WithLogLevels.class.getMethod("atInfo"));
+        whenMethod(Container.class.getMethod("atInfo"));
 
         interceptor.aroundInvoke(context);
 
