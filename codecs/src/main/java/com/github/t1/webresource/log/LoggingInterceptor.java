@@ -6,6 +6,7 @@ import javax.interceptor.*;
 
 import org.slf4j.*;
 
+import com.github.t1.stereotypes.Annotations;
 import com.google.common.annotations.VisibleForTesting;
 
 @Logged
@@ -15,14 +16,18 @@ public class LoggingInterceptor {
     @AroundInvoke
     Object aroundInvoke(InvocationContext context) throws Exception {
         Logger log = getLogger(context.getTarget().getClass());
-        log.debug(message(context));
+        Logged loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
+        LogLevel logLevel = loggedAnnotation.level();
+
+        if (logLevel.isEnabled(log))
+            logLevel.log(log, message(context));
         try {
             Object result = context.proceed();
             if (context.getMethod().getReturnType() != void.class)
-                log.debug("returns {}", result);
+                logLevel.log(log, "returns {}", result);
             return result;
         } catch (Exception e) {
-            log.debug("throws {}", context.getMethod());
+            logLevel.log(log, "throws {}", context.getMethod());
             throw e;
         }
     }
