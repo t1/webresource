@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
+import org.slf4j.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoggingInterceptorTest {
@@ -49,7 +49,21 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with a long name");
+        verify(logger).debug("method with a long name", new Object[0]);
+    }
+
+    @Test
+    public void shouldLogAnAnnotatedMethod() throws Exception {
+        class Container {
+            @Logged("bar")
+            public void foo() {}
+        }
+        whenDebugEnabled();
+        whenMethod(Container.class.getMethod("foo"));
+
+        interceptor.aroundInvoke(context);
+
+        verify(logger).debug("bar", new Object[0]);
     }
 
     @Test
@@ -88,7 +102,6 @@ public class LoggingInterceptorTest {
         } catch (RuntimeException e) {
             // that's okay
         }
-        verify(logger).debug("method that might fail");
         verify(logger).debug("failed: method that might fail", exception);
     }
 
@@ -104,7 +117,7 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("void return type");
+        verify(logger).debug("void return type", new Object[0]);
         verify(logger, atLeast(0)).isDebugEnabled();
         verifyNoMoreInteractions(logger);
     }
@@ -120,7 +133,7 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with int argument 3");
+        verify(logger).debug("method with int argument", new Object[] { 3 });
     }
 
     @Test
@@ -134,7 +147,7 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with integer argument 3");
+        verify(logger).debug("method with integer argument", new Object[] { 3 });
     }
 
     @Test
@@ -149,7 +162,8 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with two parameters foo bar");
+        LoggerFactory.getLogger("foo").debug("hi", "there");
+        verify(logger).debug("method with two parameters", new Object[] { "foo", "bar" });
     }
 
     @Test
@@ -192,6 +206,6 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).info("at info");
+        verify(logger).info("at info", new Object[0]);
     }
 }

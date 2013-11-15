@@ -20,7 +20,7 @@ public class LoggingInterceptor {
         LogLevel logLevel = loggedAnnotation.level();
 
         if (logLevel.isEnabled(log))
-            logLevel.log(log, message(context));
+            logLevel.log(log, message(context), context.getParameters());
         try {
             Object result = context.proceed();
             if (context.getMethod().getReturnType() != void.class)
@@ -39,8 +39,12 @@ public class LoggingInterceptor {
 
     private String message(InvocationContext context) {
         StringBuilder out = new StringBuilder();
-        camelToSpaces(context.getMethod().getName(), out);
-        appendParameters(context.getParameters(), out);
+        Logged loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
+        if ("".equals(loggedAnnotation.value())) {
+            camelToSpaces(context.getMethod().getName(), out);
+        } else {
+            out.append(loggedAnnotation.value());
+        }
         return out.toString();
     }
 
@@ -52,12 +56,6 @@ public class LoggingInterceptor {
             } else {
                 out.append(c);
             }
-        }
-    }
-
-    private void appendParameters(Object[] parameters, StringBuilder out) {
-        for (Object parameter : parameters) {
-            out.append(' ').append(parameter);
         }
     }
 }

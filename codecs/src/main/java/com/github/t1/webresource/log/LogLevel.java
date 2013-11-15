@@ -10,9 +10,6 @@ public enum LogLevel {
         }
 
         @Override
-        public void log(Logger logger, String message) {}
-
-        @Override
         public void log(Logger logger, String message, Object... args) {}
 
         @Override
@@ -22,11 +19,6 @@ public enum LogLevel {
         @Override
         public boolean isEnabled(Logger logger) {
             return logger.isTraceEnabled();
-        }
-
-        @Override
-        public void log(Logger logger, String message) {
-            logger.trace(message);
         }
 
         @Override
@@ -46,11 +38,6 @@ public enum LogLevel {
         }
 
         @Override
-        public void log(Logger logger, String message) {
-            logger.debug(message);
-        }
-
-        @Override
         public void log(Logger logger, String message, Object... args) {
             logger.debug(message, args);
         }
@@ -64,11 +51,6 @@ public enum LogLevel {
         @Override
         public boolean isEnabled(Logger logger) {
             return logger.isInfoEnabled();
-        }
-
-        @Override
-        public void log(Logger logger, String message) {
-            logger.info(message);
         }
 
         @Override
@@ -88,11 +70,6 @@ public enum LogLevel {
         }
 
         @Override
-        public void log(Logger logger, String message) {
-            logger.warn(message);
-        }
-
-        @Override
         public void log(Logger logger, String message, Object... args) {
             logger.warn(message, args);
         }
@@ -109,11 +86,6 @@ public enum LogLevel {
         }
 
         @Override
-        public void log(Logger logger, String message) {
-            logger.error(message);
-        }
-
-        @Override
         public void log(Logger logger, String message, Object... args) {
             logger.error(message, args);
         }
@@ -125,8 +97,6 @@ public enum LogLevel {
     };
 
     public abstract boolean isEnabled(Logger logger);
-
-    public abstract void log(Logger logger, String message);
 
     public abstract void log(Logger logger, String message, Object... args);
 
