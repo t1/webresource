@@ -24,7 +24,13 @@ class RestorableMdc {
         if (memento == null)
             return;
         for (Map.Entry<String, String> entry : memento.entrySet()) {
-            MDC.put(entry.getKey(), entry.getValue());
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value == null) {
+                MDC.remove(key);
+            } else {
+                MDC.put(key, value);
+            }
         }
     }
 }

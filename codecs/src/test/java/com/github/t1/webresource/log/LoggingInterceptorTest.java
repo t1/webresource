@@ -51,20 +51,33 @@ public class LoggingInterceptorTest {
     @Mock
     Logger logger;
     @Mock
-    Instance<LogContextScanner> scanners;
+    Instance<LogContextVariable> variables;
 
     Class<?> loggerType;
 
     @Before
     public void setup() {
         when(logger.isDebugEnabled()).thenReturn(true);
-        when(scanners.iterator()).thenReturn(Collections.<LogContextScanner> emptyList().iterator());
+        when(variables.iterator()).thenReturn(Collections.<LogContextVariable> emptyList().iterator());
     }
 
-    private void whenMethod(Method method, Object... args) throws ReflectiveOperationException {
-        when(context.getTarget()).thenReturn("dummy");
+    private void whenMethod(Object target, String methodName, Object... args) throws ReflectiveOperationException {
+        Method method = target.getClass().getMethod(methodName, types(args));
+        whenMethod(method, target, args);
+    }
+
+    private void whenMethod(Method method, Object target, Object... args) {
         when(context.getMethod()).thenReturn(method);
+        when(context.getTarget()).thenReturn(target);
         when(context.getParameters()).thenReturn(args);
+    }
+
+    private Class<?>[] types(Object[] objects) {
+        Class<?>[] result = new Class[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            result[i] = objects[i].getClass();
+        }
+        return result;
     }
 
     @Test
@@ -73,7 +86,7 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithALongName() {}
         }
-        whenMethod(Container.class.getMethod("methodWithALongName"));
+        whenMethod(new Container(), "methodWithALongName");
 
         interceptor.aroundInvoke(context);
 
@@ -86,7 +99,7 @@ public class LoggingInterceptorTest {
             @Logged("bar")
             public void foo() {}
         }
-        whenMethod(Container.class.getMethod("foo"));
+        whenMethod(new Container(), "foo");
 
         interceptor.aroundInvoke(context);
 
@@ -101,7 +114,7 @@ public class LoggingInterceptorTest {
                 return true;
             }
         }
-        whenMethod(Container.class.getMethod("methodWithReturnType"));
+        whenMethod(new Container(), "methodWithReturnType");
         when(context.proceed()).thenReturn(true);
 
         interceptor.aroundInvoke(context);
@@ -117,7 +130,7 @@ public class LoggingInterceptorTest {
                 return true;
             }
         }
-        whenMethod(Container.class.getMethod("methodThatMightFail"));
+        whenMethod(new Container(), "methodThatMightFail");
         RuntimeException exception = new RuntimeException("foo");
         when(context.proceed()).thenThrow(exception);
 
@@ -136,7 +149,7 @@ public class LoggingInterceptorTest {
             @Logged
             public void voidReturnType() {}
         }
-        whenMethod(Container.class.getMethod("voidReturnType"));
+        whenMethod(new Container(), "voidReturnType");
 
         interceptor.aroundInvoke(context);
 
@@ -151,11 +164,12 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithIntArgument(int i) {}
         }
-        whenMethod(Container.class.getMethod("methodWithIntArgument", int.class), 3);
+        Method method = Container.class.getMethod("methodWithIntArgument", int.class);
+        whenMethod(method, new Container(), 3);
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with int argument", new Object[] { 3 });
+        verify(logger).debug("method with int argument {}", new Object[] { 3 });
     }
 
     @Test
@@ -164,11 +178,11 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithIntegerArgument(Integer i) {}
         }
-        whenMethod(Container.class.getMethod("methodWithIntegerArgument", Integer.class), 3);
+        whenMethod(new Container(), "methodWithIntegerArgument", 3);
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with integer argument", new Object[] { 3 });
+        verify(logger).debug("method with integer argument {}", new Object[] { 3 });
     }
 
     @Test
@@ -177,12 +191,11 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithTwoParameters(String one, String two) {}
         }
-        Method method = Container.class.getMethod("methodWithTwoParameters", String.class, String.class);
-        whenMethod(method, "foo", "bar");
+        whenMethod(new Container(), "methodWithTwoParameters", "foo", "bar");
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("method with two parameters", new Object[] { "foo", "bar" });
+        verify(logger).debug("method with two parameters {} {}", new Object[] { "foo", "bar" });
     }
 
     @Test
@@ -191,7 +204,7 @@ public class LoggingInterceptorTest {
             @Logged(level = OFF)
             public void atOff() {}
         }
-        whenMethod(Container.class.getMethod("atOff"));
+        whenMethod(new Container(), "atOff");
 
         interceptor.aroundInvoke(context);
 
@@ -205,7 +218,7 @@ public class LoggingInterceptorTest {
             public void atDebug() {}
         }
         when(logger.isDebugEnabled()).thenReturn(false);
-        whenMethod(Container.class.getMethod("atDebug"));
+        whenMethod(new Container(), "atDebug");
 
         interceptor.aroundInvoke(context);
 
@@ -220,7 +233,7 @@ public class LoggingInterceptorTest {
             public void atInfo() {}
         }
         when(logger.isInfoEnabled()).thenReturn(true);
-        whenMethod(Container.class.getMethod("atInfo"));
+        whenMethod(new Container(), "atInfo");
 
         interceptor.aroundInvoke(context);
 
@@ -228,16 +241,29 @@ public class LoggingInterceptorTest {
     }
 
     @Test
-    public void shouldLogExplicitClass() throws Exception {
+    public void shouldUseExplicitLoggerClass() throws Exception {
         class Container {
             @Logged(logger = Integer.class)
             public void foo() {}
         }
-        whenMethod(Container.class.getMethod("foo"));
+        whenMethod(new Container(), "foo");
 
         interceptor.aroundInvoke(context);
 
         assertEquals(Integer.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToContainerLoggerClass() throws Exception {
+        class Container {
+            @Logged
+            public void foo() {}
+        }
+        whenMethod(new Container(), "foo");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Container.class, loggerType);
     }
 
     @Test
@@ -247,8 +273,7 @@ public class LoggingInterceptorTest {
             @Logged
             public void methodWithLogContextParameter(@LogContext(KEY) String one, String two) {}
         }
-        Method method = Container.class.getMethod("methodWithLogContextParameter", String.class, String.class);
-        whenMethod(method, "foo", "bar");
+        whenMethod(new Container(), "methodWithLogContextParameter", "foo", "bar");
         final String[] userId = new String[1];
         when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, userId));
 
@@ -256,7 +281,7 @@ public class LoggingInterceptorTest {
         interceptor.aroundInvoke(context);
         assertEquals("bar", MDC.get(KEY));
 
-        verify(logger).debug("method with log context parameter", new Object[] { "foo", "bar" });
+        verify(logger).debug("method with log context parameter {} {}", new Object[] { "foo", "bar" });
         assertEquals("foo", userId[0]);
     }
 
@@ -279,8 +304,7 @@ public class LoggingInterceptorTest {
             @Logged
             public void foo(@LogContext(value = KEY, converter = PojoConverter.class) Pojo pojo) {}
         }
-        Method method = Container.class.getMethod("foo", Pojo.class);
-        whenMethod(method, new Pojo("a", "b"));
+        whenMethod(new Container(), "foo", new Pojo("a", "b"));
         final String[] oneValue = new String[1];
         when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, oneValue));
 
@@ -288,31 +312,48 @@ public class LoggingInterceptorTest {
         interceptor.aroundInvoke(context);
         assertEquals("bar", MDC.get(KEY));
 
-        verify(logger).debug("foo", new Object[] { new Pojo("a", "b") });
+        verify(logger).debug("foo {}", new Object[] { new Pojo("a", "b") });
         assertEquals("a", oneValue[0]);
     }
 
     @Test
-    public void shouldFindVersionLogContextScanner() throws Exception {
-        String KEY = "version";
+    public void shouldFindAddALogContextVariable() throws Exception {
         class Container {
             @Logged
             public void foo() {}
         }
-        whenMethod(Container.class.getMethod("foo"));
+        whenMethod(new Container(), "foo");
         final String[] version = new String[1];
-        when(context.proceed()).thenAnswer(new StoreMdcAnswer(KEY, version));
+        when(context.proceed()).thenAnswer(new StoreMdcAnswer("version", version));
 
-        LogContextScanner scanner = mock(LogContextScanner.class);
-        when(scanner.getKeys()).thenReturn(Collections.singletonList(KEY));
-        when(scanner.valueFor(KEY)).thenReturn("1.0");
-        when(scanners.iterator()).thenReturn(Collections.<LogContextScanner> singletonList(scanner).iterator());
+        LogContextVariable variable = new LogContextVariable("version", "1.0");
+        when(variables.iterator()).thenReturn(Collections.<LogContextVariable> singletonList(variable).iterator());
 
-        MDC.put(KEY, "bar");
+        MDC.put("version", "bar");
         interceptor.aroundInvoke(context);
-        assertEquals("bar", MDC.get(KEY));
+        assertEquals("bar", MDC.get("version"));
 
         verify(logger).debug("foo", new Object[0]);
         assertEquals("1.0", version[0]);
+    }
+
+    @Test
+    public void shouldSkipNullLogContextVariable() throws Exception {
+        class Container {
+            @Logged
+            public void foo() {}
+        }
+        whenMethod(new Container(), "foo");
+        final String[] version = new String[1];
+        when(context.proceed()).thenAnswer(new StoreMdcAnswer("version", version));
+
+        when(variables.iterator()).thenReturn(Collections.<LogContextVariable> singletonList(null).iterator());
+
+        MDC.put("version", "bar");
+        interceptor.aroundInvoke(context);
+        assertEquals("bar", MDC.get("version"));
+
+        verify(logger).debug("foo", new Object[0]);
+        assertEquals("bar", version[0]);
     }
 }

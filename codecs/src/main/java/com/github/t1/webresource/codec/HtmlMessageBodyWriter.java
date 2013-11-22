@@ -12,12 +12,14 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.webresource.log.Logged;
 import com.github.t1.webresource.meta.Items;
 
 /** Binding for a {@link HtmlWriter} to JAX-RS */
 @Slf4j
 @javax.ws.rs.ext.Provider
 @javax.ws.rs.Produces("text/html")
+@Logged
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
     @Inject

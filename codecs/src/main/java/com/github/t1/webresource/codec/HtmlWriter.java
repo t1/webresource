@@ -24,7 +24,7 @@ public class HtmlWriter {
             out.nl();
             try (Tag head = out.tag("head")) {
                 htmlHeadWriter.write(item);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 out.write("error writing head");
                 throw e;
             }
@@ -33,11 +33,11 @@ public class HtmlWriter {
                 for (HtmlDecorator decorator : decorators) {
                     decorator.decorate(item);
                 }
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 out.write("error writing body");
                 throw e;
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             out.write("<!-- ............................................................\n");
             out.write(e);
             out.write("............................................................ -->\n");

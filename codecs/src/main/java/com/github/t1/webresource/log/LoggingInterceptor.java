@@ -3,6 +3,7 @@ package com.github.t1.webresource.log;
 import static java.lang.Character.*;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -28,12 +29,12 @@ public class LoggingInterceptor {
             this.loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
             this.logLevel = loggedAnnotation.level();
             Class<?> loggerType = loggedAnnotation.logger();
-            this.log = getLogger((loggerType != null) ? loggerType : context.getTarget().getClass());
+            this.log = getLogger((loggerType == void.class) ? context.getTarget().getClass() : loggerType);
         }
 
         public void logCall() {
             addParamaterLogContexts();
-            addLogContextScanners();
+            addLogContextVariables();
 
             if (logLevel.isEnabled(log)) {
                 logLevel.log(log, message(), context.getParameters());
@@ -41,7 +42,7 @@ public class LoggingInterceptor {
         }
 
         private void addParamaterLogContexts() {
-            Annotation[][] parameterAnnotations = context.getMethod().getParameterAnnotations();
+            Annotation[][] parameterAnnotations = method().getParameterAnnotations();
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] annotations = parameterAnnotations[i];
                 for (Annotation annotation : annotations) {
@@ -55,6 +56,10 @@ public class LoggingInterceptor {
             }
         }
 
+        private Method method() {
+            return context.getMethod();
+        }
+
         private String convert(Class<? extends LogContextConverter<?>> converterType, Object valueObject) {
             try {
                 @SuppressWarnings("unchecked")
@@ -65,17 +70,20 @@ public class LoggingInterceptor {
             }
         }
 
-        private void addLogContextScanners() {
-            for (LogContextScanner scanner : scanners) {
-                for (String key : scanner.getKeys()) {
-                    mdc.put(key, scanner.valueFor(key));
-                }
+        private void addLogContextVariables() {
+            for (LogContextVariable variable : variables) {
+                if (variable == null) // producers are allowed to return null
+                    continue;
+                String key = variable.getKey();
+                String value = variable.getValue();
+                mdc.put(key, value);
             }
         }
 
         private String message() {
             if ("".equals(loggedAnnotation.value())) {
-                return camelToSpaces(context.getMethod().getName());
+                return camelToSpaces(method().getName())
+                        + messageParamPlaceholders(method().getParameterTypes().length);
             } else {
                 return loggedAnnotation.value();
             }
@@ -94,8 +102,15 @@ public class LoggingInterceptor {
             return out.toString();
         }
 
+        private String messageParamPlaceholders(int length) {
+            StringBuilder out = new StringBuilder();
+            for (int i = 0; i < length; i++)
+                out.append(" {}");
+            return out.toString();
+        }
+
         public void logResult(Object result) {
-            if (context.getMethod().getReturnType() != void.class) {
+            if (method().getReturnType() != void.class) {
                 logLevel.log(log, "returns {}", result);
             }
         }
@@ -110,7 +125,7 @@ public class LoggingInterceptor {
     }
 
     @Inject
-    Instance<LogContextScanner> scanners;
+    Instance<LogContextVariable> variables;
 
     @AroundInvoke
     Object aroundInvoke(InvocationContext context) throws Exception {
