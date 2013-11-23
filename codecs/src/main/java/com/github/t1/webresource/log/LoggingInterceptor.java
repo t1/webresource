@@ -18,26 +18,41 @@ import com.google.common.annotations.VisibleForTesting;
 @Interceptor
 public class LoggingInterceptor {
     private class Logging {
+
         private final InvocationContext context;
-        private final Logged loggedAnnotation;
+
         private final LogLevel logLevel;
-        private final Logger log;
+        private final Logger logger;
+        private final String logMessage;
+
         private final RestorableMdc mdc = new RestorableMdc();
 
         public Logging(InvocationContext context) {
             this.context = context;
-            this.loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
+
+            Logged loggedAnnotation = Annotations.on(context.getMethod()).getAnnotation(Logged.class);
             this.logLevel = loggedAnnotation.level();
-            Class<?> loggerType = loggedAnnotation.logger();
-            this.log = getLogger((loggerType == void.class) ? context.getTarget().getClass() : loggerType);
+            this.logMessage = loggedAnnotation.value();
+            this.logger = getLogger(resolveLogger(loggedAnnotation.logger()));
+        }
+
+        private Class<?> resolveLogger(Class<?> loggerType) {
+            if (loggerType == void.class) {
+                // the method is declared in the target type, while context.getTarget() is the CDI proxy
+                loggerType = context.getMethod().getDeclaringClass();
+                while (loggerType.getEnclosingClass() != null) {
+                    loggerType = loggerType.getEnclosingClass();
+                }
+            }
+            return loggerType;
         }
 
         public void logCall() {
             addParamaterLogContexts();
             addLogContextVariables();
 
-            if (logLevel.isEnabled(log)) {
-                logLevel.log(log, message(), context.getParameters());
+            if (logLevel.isEnabled(logger)) {
+                logLevel.log(logger, message(), context.getParameters());
             }
         }
 
@@ -81,11 +96,11 @@ public class LoggingInterceptor {
         }
 
         private String message() {
-            if ("".equals(loggedAnnotation.value())) {
+            if ("".equals(logMessage)) {
                 return camelToSpaces(method().getName())
                         + messageParamPlaceholders(method().getParameterTypes().length);
             } else {
-                return loggedAnnotation.value();
+                return logMessage;
             }
         }
 
@@ -111,12 +126,12 @@ public class LoggingInterceptor {
 
         public void logResult(Object result) {
             if (method().getReturnType() != void.class) {
-                logLevel.log(log, "returns {}", result);
+                logLevel.log(logger, "return {}", result);
             }
         }
 
         public void logException(Exception e) {
-            logLevel.log(log, "failed", e);
+            logLevel.log(logger, "failed", e);
         }
 
         public void done() {
@@ -146,7 +161,7 @@ public class LoggingInterceptor {
     }
 
     @VisibleForTesting
-    Logger getLogger(Class<?> type) {
-        return LoggerFactory.getLogger(type);
+    Logger getLogger(Class<?> loggerType) {
+        return LoggerFactory.getLogger(loggerType);
     }
 }

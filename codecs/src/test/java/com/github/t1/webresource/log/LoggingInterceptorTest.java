@@ -21,28 +21,45 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.*;
 
 @RunWith(MockitoJUnitRunner.class)
+@Logged
 public class LoggingInterceptorTest {
     private final class StoreMdcAnswer implements Answer<Void> {
-        private final String kEY;
+        private final String key;
         private final String[] userId;
 
-        private StoreMdcAnswer(String kEY, String[] userId) {
-            this.kEY = kEY;
+        private StoreMdcAnswer(String key, String[] userId) {
+            this.key = key;
             this.userId = userId;
         }
 
         @Override
         public Void answer(InvocationOnMock invocation) throws Throwable {
-            userId[0] = MDC.get(kEY);
+            userId[0] = MDC.get(key);
             return null;
         }
+    }
+
+    private class Nested {
+        @Logged
+        public void implicit() {}
+
+        @Logged(logger = Nested.class)
+        public void explicit() {}
+    }
+
+    private class Inner {
+        @Logged
+        public void implicit() {}
+
+        @Logged(logger = Inner.class)
+        public void explicit() {}
     }
 
     @InjectMocks
     LoggingInterceptor interceptor = new LoggingInterceptor() {
         @Override
-        Logger getLogger(java.lang.Class<?> type) {
-            LoggingInterceptorTest.this.loggerType = type;
+        Logger getLogger(Class<?> loggerType) {
+            LoggingInterceptorTest.this.loggerType = loggerType;
             return logger;
         };
     };
@@ -119,7 +136,7 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        verify(logger).debug("returns {}", new Object[] { true });
+        verify(logger).debug("return {}", new Object[] { true });
     }
 
     @Test
@@ -254,7 +271,60 @@ public class LoggingInterceptorTest {
     }
 
     @Test
-    public void shouldDefaultToContainerLoggerClass() throws Exception {
+    public void shouldNotUnwrapUseExplicitLocalLoggerClass() throws Exception {
+        class Container {
+            @Logged(logger = Container.class)
+            public void foo() {}
+        }
+        whenMethod(new Container(), "foo");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Container.class, loggerType);
+    }
+
+    @Test
+    public void shouldNotUnwrapUseExplicitNestedLoggerClass() throws Exception {
+        whenMethod(new Nested(), "explicit");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Nested.class, loggerType);
+    }
+
+    @Test
+    public void shouldNotUnwrapUseExplicitInnerLoggerClass() throws Exception {
+        whenMethod(new Inner(), "explicit");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Inner.class, loggerType);
+    }
+
+    @Test
+    public void shouldNotUnwrapUseExplicitDollarLoggerClass() throws Exception {
+        class Container {
+            @Logged(logger = Dollar$Type.class)
+            public void foo() {}
+        }
+        whenMethod(new Container(), "foo");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Dollar$Type.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToLoggerClass() throws Exception {
+        whenMethod(new LoggingInterceptorTest(), "shouldDefaultToLoggerClass");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToContainerOfLocalLoggerClass() throws Exception {
         class Container {
             @Logged
             public void foo() {}
@@ -263,7 +333,62 @@ public class LoggingInterceptorTest {
 
         interceptor.aroundInvoke(context);
 
-        assertEquals(Container.class, loggerType);
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToContainerOfNestedLoggerClass() throws Exception {
+        whenMethod(new Nested(), "implicit");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToContainerOfInnerLoggerClass() throws Exception {
+        whenMethod(new Inner(), "implicit");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToDoubleContainerLoggerClass() throws Exception {
+        class Outer {
+            class Inner {
+                @Logged
+                public void foo() {}
+            }
+        }
+        whenMethod(new Outer().new Inner(), "foo");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToAnonymousLoggerClass() throws Exception {
+        whenMethod(new Runnable() {
+            @Override
+            @Logged
+            public void run() {}
+        }, "run");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(LoggingInterceptorTest.class, loggerType);
+    }
+
+    @Test
+    public void shouldDefaultToDollarLoggerClass() throws Exception {
+        whenMethod(new Dollar$Type(), "foo");
+
+        interceptor.aroundInvoke(context);
+
+        assertEquals(Dollar$Type.class, loggerType);
     }
 
     @Test
@@ -356,4 +481,9 @@ public class LoggingInterceptorTest {
         verify(logger).debug("foo", new Object[0]);
         assertEquals("bar", version[0]);
     }
+}
+
+class Dollar$Type {
+    @Logged
+    public void foo() {}
 }

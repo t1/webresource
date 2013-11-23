@@ -21,10 +21,18 @@ import javax.interceptor.InterceptorBinding;
 @Target({ METHOD, TYPE })
 @Retention(RUNTIME)
 public @interface Logged {
+    /**
+     * The level of detail to log at.
+     * 
+     * @see org.slf4j.Logger the logging methods for those levels
+     */
     public LogLevel level() default DEBUG;
 
     /**
-     * The class used to create the logger. Defaults to the class containing the method being logged.
+     * The class used to create the logger. Defaults to the top level class containing the method being logged (i.e.
+     * nested, inner, local, or anonymous classes are unwrapped).
+     * 
+     * @see Class#getEnclosingClass() the comment <i>in</i> <code>Class#getEnclosingClass</code>
      */
     public Class<?> logger() default void.class;
 
