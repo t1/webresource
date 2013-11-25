@@ -12,7 +12,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.github.t1.webresource.log.Logged;
+import com.github.t1.log.Logged;
 import com.github.t1.webresource.meta.Items;
 
 /** Binding for a {@link HtmlWriter} to JAX-RS */

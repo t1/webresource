@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.github.t1.log.Logged;
 import com.github.t1.webresource.codec.HtmlOut.Tag;
-import com.github.t1.webresource.log.Logged;
 import com.github.t1.webresource.meta.*;
 
 @Slf4j
