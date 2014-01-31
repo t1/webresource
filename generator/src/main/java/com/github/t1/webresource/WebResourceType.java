@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.lang.model.element.*;
 
-/** TODO switch this and WebResourceField to meta, move to commons, and join with WebResourceTypeInfo */
-class WebResourceType {
+public class WebResourceType {
     final TypeElement type;
     final String pkg;
     final String simple;
@@ -14,9 +13,9 @@ class WebResourceType {
     final String plural;
     final String qualified;
     final boolean extended;
-    final WebResourceField id;
-    final WebResourceField key;
-    final WebResourceField version;
+    public final WebResourceField id;
+    public final WebResourceField key;
+    public final WebResourceField version;
     final List<WebResourceField> subResourceFields;
 
     public WebResourceType(TypeElement type) {

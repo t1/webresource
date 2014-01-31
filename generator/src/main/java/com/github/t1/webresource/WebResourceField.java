@@ -9,7 +9,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-class WebResourceField {
+public class WebResourceField {
     protected static WebResourceField findField(TypeElement classElement, String annotationTypeName) {
         List<WebResourceField> list = findFields(classElement, annotationTypeName);
         if (list.isEmpty())
@@ -60,7 +60,7 @@ class WebResourceField {
     /** Is this a non-primitive type, i.e. can it be null */
     final boolean nullable;
     /** What imports are required for this type */
-    final List<String> imports = new ArrayList<String>();
+    public final List<String> imports = new ArrayList<String>();
     /** The unqualified type name */
     final String simpleType;
     /** Is this a collection type, i.e. List, Set, etc. */

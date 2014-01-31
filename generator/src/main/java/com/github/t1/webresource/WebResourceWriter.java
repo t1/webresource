@@ -1,69 +1,42 @@
 package com.github.t1.webresource;
 
-import java.util.List;
-
 import javax.annotation.processing.Messager;
+import javax.ejb.Stateless;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
+import javax.ws.rs.Path;
 
-class WebResourceWriter extends AbstractWriter {
+import org.slf4j.Logger;
+
+import com.github.t1.webresource.typewriter.IndentedWriter;
+import com.github.t1.webresource.typewriter.TypeWriter;
+
+class WebResourceWriter extends IndentedWriter {
     private final WebResourceType type;
     private final JpaStoreWriter store;
+    private final TypeWriter typeWriter;
 
     public WebResourceWriter(Messager messager, TypeElement typeElement) {
         this.type = new WebResourceType(typeElement);
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
         this.store = new JpaStoreWriter(this, type);
+        this.typeWriter = new TypeWriter(type.pkg, type.simple + "WebResource");
     }
 
     public String run() {
         if (type.key == null)
             throw new IllegalStateException("no id type found in " + type.qualified);
-        append("package " + type.pkg + ";");
-        nl();
-        imports();
-        nl();
         clazz();
         return out.toString();
     }
 
-    private void imports() {
-        if (type.id != null)
-            imports(type.id.imports);
-        if (requiresKeyTypeImport())
-            imports(type.key.imports);
-        append("import java.util.*;");
-        nl();
-        append("import javax.ejb.Stateless;");
-        append("import javax.persistence.*;");
-        append("import javax.persistence.criteria.*;");
-        append("import javax.ws.rs.*;");
-        append("import javax.ws.rs.Path;");
-        append("import javax.ws.rs.core.*;");
-        append("import javax.ws.rs.core.Response.Status;");
-        if (type.version != null)
-            append("import javax.ws.rs.core.Response.ResponseBuilder;");
-        nl();
-        append("import org.slf4j.*;");
-    }
-
-    private void imports(List<String> imports) {
-        for (String imp : imports) {
-            append("import " + imp + ";");
-        }
-    }
-
-    private boolean requiresKeyTypeImport() {
-        return type.key != null && !type.key.imports.isEmpty() && !type.key.imports.equals(type.id.imports);
-    }
-
     private void clazz() {
-        path("/" + type.plural);
-        append("@Stateless");
-        append("public class " + type.simple + "WebResource {");
-        ++indent;
+        typeWriter.annotate(Path.class).value("/" + type.plural);
+        typeWriter.annotate(Stateless.class);
         logger();
+        typeWriter.writeTo(this, type);
+
         nl();
         store.declare();
         nl();
@@ -90,7 +63,8 @@ class WebResourceWriter extends AbstractWriter {
     }
 
     private void logger() {
-        append("private final Logger log = LoggerFactory.getLogger(" + type.simple + "WebResource.class);");
+        typeWriter.field(Logger.class, "log").final_().init(
+                "LoggerFactory.getLogger(" + type.simple + "WebResource.class)");
     }
 
     private void LIST() {
@@ -108,7 +82,7 @@ class WebResourceWriter extends AbstractWriter {
     }
 
     private void log(String message, String... args) {
-        appendIndent();
+        indent();
         out.append("log.debug(\"" + message + "\"");
         for (String arg : args) {
             out.append(", ").append(arg);

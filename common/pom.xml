@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>jaxrs-api</artifactId>
-			<version>3.0-beta-3</version><!--$NO-MVN-MAN-VER$ -->
+			<version>3.0.4.Final</version><!--$NO-MVN-MAN-VER$ -->
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

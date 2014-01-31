@@ -1,11 +1,13 @@
 package com.github.t1.webresource;
 
+import com.github.t1.webresource.typewriter.IndentedWriter;
+
 /** Writes the JPA specific parts of a WebResouce class */
 public class JpaStoreWriter {
-    private final AbstractWriter writer;
+    private final IndentedWriter writer;
     private final WebResourceType type;
 
-    public JpaStoreWriter(AbstractWriter writer, WebResourceType type) {
+    public JpaStoreWriter(IndentedWriter writer, WebResourceType type) {
         this.writer = writer;
         this.type = type;
     }
@@ -42,7 +44,7 @@ public class JpaStoreWriter {
     }
 
     public void find(String variableName) {
-        writer.appendIndent();
+        writer.indent();
         writer.out.append(type.simple + " " + variableName + " = ");
         if (type.primary()) {
             writer.out.append("em.find(" + type.simple + ".class, " + type.key.name + ");");

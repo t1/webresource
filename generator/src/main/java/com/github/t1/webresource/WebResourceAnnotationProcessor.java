@@ -1,7 +1,7 @@
 package com.github.t1.webresource;
 
 import java.io.*;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -20,6 +20,7 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     private Messager messager;
     private Filer filer;
     private TypeElement type;
+    private final List<String> index = new ArrayList<String>();
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -32,7 +33,9 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        note("start round (final=" + roundEnv.processingOver() + ")");
         for (Element webResource : roundEnv.getElementsAnnotatedWith(WebResource.class)) {
+            index.add(webResource.getSimpleName().toString());
             try {
                 process(webResource);
             } catch (Error e) {
@@ -42,6 +45,9 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
                 getMessager().printMessage(Kind.ERROR, "can't process WebResource: " + toString(e), webResource);
             }
         }
+        note("end round");
+        if (roundEnv.processingOver())
+            note("found " + index);
         return false;
     }
 

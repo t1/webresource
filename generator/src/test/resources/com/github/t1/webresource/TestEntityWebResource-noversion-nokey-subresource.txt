@@ -2,15 +2,15 @@ package com.github.t1.webresource;
 
 import java.util.*;
 
+import javax.ws.rs.Path;
 import javax.ejb.Stateless;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
-import org.slf4j.*;
+import org.slf4j.Logger;
 
 @Path("/testentities")
 @Stateless
