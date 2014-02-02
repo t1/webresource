@@ -79,8 +79,8 @@ public class WebResourceWriterTest {
 
         String generated = new WebResourceWriter(messager, type).run();
 
-        String expected = readReference("TestEntityWebResource-noversion-nokey.txt").replace("${extended}",
-                extended ? "(type = PersistenceContextType.EXTENDED)" : "");
+        String expected = readReference("TestEntityWebResource-noversion-nokey.txt") //
+        .replace("${extended}", extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         assertEquals(expected, generated);
     }
 

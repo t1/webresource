@@ -1,46 +1,53 @@
 package com.github.t1.webresource;
 
-import com.github.t1.webresource.typewriter.IndentedWriter;
+import javax.persistence.*;
+
+import com.github.t1.webresource.typewriter.*;
 
 /** Writes the JPA specific parts of a WebResouce class */
 public class JpaStoreWriter {
     private final IndentedWriter writer;
     private final WebResourceType type;
+    private final ClassBuilder typeWriter;
 
-    public JpaStoreWriter(IndentedWriter writer, WebResourceType type) {
+    public JpaStoreWriter(IndentedWriter writer, WebResourceType type, ClassBuilder typeWriter) {
         this.writer = writer;
         this.type = type;
+        this.typeWriter = typeWriter;
     }
 
     public void declare() {
-        writer.append("@PersistenceContext" + (type.extended ? "(type = PersistenceContextType.EXTENDED)" : ""));
-        writer.append("private EntityManager em;");
+        FieldBuilder field = typeWriter.field(EntityManager.class, "em");
+        AnnotationBuilder annotation = field.annotate(PersistenceContext.class);
+        if (type.extended) {
+            annotation.type(PersistenceContextType.EXTENDED);
+        }
     }
 
     public void list() {
-        writer.append("CriteriaBuilder builder = em.getCriteriaBuilder();");
-        writer.append("CriteriaQuery<" + type.simple + "> query = builder.createQuery(" + type.simple + ".class);");
-        writer.append("Root<" + type.simple + "> from = query.from(" + type.simple + ".class);");
-        writer.append("Predicate where = null;");
-        writer.append("for (String key : queryParams.keySet()) {");
+        writer.println("CriteriaBuilder builder = em.getCriteriaBuilder();");
+        writer.println("CriteriaQuery<" + type.simple + "> query = builder.createQuery(" + type.simple + ".class);");
+        writer.println("Root<" + type.simple + "> from = query.from(" + type.simple + ".class);");
+        writer.println("Predicate where = null;");
+        writer.println("for (String key : queryParams.keySet()) {");
         ++writer.indent;
-        writer.append("Predicate predicate = builder.equal(from.get(key), queryParams.getFirst(key));");
-        writer.append("if (where == null) {");
+        writer.println("Predicate predicate = builder.equal(from.get(key), queryParams.getFirst(key));");
+        writer.println("if (where == null) {");
         ++writer.indent;
-        writer.append("where = predicate;");
+        writer.println("where = predicate;");
         --writer.indent;
-        writer.append("} else {");
+        writer.println("} else {");
         ++writer.indent;
-        writer.append("where = builder.and(where, predicate);");
+        writer.println("where = builder.and(where, predicate);");
         --writer.indent;
-        writer.append("}");
+        writer.println("}");
         --writer.indent;
-        writer.append("}");
-        writer.append("if (where != null)");
+        writer.println("}");
+        writer.println("if (where != null)");
         ++writer.indent;
-        writer.append("query.where(where);");
+        writer.println("query.where(where);");
         --writer.indent;
-        writer.append("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
+        writer.println("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
     }
 
     public void find(String variableName) {
@@ -51,46 +58,46 @@ public class JpaStoreWriter {
         } else {
             writer.out.append("findByKey(" + type.key.name + ");");
         }
-        writer.nl();
+        writer.println();
     }
 
     public void findByKey() {
-        writer.append("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE "
+        writer.println("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE "
                 + type.key.name + " = :" + type.key.name + "\", " + type.simple + ".class);");
-        writer.append("try {");
+        writer.println("try {");
         ++writer.indent;
-        writer.append("return query.setParameter(\"key\", " + type.key.name + ").getSingleResult();");
+        writer.println("return query.setParameter(\"key\", " + type.key.name + ").getSingleResult();");
         --writer.indent;
-        writer.append("} catch (NoResultException e) {");
+        writer.println("} catch (NoResultException e) {");
         ++writer.indent;
-        writer.append("return null;");
+        writer.println("return null;");
         --writer.indent;
-        writer.append("}");
+        writer.println("}");
     }
 
     public void persist() {
-        writer.append("if (" + type.lower + ".getId() == null) {");
+        writer.println("if (" + type.lower + ".getId() == null) {");
         ++writer.indent;
-        writer.append("em.persist(" + type.lower + ");");
+        writer.println("em.persist(" + type.lower + ");");
         --writer.indent;
-        writer.append("} else {");
+        writer.println("} else {");
         ++writer.indent;
-        writer.append(type.lower + " = em.merge(" + type.lower + ");");
+        writer.println(type.lower + " = em.merge(" + type.lower + ");");
         --writer.indent;
-        writer.append("}");
+        writer.println("}");
         flush();
     }
 
     public void merge() {
-        writer.append(type.simple + " result = em.merge(" + type.lower + ");");
+        writer.println(type.simple + " result = em.merge(" + type.lower + ");");
         flush();
     }
 
     public void remove() {
-        writer.append("em.remove(result);");
+        writer.println("em.remove(result);");
     }
 
     public void flush() {
-        writer.append("em.flush();");
+        writer.println("em.flush();");
     }
 }

@@ -7,21 +7,21 @@ import javax.tools.Diagnostic.Kind;
 import javax.ws.rs.Path;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.github.t1.webresource.typewriter.IndentedWriter;
-import com.github.t1.webresource.typewriter.TypeWriter;
+import com.github.t1.webresource.typewriter.*;
 
 class WebResourceWriter extends IndentedWriter {
     private final WebResourceType type;
     private final JpaStoreWriter store;
-    private final TypeWriter typeWriter;
+    private final ClassBuilder typeWriter;
 
     public WebResourceWriter(Messager messager, TypeElement typeElement) {
         this.type = new WebResourceType(typeElement);
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
-        this.store = new JpaStoreWriter(this, type);
-        this.typeWriter = new TypeWriter(type.pkg, type.simple + "WebResource");
+        this.typeWriter = new ClassBuilder(type.pkg, type.simple + "WebResource");
+        this.store = new JpaStoreWriter(this, type, typeWriter);
     }
 
     public String run() {
@@ -35,50 +35,49 @@ class WebResourceWriter extends IndentedWriter {
         typeWriter.annotate(Path.class).value("/" + type.plural);
         typeWriter.annotate(Stateless.class);
         logger();
-        typeWriter.writeTo(this, type);
-
-        nl();
         store.declare();
-        nl();
+
+        new ClassSourceWriter(typeWriter, this).write(type);
+
         LIST();
-        nl();
+        println();
         GET();
-        nl();
+        println();
         if (!type.primary()) {
             findByKeyMethod();
-            nl();
+            println();
         }
         POST();
-        nl();
+        println();
         PUT();
-        nl();
+        println();
         DELETE();
         subresources();
         --indent;
-        append("}");
+        println("}");
     }
 
     private void path(String path) {
-        append("@Path(\"" + path + "\")");
+        println("@Path(\"" + path + "\")");
     }
 
     private void logger() {
         typeWriter.field(Logger.class, "log").final_().init(
-                "LoggerFactory.getLogger(" + type.simple + "WebResource.class)");
+                "LoggerFactory.getLogger(" + type.simple + "WebResource.class)").using(LoggerFactory.class);
     }
 
     private void LIST() {
-        append("@GET");
-        append("public Response list" + type.simple + "(@Context UriInfo uriInfo) {");
+        println("@GET");
+        println("public Response list" + type.simple + "(@Context UriInfo uriInfo) {");
         ++indent;
-        append("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
+        println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
         log("get " + type.plural + " where {}", "queryParams");
-        nl();
+        println();
         store.list();
-        nl();
-        append("return Response.ok(list).build();");
+        println();
+        println("return Response.ok(list).build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void log(String message, String... args) {
@@ -88,31 +87,31 @@ class WebResourceWriter extends IndentedWriter {
             out.append(", ").append(arg);
         }
         out.append(");");
-        nl();
+        println();
     }
 
     private void GET() {
-        append("@GET");
+        println("@GET");
         path("/{id}");
-        append("public Response get" + type.simple + "(" + idParam() + requestContext() + ") {");
+        println("public Response get" + type.simple + "(" + idParam() + requestContext() + ") {");
         ++indent;
         log("get " + type.lower + " {}", type.key.name);
-        nl();
+        println();
         findOrFail("result");
         evaluatePreconditions("result");
-        nl();
-        append("return Response.ok(result)" + etag("result") + ".build();");
+        println();
+        println("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void findOrFail(String variableName) {
         store.find(variableName);
-        append("if (" + variableName + " == null) {");
+        println("if (" + variableName + " == null) {");
         ++indent;
-        append("return Response.status(Status.NOT_FOUND).build();");
+        println("return Response.status(Status.NOT_FOUND).build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private String idParam() {
@@ -124,28 +123,28 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void findByKeyMethod() {
-        append("private " + type.simple + " findByKey(" + type.key.simpleType + " " + type.key.name + ") {");
+        println("private " + type.simple + " findByKey(" + type.key.simpleType + " " + type.key.name + ") {");
         ++indent;
         store.findByKey();
         --indent;
-        append("}");
+        println("}");
     }
 
     private void POST() {
-        append("@POST");
-        append("public Response post" + type.simple + "(" + type.simple + " " + type.lower
+        println("@POST");
+        println("public Response post" + type.simple + "(" + type.simple + " " + type.lower
                 + ", @Context UriInfo uriInfo) {");
         ++indent;
         log("post " + type.lower + " {}", type.lower);
-        nl();
+        println();
         store.persist();
-        nl();
-        append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + type.plural + "\").path(" + toString(type.lower + "." + type.key.getter() + "()")
+        println();
+        println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+        println("builder.path(\"" + type.plural + "\").path(" + toString(type.lower + "." + type.key.getter() + "()")
                 + ");");
-        append("return Response.created(builder.build())" + etag(type.lower) + ".build();");
+        println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private String toString(String name) {
@@ -153,80 +152,80 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void PUT() {
-        append("@PUT");
+        println("@PUT");
         path("/{id}");
-        append("public Response put" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
+        println("public Response put" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
                 + requestContext() + ") {");
         ++indent;
         log("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower);
-        nl();
+        println();
         if (type.key.nullable) {
-            append("if (" + type.lower + "." + type.key.getter() + "() == null) {");
+            println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
             ++indent;
-            append(type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
+            println(type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
             --indent;
-            append("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
+            println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
         } else {
-            append("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
+            println("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
         }
         ++indent;
-        append("String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name + " + \", body=\" + "
+        println("String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name + " + \", body=\" + "
                 + type.lower + "." + type.key.getter() + "() + \".\\n\"");
-        append("    + \"either leave the " + type.key.name + " in the body null or set it to the same " + type.key.name
+        println("    + \"either leave the " + type.key.name + " in the body null or set it to the same " + type.key.name
                 + "\";");
-        append("return Response.status(Status.BAD_REQUEST).entity(message).build();");
+        println("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
-        append("}");
+        println("}");
         if (!type.primary()) {
-            append("if (" + type.lower + "." + type.id.getter() + "() == null) {");
+            println("if (" + type.lower + "." + type.id.getter() + "() == null) {");
             ++indent;
-            append(type.simple + " existing = findByKey(" + type.key.name + ");");
-            append("if (existing == null) {");
+            println(type.simple + " existing = findByKey(" + type.key.name + ");");
+            println("if (existing == null) {");
             ++indent;
-            append("return Response.status(Status.NOT_FOUND).build();");
+            println("return Response.status(Status.NOT_FOUND).build();");
             --indent;
-            append("}");
-            append(type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
+            println("}");
+            println(type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
             if (type.version != null && type.version.nullable) {
-                append("if (" + type.lower + "." + type.version.getter() + "() == null) {");
+                println("if (" + type.lower + "." + type.version.getter() + "() == null) {");
                 ++indent;
-                append(type.lower + "." + type.version.setter() + "(existing." + type.version.getter() + "());");
+                println(type.lower + "." + type.version.setter() + "(existing." + type.version.getter() + "());");
                 --indent;
-                append("}");
+                println("}");
             }
             --indent;
-            append("}");
+            println("}");
         }
         evaluatePreconditions(type.lower);
-        nl();
+        println();
         store.merge();
-        nl();
-        append("if (result == null) {");
+        println();
+        println("if (result == null) {");
         ++indent;
         if (type.primary()) {
-            append("return Response.status(Status.NOT_FOUND).build();");
+            println("return Response.status(Status.NOT_FOUND).build();");
         } else {
-            append("throw new IllegalStateException(\"expected to be able to merge " + type.key.name + " \" + "
+            println("throw new IllegalStateException(\"expected to be able to merge " + type.key.name + " \" + "
                     + type.key.name + ");");
         }
         --indent;
-        append("}");
-        append("return Response.ok(result)" + etag("result") + ".build();");
+        println("}");
+        println("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void evaluatePreconditions(String entity) {
         if (type.version == null)
             return;
-        nl();
-        append("EntityTag eTag = new EntityTag(" + toString(entity + "." + type.version.getter() + "()") + ");");
-        append("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
-        append("if (failed != null) {");
+        println();
+        println("EntityTag eTag = new EntityTag(" + toString(entity + "." + type.version.getter() + "()") + ");");
+        println("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
+        println("if (failed != null) {");
         ++indent;
-        append("return failed.entity(" + entity + ").build();"); // etag is already set
+        println("return failed.entity(" + entity + ").build();"); // etag is already set
         --indent;
-        append("}");
+        println("}");
     }
 
     private String requestContext() {
@@ -234,111 +233,111 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void DELETE() {
-        append("@DELETE");
+        println("@DELETE");
         path("/{id}");
-        append("public Response delete" + type.simple + "(" + idParam() + requestContext() + ") {");
+        println("public Response delete" + type.simple + "(" + idParam() + requestContext() + ") {");
         ++indent;
         log("delete " + type.lower + " {}", type.key.name);
-        nl();
+        println();
         findOrFail("result");
         evaluatePreconditions("result");
-        nl();
+        println();
         store.remove();
-        nl();
-        append("return Response.ok(result)" + etag("result") + ".build();");
+        println();
+        println("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void subresources() {
         for (WebResourceField subresource : type.subResourceFields) {
-            nl();
+            println();
             subGET(subresource);
             if (subresource.isCollection) {
-                nl();
+                println();
                 subPOST(subresource);
             }
-            nl();
+            println();
             subPUT(subresource);
             if (subresource.nullable) {
-                nl();
+                println();
                 subDELETE(subresource);
             }
         }
     }
 
     private void subGET(WebResourceField subresource) {
-        append("@GET");
+        println("@GET");
         path("/{id}/" + subresource.name);
-        append("public Response get" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+        println("public Response get" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
                 + ") {");
         ++indent;
         log("get " + subresource.name + " from " + type.lower + " {}", type.key.name);
-        nl();
+        println();
         findOrFail("result");
         evaluatePreconditions("result");
-        nl();
-        append("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
+        println();
+        println("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void subPOST(WebResourceField subresource) {
-        append("@POST");
+        println("@POST");
         path("/{id}/" + subresource.name);
-        append("public Response add" + type.simple + subresource.uppercaps() + "(" + idParam() + ", "
+        println("public Response add" + type.simple + subresource.uppercaps() + "(" + idParam() + ", "
                 + subresource.uncollectedType + " " + subresource.name + ", @Context UriInfo uriInfo) {");
         ++indent;
         log("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name, type.key.name);
-        nl();
+        println();
         findOrFail(type.lower);
-        nl();
-        append(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
+        println();
+        println(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
         store.flush();
-        nl();
-        append("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        append("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\"" + subresource.name
+        println();
+        println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+        println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\"" + subresource.name
                 + "\").path(" + toString(subresource.name) + ");");
-        append("return Response.created(builder.build()).build();");
+        println("return Response.created(builder.build()).build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void subPUT(WebResourceField subresource) {
-        append("@PUT");
+        println("@PUT");
         path("/{id}/" + subresource.name);
-        append("public Response update" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+        println("public Response update" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
                 + ", " + subresource.simpleType + " " + subresource.name + ") {");
         ++indent;
         log("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name, type.key.name);
-        nl();
+        println();
         findOrFail(type.lower);
         evaluatePreconditions(type.lower);
-        nl();
-        append(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
+        println();
+        println(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
         store.flush();
-        nl();
-        append("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
+        println();
+        println("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 
     private void subDELETE(WebResourceField subresource) {
-        append("@DELETE");
+        println("@DELETE");
         path("/{id}/" + subresource.name);
-        append("public Response delete" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
+        println("public Response delete" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
                 + ") {");
         ++indent;
         log("delete " + subresource.name + " of " + type.lower + " {}", type.key.name);
-        nl();
+        println();
         findOrFail(type.lower);
         evaluatePreconditions(type.lower);
-        nl();
-        append(type.lower + "." + subresource.setter() + "(null);");
+        println();
+        println(type.lower + "." + subresource.setter() + "(null);");
         store.flush();
-        nl();
-        append("return Response.ok()" + etag(type.lower) + ".build();");
+        println();
+        println("return Response.ok()" + etag(type.lower) + ".build();");
         --indent;
-        append("}");
+        println("}");
     }
 }

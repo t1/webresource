@@ -4,10 +4,10 @@ public class IndentedWriter {
     public final StringBuilder out = new StringBuilder();
     public int indent = 0;
 
-    public void append(Object value) {
+    public void println(Object value) {
         indent();
         out.append(value);
-        nl();
+        println();
     }
 
     public void indent() {
@@ -16,7 +16,7 @@ public class IndentedWriter {
         }
     }
 
-    public void nl() {
+    public void println() {
         out.append('\n');
     }
 }
