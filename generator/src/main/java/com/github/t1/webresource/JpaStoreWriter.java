@@ -10,15 +10,13 @@ import com.github.t1.webresource.typewriter.*;
 public class JpaStoreWriter {
     private final IndentedWriter writer;
     private final WebResourceType type;
-    private final ClassBuilder typeWriter;
 
-    public JpaStoreWriter(IndentedWriter writer, WebResourceType type, ClassBuilder typeWriter) {
+    public JpaStoreWriter(IndentedWriter writer, WebResourceType type) {
         this.writer = writer;
         this.type = type;
-        this.typeWriter = typeWriter;
     }
 
-    public void declare() {
+    public void declare(ClassBuilder typeWriter) {
         FieldBuilder field = typeWriter.field(EntityManager.class, "em");
         AnnotationBuilder annotation = field.annotate(PersistenceContext.class);
         if (type.extended) {
@@ -54,31 +52,23 @@ public class JpaStoreWriter {
         body.println();
     }
 
-    public void findByKey() {
-        writer.println("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE "
+    public void findByKey(PrintWriter body) {
+        body.println("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE "
                 + type.key.name + " = :" + type.key.name + "\", " + type.simple + ".class);");
-        writer.println("try {");
-        ++writer.indent;
-        writer.println("return query.setParameter(\"key\", " + type.key.name + ").getSingleResult();");
-        --writer.indent;
-        writer.println("} catch (NoResultException e) {");
-        ++writer.indent;
-        writer.println("return null;");
-        --writer.indent;
-        writer.println("}");
+        body.println("try {");
+        body.println("    return query.setParameter(\"key\", " + type.key.name + ").getSingleResult();");
+        body.println("} catch (NoResultException e) {");
+        body.println("    return null;");
+        body.println("}");
     }
 
-    public void persist() {
-        writer.println("if (" + type.lower + ".getId() == null) {");
-        ++writer.indent;
-        writer.println("em.persist(" + type.lower + ");");
-        --writer.indent;
-        writer.println("} else {");
-        ++writer.indent;
-        writer.println(type.lower + " = em.merge(" + type.lower + ");");
-        --writer.indent;
-        writer.println("}");
-        flush();
+    public void persist(PrintWriter body) {
+        body.println("if (" + type.lower + ".getId() == null) {");
+        body.println("    em.persist(" + type.lower + ");");
+        body.println("} else {");
+        body.println("    " + type.lower + " = em.merge(" + type.lower + ");");
+        body.println("}");
+        flush(body);
     }
 
     public void merge() {
@@ -88,6 +78,10 @@ public class JpaStoreWriter {
 
     public void remove() {
         writer.println("em.remove(result);");
+    }
+
+    public void flush(PrintWriter body) {
+        body.println("em.flush();");
     }
 
     public void flush() {

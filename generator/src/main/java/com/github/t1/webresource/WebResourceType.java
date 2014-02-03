@@ -5,6 +5,40 @@ import java.util.List;
 import javax.lang.model.element.*;
 
 public class WebResourceType {
+
+    public static Class<?> type(String typeName) {
+        switch (typeName) {
+        case "long":
+            return Long.TYPE;
+        case "int":
+            return Integer.TYPE;
+        case "short":
+            return Short.TYPE;
+        case "byte":
+            return Byte.TYPE;
+        case "char":
+            return Character.TYPE;
+        case "double":
+            return Double.TYPE;
+        case "float":
+            return Float.TYPE;
+        case "boolean":
+            return Boolean.TYPE;
+        case "void":
+            return Void.TYPE;
+        default:
+            return forName(typeName);
+        }
+    }
+
+    private static Class<?> forName(String typeName) {
+        try {
+            return Class.forName(typeName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     final TypeElement type;
     final String pkg;
     final String simple;
@@ -85,5 +119,9 @@ public class WebResourceType {
 
     public boolean primary() {
         return id.equals(key);
+    }
+
+    public Class<?> type() {
+        return type(qualified);
     }
 }

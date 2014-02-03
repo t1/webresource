@@ -3,8 +3,6 @@ package com.github.t1.webresource.typewriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 public class ClassBuilder extends AnnotatableBuilder {
     final String pkg;
     final String type;
@@ -22,7 +20,7 @@ public class ClassBuilder extends AnnotatableBuilder {
         return builder;
     }
 
-    public MethodBuilder method(Class<Response> returnType, String methodName) {
+    public MethodBuilder method(Class<?> returnType, String methodName) {
         MethodBuilder builder = new MethodBuilder(returnType, methodName);
         methods.add(builder);
         return builder;

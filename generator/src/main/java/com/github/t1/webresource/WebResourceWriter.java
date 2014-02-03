@@ -7,8 +7,7 @@ import javax.annotation.processing.Messager;
 import javax.ejb.Stateless;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import org.slf4j.Logger;
@@ -26,32 +25,30 @@ class WebResourceWriter extends IndentedWriter {
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
         this.classBuilder = new ClassBuilder(type.pkg, type.simple + "WebResource");
-        this.store = new JpaStoreWriter(this, type, classBuilder);
+        this.store = new JpaStoreWriter(this, type);
     }
 
     public String run() {
         if (type.key == null)
             throw new IllegalStateException("no id type found in " + type.qualified);
+        classBuilder.annotate(Path.class).value("/" + type.plural);
+        classBuilder.annotate(Stateless.class);
         clazz();
         return out.toString();
     }
 
     private void clazz() {
-        classBuilder.annotate(Path.class).value("/" + type.plural);
-        classBuilder.annotate(Stateless.class);
         logger();
-        store.declare();
+        store.declare(classBuilder);
+
         LIST();
         GET();
+        if (!type.primary())
+            findByKeyMethod();
+        POST();
 
         new ClassSourceWriter(classBuilder, this).write(type);
 
-        if (!type.primary()) {
-            findByKeyMethod();
-            println();
-        }
-        POST();
-        println();
         PUT();
         println();
         DELETE();
@@ -71,8 +68,8 @@ class WebResourceWriter extends IndentedWriter {
 
     private void LIST() {
         MethodBuilder method = classBuilder.method(Response.class, "list" + type.simple);
-        method.annotate(javax.ws.rs.GET.class);
-        method.parameter(UriInfo.class, "uriInfo").annotate(Context.class);
+        method.annotate(GET.class);
+        uriInfoParameter(method);
         PrintWriter body = method.body();
         body.println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
         body.println(logLine("get " + type.plural + " where {}", "queryParams"));
@@ -98,9 +95,9 @@ class WebResourceWriter extends IndentedWriter {
 
     private void GET() {
         MethodBuilder method = classBuilder.method(Response.class, "get" + type.simple);
-        method.annotate(javax.ws.rs.GET.class);
+        method.annotate(GET.class);
         method.annotate(Path.class).value("/{id}");
-        method.parameter(type.key.type(), type.key.name).annotate(PathParam.class).value("id");
+        idParameter(method);
         if (type.version != null)
             method.parameter(Request.class, "request").annotate(Context.class);
         PrintWriter body = method.body();
@@ -139,28 +136,34 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void findByKeyMethod() {
-        println("private " + type.simple + " findByKey(" + type.key.simpleType + " " + type.key.name + ") {");
-        ++indent;
-        store.findByKey();
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(type.type(), "findByKey").private_();
+        method.parameter(type.key.type(), type.key.name);
+        store.findByKey(method.body());
     }
 
     private void POST() {
-        println("@POST");
-        println("public Response post" + type.simple + "(" + type.simple + " " + type.lower
-                + ", @Context UriInfo uriInfo) {");
-        ++indent;
-        log("post " + type.lower + " {}", type.lower);
-        println();
-        store.persist();
-        println();
-        println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        println("builder.path(\"" + type.plural + "\").path(" + toString(type.lower + "." + type.key.getter() + "()")
-                + ");");
-        println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "post" + type.simple);
+        method.annotate(POST.class);
+        method.parameter(type.type(), type.lower);
+        uriInfoParameter(method);
+
+        PrintWriter body = method.body();
+        body.println(logLine("post " + type.lower + " {}", type.lower));
+        body.println();
+        store.persist(body);
+        body.println();
+        body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+        body.println("builder.path(\"" + type.plural + "\").path("
+                + toString(type.lower + "." + type.key.getter() + "()") + ");");
+        body.println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
+    }
+
+    private AnnotationBuilder uriInfoParameter(MethodBuilder method) {
+        return method.parameter(UriInfo.class, "uriInfo").annotate(Context.class);
+    }
+
+    private void idParameter(MethodBuilder method) {
+        method.parameter(type.key.type(), type.key.name).annotate(PathParam.class).value("id");
     }
 
     private String toString(String name) {
