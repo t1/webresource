@@ -46,11 +46,10 @@ class WebResourceWriter extends IndentedWriter {
         if (!type.primary())
             findByKeyMethod();
         POST();
+        PUT();
 
         new ClassSourceWriter(classBuilder, this).write(type);
 
-        PUT();
-        println();
         DELETE();
         subresources();
         --indent;
@@ -96,10 +95,9 @@ class WebResourceWriter extends IndentedWriter {
     private void GET() {
         MethodBuilder method = classBuilder.method(Response.class, "get" + type.simple);
         method.annotate(GET.class);
-        method.annotate(Path.class).value("/{id}");
         idParameter(method);
         if (type.version != null)
-            method.parameter(Request.class, "request").annotate(Context.class);
+            requestContextParameter(method);
         PrintWriter body = method.body();
         body.println(logLine("get " + type.lower + " {}", type.key.name));
         body.println();
@@ -107,6 +105,10 @@ class WebResourceWriter extends IndentedWriter {
         evaluatePreconditions(body, "result");
         body.println();
         body.println("return Response.ok(result)" + etag("result") + ".build();");
+    }
+
+    private AnnotationBuilder requestContextParameter(MethodBuilder method) {
+        return method.parameter(Request.class, "request").annotate(Context.class);
     }
 
     private void findOrFail(PrintWriter body, String variableName) {
@@ -144,7 +146,7 @@ class WebResourceWriter extends IndentedWriter {
     private void POST() {
         MethodBuilder method = classBuilder.method(Response.class, "post" + type.simple);
         method.annotate(POST.class);
-        method.parameter(type.type(), type.lower);
+        typeParameter(method);
         uriInfoParameter(method);
 
         PrintWriter body = method.body();
@@ -158,11 +160,16 @@ class WebResourceWriter extends IndentedWriter {
         body.println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
     }
 
+    private void typeParameter(MethodBuilder method) {
+        method.parameter(type.type(), type.lower);
+    }
+
     private AnnotationBuilder uriInfoParameter(MethodBuilder method) {
         return method.parameter(UriInfo.class, "uriInfo").annotate(Context.class);
     }
 
     private void idParameter(MethodBuilder method) {
+        method.annotate(Path.class).value("/{id}");
         method.parameter(type.key.type(), type.key.name).annotate(PathParam.class).value("id");
     }
 
@@ -171,67 +178,56 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void PUT() {
-        println("@PUT");
-        path("/{id}");
-        println("public Response put" + type.simple + "(" + idParam() + ", " + type.simple + " " + type.lower
-                + requestContext() + ") {");
-        ++indent;
-        log("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower);
-        println();
+        MethodBuilder method = classBuilder.method(Response.class, "put" + type.simple);
+        method.annotate(PUT.class);
+        idParameter(method);
+        typeParameter(method);
+        if (type.version != null)
+            requestContextParameter(method);
+        PrintWriter body = method.body();
+        body.println(logLine("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower));
+        body.println();
         if (type.key.nullable) {
-            println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
-            ++indent;
-            println(type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
-            --indent;
-            println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
+            body.println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
+            body.println("    " + type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
+            body.println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
         } else {
-            println("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
+            body.println("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
         }
-        ++indent;
-        println("String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name + " + \", body=\" + "
-                + type.lower + "." + type.key.getter() + "() + \".\\n\"");
-        println("    + \"either leave the " + type.key.name + " in the body null or set it to the same "
+        body.println("    String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name
+                + " + \", body=\" + " + type.lower + "." + type.key.getter() + "() + \".\\n\"");
+        body.println("        + \"either leave the " + type.key.name + " in the body null or set it to the same "
                 + type.key.name + "\";");
-        println("return Response.status(Status.BAD_REQUEST).entity(message).build();");
-        --indent;
-        println("}");
+        body.println("    return Response.status(Status.BAD_REQUEST).entity(message).build();");
+        body.println("}");
         if (!type.primary()) {
-            println("if (" + type.lower + "." + type.id.getter() + "() == null) {");
-            ++indent;
-            println(type.simple + " existing = findByKey(" + type.key.name + ");");
-            println("if (existing == null) {");
-            ++indent;
-            println("return Response.status(Status.NOT_FOUND).build();");
-            --indent;
-            println("}");
-            println(type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
+            body.println("if (" + type.lower + "." + type.id.getter() + "() == null) {");
+            body.println("    " + type.simple + " existing = findByKey(" + type.key.name + ");");
+            body.println("    if (existing == null) {");
+            body.println("        return Response.status(Status.NOT_FOUND).build();");
+            body.println("    }");
+            body.println("    " + type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
             if (type.version != null && type.version.nullable) {
-                println("if (" + type.lower + "." + type.version.getter() + "() == null) {");
-                ++indent;
-                println(type.lower + "." + type.version.setter() + "(existing." + type.version.getter() + "());");
-                --indent;
-                println("}");
+                body.println("    if (" + type.lower + "." + type.version.getter() + "() == null) {");
+                body.println("        " + type.lower + "." + type.version.setter() + "(existing."
+                        + type.version.getter() + "());");
+                body.println("    }");
             }
-            --indent;
-            println("}");
+            body.println("}");
         }
-        evaluatePreconditions(type.lower);
-        println();
-        store.merge();
-        println();
-        println("if (result == null) {");
-        ++indent;
+        evaluatePreconditions(body, type.lower);
+        body.println();
+        store.merge(body);
+        body.println();
+        body.println("if (result == null) {");
         if (type.primary()) {
-            println("return Response.status(Status.NOT_FOUND).build();");
+            body.println("    return Response.status(Status.NOT_FOUND).build();");
         } else {
-            println("throw new IllegalStateException(\"expected to be able to merge " + type.key.name + " \" + "
-                    + type.key.name + ");");
+            body.println("    throw new IllegalStateException(\"expected to be able to merge " + type.key.name
+                    + " \" + " + type.key.name + ");");
         }
-        --indent;
-        println("}");
-        println("return Response.ok(result)" + etag("result") + ".build();");
-        --indent;
-        println("}");
+        body.println("}");
+        body.println("return Response.ok(result)" + etag("result") + ".build();");
     }
 
     private void evaluatePreconditions(PrintWriter out, String entity) {

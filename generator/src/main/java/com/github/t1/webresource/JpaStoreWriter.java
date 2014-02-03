@@ -71,9 +71,9 @@ public class JpaStoreWriter {
         flush(body);
     }
 
-    public void merge() {
-        writer.println(type.simple + " result = em.merge(" + type.lower + ");");
-        flush();
+    public void merge(PrintWriter body) {
+        body.println(type.simple + " result = em.merge(" + type.lower + ");");
+        flush(body);
     }
 
     public void remove() {
