@@ -26,6 +26,7 @@ public class ClassSourceWriter {
         ++out.indent;
 
         fields();
+        methods();
     }
 
     private void imports(WebResourceType type) {
@@ -108,9 +109,8 @@ public class ClassSourceWriter {
 
     private void fields() {
         for (FieldBuilder field : builder.fields) {
-            for (AnnotationBuilder annotation : field.annotations) {
+            for (AnnotationBuilder annotation : field.annotations)
                 out.println(annotation(annotation));
-            }
             out.println(field(field));
             out.println();
         }
@@ -124,6 +124,38 @@ public class ClassSourceWriter {
         line.append(field.type.getSimpleName()).append(" ").append(field.name);
         line.append(field.initialization);
         line.append(";");
+        return line.toString();
+    }
+
+    private void methods() {
+        for (MethodBuilder method : builder.methods) {
+            for (AnnotationBuilder annotation : method.annotations)
+                out.println(annotation(annotation));
+            out.println(methodDeclaration(method));
+            out.indent++;
+            out.printIndented(method.body);
+            out.indent--;
+            out.println("}");
+            out.println();
+        }
+    }
+
+    private Object methodDeclaration(MethodBuilder method) {
+        StringBuilder line = new StringBuilder();
+        line.append(method.visibility).append(" ");
+        line.append(method.returnType.getSimpleName()).append(" ").append(method.name).append("(");
+        boolean first = true;
+        for (ParameterBuilder parameter : method.parameters) {
+            if (first)
+                first = false;
+            else
+                line.append(", ");
+            for (AnnotationBuilder annotation : parameter.annotations) {
+                line.append(annotation(annotation)).append(' ');
+            }
+            line.append(parameter.type.getSimpleName()).append(' ').append(parameter.name);
+        }
+        line.append(") {");
         return line.toString();
     }
 }

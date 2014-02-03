@@ -1,17 +1,15 @@
 package com.github.t1.webresource.typewriter;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FieldBuilder implements Builder {
+public class FieldBuilder extends AnnotatableBuilder implements Builder {
     final Class<?> type;
     final String name;
     boolean final_;
     final String visibility = "private";
     String initialization = "";
     final List<Class<?>> types = new ArrayList<>();
-    final List<AnnotationBuilder> annotations = new ArrayList<>();
 
     public FieldBuilder(Class<?> type, String name) {
         this.type = type;
@@ -32,12 +30,6 @@ public class FieldBuilder implements Builder {
     public FieldBuilder using(Class<?> type) {
         types.add(type);
         return this;
-    }
-
-    public AnnotationBuilder annotate(Class<? extends Annotation> type) {
-        AnnotationBuilder builder = new AnnotationBuilder(type);
-        annotations.add(builder);
-        return builder;
     }
 
     @Override

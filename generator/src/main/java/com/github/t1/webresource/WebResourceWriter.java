@@ -1,10 +1,15 @@
 package com.github.t1.webresource;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.annotation.processing.Messager;
 import javax.ejb.Stateless;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +19,14 @@ import com.github.t1.webresource.typewriter.*;
 class WebResourceWriter extends IndentedWriter {
     private final WebResourceType type;
     private final JpaStoreWriter store;
-    private final ClassBuilder typeWriter;
+    private final ClassBuilder classBuilder;
 
     public WebResourceWriter(Messager messager, TypeElement typeElement) {
         this.type = new WebResourceType(typeElement);
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
-        this.typeWriter = new ClassBuilder(type.pkg, type.simple + "WebResource");
-        this.store = new JpaStoreWriter(this, type, typeWriter);
+        this.classBuilder = new ClassBuilder(type.pkg, type.simple + "WebResource");
+        this.store = new JpaStoreWriter(this, type, classBuilder);
     }
 
     public String run() {
@@ -32,17 +37,15 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void clazz() {
-        typeWriter.annotate(Path.class).value("/" + type.plural);
-        typeWriter.annotate(Stateless.class);
+        classBuilder.annotate(Path.class).value("/" + type.plural);
+        classBuilder.annotate(Stateless.class);
         logger();
         store.declare();
-
-        new ClassSourceWriter(typeWriter, this).write(type);
-
         LIST();
-        println();
         GET();
-        println();
+
+        new ClassSourceWriter(classBuilder, this).write(type);
+
         if (!type.primary()) {
             findByKeyMethod();
             println();
@@ -62,51 +65,64 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void logger() {
-        typeWriter.field(Logger.class, "log").final_().init(
+        classBuilder.field(Logger.class, "log").final_().init(
                 "LoggerFactory.getLogger(" + type.simple + "WebResource.class)").using(LoggerFactory.class);
     }
 
     private void LIST() {
-        println("@GET");
-        println("public Response list" + type.simple + "(@Context UriInfo uriInfo) {");
-        ++indent;
-        println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
-        log("get " + type.plural + " where {}", "queryParams");
-        println();
-        store.list();
-        println();
-        println("return Response.ok(list).build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "list" + type.simple);
+        method.annotate(javax.ws.rs.GET.class);
+        method.parameter(UriInfo.class, "uriInfo").annotate(Context.class);
+        PrintWriter body = method.body();
+        body.println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
+        body.println(logLine("get " + type.plural + " where {}", "queryParams"));
+        body.println();
+        store.list(body);
+        body.println();
+        body.println("return Response.ok(list).build();");
     }
 
     private void log(String message, String... args) {
-        indent();
-        out.append("log.debug(\"" + message + "\"");
+        println(logLine(message, args));
+    }
+
+    private String logLine(String message, String... args) {
+        StringBuilder line = new StringBuilder();
+        line.append("log.debug(\"" + message + "\"");
         for (String arg : args) {
-            out.append(", ").append(arg);
+            line.append(", ").append(arg);
         }
-        out.append(");");
-        println();
+        line.append(");");
+        return line.toString();
     }
 
     private void GET() {
-        println("@GET");
-        path("/{id}");
-        println("public Response get" + type.simple + "(" + idParam() + requestContext() + ") {");
-        ++indent;
-        log("get " + type.lower + " {}", type.key.name);
-        println();
-        findOrFail("result");
-        evaluatePreconditions("result");
-        println();
-        println("return Response.ok(result)" + etag("result") + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "get" + type.simple);
+        method.annotate(javax.ws.rs.GET.class);
+        method.annotate(Path.class).value("/{id}");
+        method.parameter(type.key.type(), type.key.name).annotate(PathParam.class).value("id");
+        if (type.version != null)
+            method.parameter(Request.class, "request").annotate(Context.class);
+        PrintWriter body = method.body();
+        body.println(logLine("get " + type.lower + " {}", type.key.name));
+        body.println();
+        findOrFail(body, "result");
+        evaluatePreconditions(body, "result");
+        body.println();
+        body.println("return Response.ok(result)" + etag("result") + ".build();");
+    }
+
+    private void findOrFail(PrintWriter body, String variableName) {
+        store.find(body, variableName);
+        body.println("if (" + variableName + " == null) {");
+        body.println("    return Response.status(Status.NOT_FOUND).build();");
+        body.println("}");
     }
 
     private void findOrFail(String variableName) {
-        store.find(variableName);
+        StringWriter writer = new StringWriter();
+        store.find(new PrintWriter(writer), variableName);
+        out.append("        ").append(writer);
         println("if (" + variableName + " == null) {");
         ++indent;
         println("return Response.status(Status.NOT_FOUND).build();");
@@ -171,8 +187,8 @@ class WebResourceWriter extends IndentedWriter {
         ++indent;
         println("String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name + " + \", body=\" + "
                 + type.lower + "." + type.key.getter() + "() + \".\\n\"");
-        println("    + \"either leave the " + type.key.name + " in the body null or set it to the same " + type.key.name
-                + "\";");
+        println("    + \"either leave the " + type.key.name + " in the body null or set it to the same "
+                + type.key.name + "\";");
         println("return Response.status(Status.BAD_REQUEST).entity(message).build();");
         --indent;
         println("}");
@@ -213,6 +229,17 @@ class WebResourceWriter extends IndentedWriter {
         println("return Response.ok(result)" + etag("result") + ".build();");
         --indent;
         println("}");
+    }
+
+    private void evaluatePreconditions(PrintWriter out, String entity) {
+        if (type.version == null)
+            return;
+        out.println();
+        out.println("EntityTag eTag = new EntityTag(" + toString(entity + "." + type.version.getter() + "()") + ");");
+        out.println("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
+        out.println("if (failed != null) {");
+        out.println("    return failed.entity(" + entity + ").build();"); // etag is already set
+        out.println("}");
     }
 
     private void evaluatePreconditions(String entity) {
@@ -296,8 +323,8 @@ class WebResourceWriter extends IndentedWriter {
         store.flush();
         println();
         println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\"" + subresource.name
-                + "\").path(" + toString(subresource.name) + ");");
+        println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\""
+                + subresource.name + "\").path(" + toString(subresource.name) + ");");
         println("return Response.created(builder.build()).build();");
         --indent;
         println("}");

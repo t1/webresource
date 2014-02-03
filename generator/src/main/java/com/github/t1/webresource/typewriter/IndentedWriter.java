@@ -19,4 +19,20 @@ public class IndentedWriter {
     public void println() {
         out.append('\n');
     }
+
+    public void printIndented(Object value) {
+        indent();
+        char[] chars = value.toString().toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (c == '\n') {
+                println();
+                if (i < chars.length - 1 && chars[i + 1] != '\n') {
+                    indent();
+                }
+            } else {
+                out.append(c);
+            }
+        }
+    }
 }

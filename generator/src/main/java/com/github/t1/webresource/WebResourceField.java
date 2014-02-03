@@ -124,4 +124,38 @@ public class WebResourceField {
     public String setter() {
         return "set" + uppercaps();
     }
+
+    public Class<?> type() {
+        String typeName = field.asType().toString();
+        switch (typeName) {
+        case "long":
+            return Long.TYPE;
+        case "int":
+            return Integer.TYPE;
+        case "short":
+            return Short.TYPE;
+        case "byte":
+            return Byte.TYPE;
+        case "char":
+            return Character.TYPE;
+        case "double":
+            return Double.TYPE;
+        case "float":
+            return Float.TYPE;
+        case "boolean":
+            return Boolean.TYPE;
+        case "void":
+            return Void.TYPE;
+        default:
+            return forName(typeName);
+        }
+    }
+
+    private Class<?> forName(String typeName) {
+        try {
+            return Class.forName(typeName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.github.t1.webresource;
 
+import java.io.PrintWriter;
+
 import javax.persistence.*;
 
 import com.github.t1.webresource.typewriter.*;
@@ -24,41 +26,32 @@ public class JpaStoreWriter {
         }
     }
 
-    public void list() {
-        writer.println("CriteriaBuilder builder = em.getCriteriaBuilder();");
-        writer.println("CriteriaQuery<" + type.simple + "> query = builder.createQuery(" + type.simple + ".class);");
-        writer.println("Root<" + type.simple + "> from = query.from(" + type.simple + ".class);");
-        writer.println("Predicate where = null;");
-        writer.println("for (String key : queryParams.keySet()) {");
-        ++writer.indent;
-        writer.println("Predicate predicate = builder.equal(from.get(key), queryParams.getFirst(key));");
-        writer.println("if (where == null) {");
-        ++writer.indent;
-        writer.println("where = predicate;");
-        --writer.indent;
-        writer.println("} else {");
-        ++writer.indent;
-        writer.println("where = builder.and(where, predicate);");
-        --writer.indent;
-        writer.println("}");
-        --writer.indent;
-        writer.println("}");
-        writer.println("if (where != null)");
-        ++writer.indent;
-        writer.println("query.where(where);");
-        --writer.indent;
-        writer.println("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
+    public void list(PrintWriter body) {
+        body.println("CriteriaBuilder builder = em.getCriteriaBuilder();");
+        body.println("CriteriaQuery<" + type.simple + "> query = builder.createQuery(" + type.simple + ".class);");
+        body.println("Root<" + type.simple + "> from = query.from(" + type.simple + ".class);");
+        body.println("Predicate where = null;");
+        body.println("for (String key : queryParams.keySet()) {");
+        body.println("    Predicate predicate = builder.equal(from.get(key), queryParams.getFirst(key));");
+        body.println("    if (where == null) {");
+        body.println("        where = predicate;");
+        body.println("    } else {");
+        body.println("        where = builder.and(where, predicate);");
+        body.println("    }");
+        body.println("}");
+        body.println("if (where != null)");
+        body.println("    query.where(where);");
+        body.println("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
     }
 
-    public void find(String variableName) {
-        writer.indent();
-        writer.out.append(type.simple + " " + variableName + " = ");
+    public void find(PrintWriter body, String variableName) {
+        body.append(type.simple + " " + variableName + " = ");
         if (type.primary()) {
-            writer.out.append("em.find(" + type.simple + ".class, " + type.key.name + ");");
+            body.append("em.find(" + type.simple + ".class, " + type.key.name + ");");
         } else {
-            writer.out.append("findByKey(" + type.key.name + ");");
+            body.append("findByKey(" + type.key.name + ");");
         }
-        writer.println();
+        body.println();
     }
 
     public void findByKey() {
