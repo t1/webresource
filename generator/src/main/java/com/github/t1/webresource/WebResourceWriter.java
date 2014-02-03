@@ -47,10 +47,10 @@ class WebResourceWriter extends IndentedWriter {
             findByKeyMethod();
         POST();
         PUT();
+        DELETE();
 
         new ClassSourceWriter(classBuilder, this).write(type);
 
-        DELETE();
         subresources();
         --indent;
         println("}");
@@ -96,8 +96,7 @@ class WebResourceWriter extends IndentedWriter {
         MethodBuilder method = classBuilder.method(Response.class, "get" + type.simple);
         method.annotate(GET.class);
         idParameter(method);
-        if (type.version != null)
-            requestContextParameter(method);
+        requestContextParameter(method);
         PrintWriter body = method.body();
         body.println(logLine("get " + type.lower + " {}", type.key.name));
         body.println();
@@ -107,8 +106,10 @@ class WebResourceWriter extends IndentedWriter {
         body.println("return Response.ok(result)" + etag("result") + ".build();");
     }
 
-    private AnnotationBuilder requestContextParameter(MethodBuilder method) {
-        return method.parameter(Request.class, "request").annotate(Context.class);
+    private void requestContextParameter(MethodBuilder method) {
+        if (type.version != null) {
+            method.parameter(Request.class, "request").annotate(Context.class);
+        }
     }
 
     private void findOrFail(PrintWriter body, String variableName) {
@@ -182,8 +183,7 @@ class WebResourceWriter extends IndentedWriter {
         method.annotate(PUT.class);
         idParameter(method);
         typeParameter(method);
-        if (type.version != null)
-            requestContextParameter(method);
+        requestContextParameter(method);
         PrintWriter body = method.body();
         body.println(logLine("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower));
         body.println();
@@ -259,20 +259,19 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void DELETE() {
-        println("@DELETE");
-        path("/{id}");
-        println("public Response delete" + type.simple + "(" + idParam() + requestContext() + ") {");
-        ++indent;
-        log("delete " + type.lower + " {}", type.key.name);
-        println();
-        findOrFail("result");
-        evaluatePreconditions("result");
-        println();
-        store.remove();
-        println();
-        println("return Response.ok(result)" + etag("result") + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "delete" + type.simple);
+        method.annotate(DELETE.class);
+        idParameter(method);
+        requestContextParameter(method);
+        PrintWriter body = method.body();
+        body.println(logLine("delete " + type.lower + " {}", type.key.name));
+        body.println();
+        findOrFail(body, "result");
+        evaluatePreconditions(body, "result");
+        body.println();
+        store.remove(body);
+        body.println();
+        body.println("return Response.ok(result)" + etag("result") + ".build();");
     }
 
     private void subresources() {

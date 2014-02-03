@@ -128,7 +128,12 @@ public class ClassSourceWriter {
     }
 
     private void methods() {
+        boolean first = true;
         for (MethodBuilder method : builder.methods) {
+            if (first)
+                first = false;
+            else
+                out.println();
             for (AnnotationBuilder annotation : method.annotations)
                 out.println(annotation(annotation));
             out.println(methodDeclaration(method));
@@ -136,7 +141,6 @@ public class ClassSourceWriter {
             out.printIndented(method.body);
             out.indent--;
             out.println("}");
-            out.println();
         }
     }
 

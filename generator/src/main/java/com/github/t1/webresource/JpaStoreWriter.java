@@ -76,8 +76,8 @@ public class JpaStoreWriter {
         flush(body);
     }
 
-    public void remove() {
-        writer.println("em.remove(result);");
+    public void remove(PrintWriter body) {
+        body.println("em.remove(result);");
     }
 
     public void flush(PrintWriter body) {
