@@ -1,7 +1,6 @@
 package com.github.t1.webresource;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import javax.annotation.processing.Messager;
 import javax.ejb.Stateless;
@@ -48,16 +47,8 @@ class WebResourceWriter extends IndentedWriter {
         POST();
         PUT();
         DELETE();
-
-        new ClassSourceWriter(classBuilder, this).write(type);
-
         subresources();
-        --indent;
-        println("}");
-    }
-
-    private void path(String path) {
-        println("@Path(\"" + path + "\")");
+        new ClassSourceWriter(classBuilder, this).write(type);
     }
 
     private void logger() {
@@ -76,10 +67,6 @@ class WebResourceWriter extends IndentedWriter {
         store.list(body);
         body.println();
         body.println("return Response.ok(list).build();");
-    }
-
-    private void log(String message, String... args) {
-        println(logLine(message, args));
     }
 
     private String logLine(String message, String... args) {
@@ -119,28 +106,13 @@ class WebResourceWriter extends IndentedWriter {
         body.println("}");
     }
 
-    private void findOrFail(String variableName) {
-        StringWriter writer = new StringWriter();
-        store.find(new PrintWriter(writer), variableName);
-        out.append("        ").append(writer);
-        println("if (" + variableName + " == null) {");
-        ++indent;
-        println("return Response.status(Status.NOT_FOUND).build();");
-        --indent;
-        println("}");
-    }
-
-    private String idParam() {
-        return "@PathParam(\"id\") " + type.key.simpleType + " " + type.key.name;
-    }
-
     private String etag(String var) {
         return (type.version == null) ? "" : ".tag(Objects.toString(" + var + "." + type.version.getter() + "()))";
     }
 
     private void findByKeyMethod() {
         MethodBuilder method = classBuilder.method(type.type(), "findByKey").private_();
-        method.parameter(type.key.type(), type.key.name);
+        method.parameter(type.key.rawType, type.key.name);
         store.findByKey(method.body());
     }
 
@@ -170,8 +142,16 @@ class WebResourceWriter extends IndentedWriter {
     }
 
     private void idParameter(MethodBuilder method) {
-        method.annotate(Path.class).value("/{id}");
-        method.parameter(type.key.type(), type.key.name).annotate(PathParam.class).value("id");
+        idParameterWithKey(method, "/{id}");
+    }
+
+    private void idParameter(MethodBuilder method, String subresource) {
+        idParameterWithKey(method, "/{id}/" + subresource);
+    }
+
+    private void idParameterWithKey(MethodBuilder method, String key) {
+        method.annotate(Path.class).value(key);
+        method.parameter(type.key.rawType, type.key.name).annotate(PathParam.class).value("id");
     }
 
     private String toString(String name) {
@@ -241,23 +221,6 @@ class WebResourceWriter extends IndentedWriter {
         out.println("}");
     }
 
-    private void evaluatePreconditions(String entity) {
-        if (type.version == null)
-            return;
-        println();
-        println("EntityTag eTag = new EntityTag(" + toString(entity + "." + type.version.getter() + "()") + ");");
-        println("ResponseBuilder failed = request.evaluatePreconditions(eTag);");
-        println("if (failed != null) {");
-        ++indent;
-        println("return failed.entity(" + entity + ").build();"); // etag is already set
-        --indent;
-        println("}");
-    }
-
-    private String requestContext() {
-        return (type.version == null) ? "" : ", @Context Request request";
-    }
-
     private void DELETE() {
         MethodBuilder method = classBuilder.method(Response.class, "delete" + type.simple);
         method.annotate(DELETE.class);
@@ -276,93 +239,87 @@ class WebResourceWriter extends IndentedWriter {
 
     private void subresources() {
         for (WebResourceField subresource : type.subResourceFields) {
-            println();
             subGET(subresource);
             if (subresource.isCollection) {
-                println();
                 subPOST(subresource);
             }
-            println();
             subPUT(subresource);
             if (subresource.nullable) {
-                println();
                 subDELETE(subresource);
             }
         }
     }
 
     private void subGET(WebResourceField subresource) {
-        println("@GET");
-        path("/{id}/" + subresource.name);
-        println("public Response get" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
-                + ") {");
-        ++indent;
-        log("get " + subresource.name + " from " + type.lower + " {}", type.key.name);
-        println();
-        findOrFail("result");
-        evaluatePreconditions("result");
-        println();
-        println("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "get" + type.simple + subresource.uppercaps());
+        method.annotate(GET.class);
+        idParameter(method, subresource.name);
+        requestContextParameter(method);
+        PrintWriter body = method.body();
+        body.println(logLine("get " + subresource.name + " from " + type.lower + " {}", type.key.name));
+        body.println();
+        findOrFail(body, "result");
+        evaluatePreconditions(body, "result");
+        body.println();
+        body.println("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
     }
 
     private void subPOST(WebResourceField subresource) {
-        println("@POST");
-        path("/{id}/" + subresource.name);
-        println("public Response add" + type.simple + subresource.uppercaps() + "(" + idParam() + ", "
-                + subresource.uncollectedType + " " + subresource.name + ", @Context UriInfo uriInfo) {");
-        ++indent;
-        log("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name, type.key.name);
-        println();
-        findOrFail(type.lower);
-        println();
-        println(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
-        store.flush();
-        println();
-        println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\""
+        MethodBuilder method = classBuilder.method(Response.class, "add" + type.simple + subresource.uppercaps());
+        method.annotate(POST.class);
+        idParameter(method, subresource.name);
+        method.parameter(subresource.uncollectedType, subresource.name);
+        uriInfoParameter(method);
+        PrintWriter body = method.body();
+        body.println(logLine("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name,
+                type.key.name));
+        body.println();
+        findOrFail(body, type.lower);
+        body.println();
+        body.println(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
+        store.flush(body);
+        body.println();
+        body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+        body.println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\""
                 + subresource.name + "\").path(" + toString(subresource.name) + ");");
-        println("return Response.created(builder.build()).build();");
-        --indent;
-        println("}");
+        body.println("return Response.created(builder.build()).build();");
     }
 
     private void subPUT(WebResourceField subresource) {
-        println("@PUT");
-        path("/{id}/" + subresource.name);
-        println("public Response update" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
-                + ", " + subresource.simpleType + " " + subresource.name + ") {");
-        ++indent;
-        log("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name, type.key.name);
-        println();
-        findOrFail(type.lower);
-        evaluatePreconditions(type.lower);
-        println();
-        println(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
-        store.flush();
-        println();
-        println("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "update" + type.simple + subresource.uppercaps());
+        method.annotate(PUT.class);
+        idParameter(method, subresource.name);
+        requestContextParameter(method);
+        ParameterBuilder parameter = method.parameter(subresource.rawType, subresource.name);
+        if (subresource.isCollection)
+            parameter.generic(subresource.uncollectedType);
+        PrintWriter body = method.body();
+        body.println(logLine("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name,
+                type.key.name));
+        body.println();
+        findOrFail(body, type.lower);
+        evaluatePreconditions(body, type.lower);
+        body.println();
+        body.println(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
+        store.flush(body);
+        body.println();
+        body.println("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
     }
 
     private void subDELETE(WebResourceField subresource) {
-        println("@DELETE");
-        path("/{id}/" + subresource.name);
-        println("public Response delete" + type.simple + subresource.uppercaps() + "(" + idParam() + requestContext()
-                + ") {");
-        ++indent;
-        log("delete " + subresource.name + " of " + type.lower + " {}", type.key.name);
-        println();
-        findOrFail(type.lower);
-        evaluatePreconditions(type.lower);
-        println();
-        println(type.lower + "." + subresource.setter() + "(null);");
-        store.flush();
-        println();
-        println("return Response.ok()" + etag(type.lower) + ".build();");
-        --indent;
-        println("}");
+        MethodBuilder method = classBuilder.method(Response.class, "delete" + type.simple + subresource.uppercaps());
+        method.annotate(DELETE.class);
+        idParameter(method, subresource.name);
+        requestContextParameter(method);
+        PrintWriter body = method.body();
+        body.println(logLine("delete " + subresource.name + " of " + type.lower + " {}", type.key.name));
+        body.println();
+        findOrFail(body, type.lower);
+        evaluatePreconditions(body, type.lower);
+        body.println();
+        body.println(type.lower + "." + subresource.setter() + "(null);");
+        store.flush(body);
+        body.println();
+        body.println("return Response.ok()" + etag(type.lower) + ".build();");
     }
 }

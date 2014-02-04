@@ -27,6 +27,9 @@ public class ClassSourceWriter {
 
         fields();
         methods();
+
+        --out.indent;
+        out.println("}");
     }
 
     private void imports(WebResourceType type) {
@@ -157,7 +160,10 @@ public class ClassSourceWriter {
             for (AnnotationBuilder annotation : parameter.annotations) {
                 line.append(annotation(annotation)).append(' ');
             }
-            line.append(parameter.type.getSimpleName()).append(' ').append(parameter.name);
+            line.append(parameter.type.getSimpleName());
+            if (parameter.uncollectedType != null)
+                line.append('<').append(parameter.uncollectedType.getSimpleName()).append('>');
+            line.append(' ').append(parameter.name);
         }
         line.append(") {");
         return line.toString();
