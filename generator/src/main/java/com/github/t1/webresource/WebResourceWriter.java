@@ -14,29 +14,29 @@ import org.slf4j.LoggerFactory;
 
 import com.github.t1.webresource.typewriter.*;
 
-class WebResourceWriter extends IndentedWriter {
+class WebResourceWriter {
     private final WebResourceType type;
-    private final JpaStoreWriter store;
-    private final ClassBuilder classBuilder;
+    private JpaStoreWriter store;
+    private ClassBuilder classBuilder;
 
     public WebResourceWriter(Messager messager, TypeElement typeElement) {
         this.type = new WebResourceType(typeElement);
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
-        this.classBuilder = new ClassBuilder(type.pkg, type.simple + "WebResource");
-        this.store = new JpaStoreWriter(this, type);
-    }
-
-    public String run() {
         if (type.key == null)
             throw new IllegalStateException("no id type found in " + type.qualified);
-        classBuilder.annotate(Path.class).value("/" + type.plural);
-        classBuilder.annotate(Stateless.class);
-        clazz();
-        return out.toString();
     }
 
-    private void clazz() {
+    synchronized public String run() {
+        this.store = new JpaStoreWriter(type);
+        this.classBuilder = new ClassBuilder(type.pkg, type.simple + "WebResource");
+        buildClass();
+        return new ClassSourceWriter(classBuilder, type).write();
+    }
+
+    private void buildClass() {
+        classBuilder.annotate(Path.class).value("/" + type.plural);
+        classBuilder.annotate(Stateless.class);
         logger();
         store.declare(classBuilder);
 
@@ -48,7 +48,6 @@ class WebResourceWriter extends IndentedWriter {
         PUT();
         DELETE();
         subresources();
-        new ClassSourceWriter(classBuilder, this).write(type);
     }
 
     private void logger() {

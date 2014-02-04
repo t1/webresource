@@ -7,14 +7,17 @@ import com.github.t1.webresource.WebResourceType;
 public class ClassSourceWriter {
 
     private final ClassBuilder builder;
-    private final IndentedWriter out;
+    private final WebResourceType type;
+    private IndentedWriter out;
 
-    public ClassSourceWriter(ClassBuilder builder, IndentedWriter out) {
+    public ClassSourceWriter(ClassBuilder builder, WebResourceType type) {
         this.builder = builder;
-        this.out = out;
+        this.type = type;
     }
 
-    public void write(WebResourceType type) {
+    synchronized public String write() {
+        this.out = new IndentedWriter();
+
         out.println("package " + builder.pkg + ";");
         out.println();
 
@@ -30,6 +33,8 @@ public class ClassSourceWriter {
 
         --out.indent;
         out.println("}");
+
+        return out.toString();
     }
 
     private void imports(WebResourceType type) {

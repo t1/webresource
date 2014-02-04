@@ -1,7 +1,8 @@
 package com.github.t1.webresource.typewriter;
 
 public class IndentedWriter {
-    public final StringBuilder out = new StringBuilder();
+    private final StringBuilder out = new StringBuilder();
+
     public int indent = 0;
 
     public void println(Object value) {
@@ -34,5 +35,10 @@ public class IndentedWriter {
                 out.append(c);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return out.toString();
     }
 }

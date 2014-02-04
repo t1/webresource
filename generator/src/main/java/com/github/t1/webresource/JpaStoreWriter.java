@@ -8,11 +8,9 @@ import com.github.t1.webresource.typewriter.*;
 
 /** Writes the JPA specific parts of a WebResouce class */
 public class JpaStoreWriter {
-    private final IndentedWriter writer;
     private final WebResourceType type;
 
-    public JpaStoreWriter(IndentedWriter writer, WebResourceType type) {
-        this.writer = writer;
+    public JpaStoreWriter(WebResourceType type) {
         this.type = type;
     }
 
@@ -82,9 +80,5 @@ public class JpaStoreWriter {
 
     public void flush(PrintWriter body) {
         body.println("em.flush();");
-    }
-
-    public void flush() {
-        writer.println("em.flush();");
     }
 }
