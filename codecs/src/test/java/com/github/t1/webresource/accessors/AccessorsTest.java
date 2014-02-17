@@ -1,4 +1,4 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.accessors;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Iterator;
+import java.util.*;
 
 import javax.enterprise.inject.Instance;
 
@@ -45,10 +45,10 @@ public class AccessorsTest {
         assertNull(accessor.title(null));
     }
 
-    @Test
-    public void shouldSkipRawAccessor() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailWithRawAccessor() throws Exception {
         @SuppressWarnings("rawtypes")
-        Accessors accessors = givenAccessors(new Accessor() {
+        Accessor rawAccessor = new Accessor() {
             @Override
             public String title(Object element) {
                 return "[" + element + "]";
@@ -58,38 +58,13 @@ public class AccessorsTest {
             public URI link(Object element) {
                 return null;
             }
-        });
+        };
 
-        Accessor<String> accessor = accessors.of("dummy");
-
-        assertEquals("test", accessor.title("test"));
-    }
-
-    private final class RunnableAccessor implements Serializable, Accessor<String> {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public String title(String element) {
-            return "x" + element;
-        }
-
-        @Override
-        public URI link(String element) {
-            return null;
-        }
+        givenAccessors(rawAccessor);
     }
 
     @Test
-    public void shouldSkipOtherInterfaceBeforeAccessor() throws Exception {
-        Accessors accessors = givenAccessors(new RunnableAccessor());
-
-        Accessor<String> accessor = accessors.of("dummy");
-
-        assertEquals("xtest", accessor.title("test"));
-    }
-
-    @Test
-    public void shouldFindIntegerAccessor() throws Exception {
+    public void shouldFindPrimitiveAccessor() throws Exception {
         Accessors accessors = givenAccessors(new Accessor<Integer>() {
             @Override
             public String title(Integer element) {
@@ -148,5 +123,74 @@ public class AccessorsTest {
         Accessor<Runnable> accessor = accessors.of(runnable);
 
         assertEquals("r", accessor.title(runnable));
+    }
+
+    private static class AbstractAccessorImpl extends AbstractAccessor<URI> {
+        @Override
+        public URI link(URI element) {
+            return element;
+        }
+    }
+
+    @Test
+    public void shouldFindAbstractAccessorImpl() throws Exception {
+        Accessors accessors = givenAccessors(new AbstractAccessorImpl());
+
+        URI uri = URI.create("http://localhost");
+        Accessor<URI> accessor = accessors.of(uri);
+
+        assertEquals(uri, accessor.link(uri));
+    }
+
+    private static class SuperAbstractAccessorImpl extends AbstractAccessorImpl {}
+
+    @Test
+    public void shouldFindSuperAbstractAccessorImpl() throws Exception {
+        Accessors accessors = givenAccessors(new SuperAbstractAccessorImpl());
+
+        URI uri = URI.create("http://localhost");
+        Accessor<URI> accessor = accessors.of(uri);
+
+        assertEquals(uri, accessor.link(uri));
+    }
+
+    private final class OtherInterfaceBeforeAccessor implements Serializable, Accessor<String> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String title(String element) {
+            return "x" + element;
+        }
+
+        @Override
+        public URI link(String element) {
+            return null;
+        }
+    }
+
+    @Test
+    public void shouldSkipOtherInterfaceBeforeAccessor() throws Exception {
+        Accessors accessors = givenAccessors(new OtherInterfaceBeforeAccessor());
+
+        Accessor<String> accessor = accessors.of("dummy");
+
+        assertEquals("xtest", accessor.title("test"));
+    }
+
+    public class GenericTypeAccessor extends AbstractAccessor<List<?>> {
+        @Override
+        public URI link(List<?> element) {
+            return null;
+        }
+    }
+
+    @Test
+    public void shouldFindGenericTypeAccessor() throws Exception {
+        Accessors accessors = givenAccessors(new GenericTypeAccessor());
+
+        List<String> list = Arrays.asList("one", "two", "three");
+        Accessor<List<String>> accessor = accessors.of(list);
+
+        assertEquals(GenericTypeAccessor.class, accessor.getClass());
     }
 }

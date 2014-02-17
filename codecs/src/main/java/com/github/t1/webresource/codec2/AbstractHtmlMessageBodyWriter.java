@@ -1,4 +1,4 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.codec2;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -9,11 +9,13 @@ import javax.inject.Inject;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import com.github.t1.webresource.accessors.*;
+
 public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWriter<T> {
     @Inject
     private BasePath basePath;
     @Inject
-    private Accessors accessors;
+    protected Accessors accessors;
 
     @Override
     public long getSize(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -33,18 +35,14 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
     }
 
     private void printHead(T t, PrintWriter out) {
-        String title = title(t);
+        Accessor<T> accessor = accessors.of(t);
+        String title = accessor.title(t);
         if (title != null) {
             out.append("<title>").append(title).println("</title>");
         }
     }
 
-    protected String title(T t) {
-        return null;
-    }
-
     protected abstract void printBody(T t, PrintWriter out);
-
 
     protected void printItem(Object item, PrintWriter out) {
         Accessor<Object> accessor = accessors.of(item);

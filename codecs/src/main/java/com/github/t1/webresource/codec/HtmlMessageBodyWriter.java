@@ -57,9 +57,9 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             log.error("error while encoding", e);
             throw e;
         } finally {
-            out.flush(); // doesn't work without this :-/
             htmlOut.setOut(null);
             log.debug("done html-encoding");
+            out.flush(); // doesn't work without this :-/
         }
     }
 }

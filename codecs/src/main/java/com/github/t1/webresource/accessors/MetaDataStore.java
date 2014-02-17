@@ -1,4 +1,4 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.accessors;
 
 import java.util.*;
 

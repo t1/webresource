@@ -1,6 +1,5 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.accessors;
 
-import java.lang.reflect.*;
 import java.net.URI;
 import java.util.*;
 
@@ -22,31 +21,12 @@ public class Accessors {
     void init() {
         log.info("init accessors");
         for (Accessor<?> accessor : instances) {
-            Class<?> type = type(accessor);
+            Class<?> type = new AccessorInfo(accessor).type();
             log.info("init accessor for {}: {}", type, accessor);
             if (type != null) {
                 accessors.put(type, accessor);
             }
         }
-    }
-
-    private Class<?> type(Accessor<?> accessor) {
-        for (Type type : accessor.getClass().getGenericInterfaces()) {
-            if (type instanceof ParameterizedType) {
-                ParameterizedType parameterizedType = (ParameterizedType) type;
-                if (Accessor.class.equals(parameterizedType.getRawType())) {
-                    return (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                }
-            }
-            if (isRawTypeAccessor(type)) {
-                return null;
-            }
-        }
-        throw new IllegalArgumentException("this can't happen");
-    }
-
-    private boolean isRawTypeAccessor(Type type) {
-        return Accessor.class.equals(type);
     }
 
     public <T> Accessor<T> of(T element) {

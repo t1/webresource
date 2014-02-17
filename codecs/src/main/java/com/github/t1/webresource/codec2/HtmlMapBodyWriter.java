@@ -1,4 +1,4 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.codec2;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
+
+import com.github.t1.webresource.accessors.*;
 
 @javax.ws.rs.ext.Provider
 @javax.ws.rs.Produces("text/html")
@@ -38,11 +40,5 @@ public class HtmlMapBodyWriter extends AbstractHtmlMessageBodyWriter<Map<?, ?>> 
         String keyTitle = (meta == null) ? "Key" : meta.keyTitle();
         String valueTitle = (meta == null) ? "Value" : meta.valueTitle();
         out.append("<tr><td>").append(keyTitle).append("</td><td>").append(valueTitle).println("</td></tr>");
-    }
-
-    @Override
-    protected String title(Map<?, ?> map) {
-        MapMetaData meta = metaData.get(map);
-        return (meta == null) ? null : meta.pageTitle();
     }
 }

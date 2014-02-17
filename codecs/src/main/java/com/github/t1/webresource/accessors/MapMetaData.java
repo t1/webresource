@@ -1,20 +1,21 @@
-package com.github.t1.webresource.meta2;
+package com.github.t1.webresource.accessors;
 
 import java.util.Map;
 
 public class MapMetaData implements MetaData<Map<?, ?>> {
-    private final String pageTitle;
+    private final String title;
     private final String keyTitle;
     private final String valueTitle;
 
     public MapMetaData(String pageTitle, String keyTitle, String valueTitle) {
-        this.pageTitle = pageTitle;
+        this.title = pageTitle;
         this.keyTitle = keyTitle;
         this.valueTitle = valueTitle;
     }
 
-    public String pageTitle() {
-        return pageTitle;
+    @Override
+    public String title() {
+        return title;
     }
 
     public String keyTitle() {
