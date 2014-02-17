@@ -70,9 +70,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("String", idType.simpleType);
+        assertEquals("String", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -82,9 +82,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("Long", idType.simpleType);
+        assertEquals("Long", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -94,9 +94,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("long", idType.simpleType);
+        assertEquals("long", idType.type.simple);
         assertEquals("id", idType.name);
-        assertFalse(idType.nullable);
+        assertFalse(idType.type.nullable);
     }
 
     @Test
@@ -106,9 +106,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("Integer", idType.simpleType);
+        assertEquals("Integer", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -118,9 +118,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("int", idType.simpleType);
+        assertEquals("int", idType.type.simple);
         assertEquals("id", idType.name);
-        assertFalse(idType.nullable);
+        assertFalse(idType.type.nullable);
     }
 
     @Test
@@ -130,9 +130,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("Short", idType.simpleType);
+        assertEquals("Short", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -142,9 +142,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("short", idType.simpleType);
+        assertEquals("short", idType.type.simple);
         assertEquals("id", idType.name);
-        assertFalse(idType.nullable);
+        assertFalse(idType.type.nullable);
     }
 
     @Test
@@ -154,9 +154,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("Double", idType.simpleType);
+        assertEquals("Double", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -166,9 +166,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("double", idType.simpleType);
+        assertEquals("double", idType.type.simple);
         assertEquals("id", idType.name);
-        assertFalse(idType.nullable);
+        assertFalse(idType.type.nullable);
     }
 
     @Test
@@ -178,9 +178,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(singletonList("java.math.BigInteger"), idType.imports);
-        assertEquals("BigInteger", idType.simpleType);
+        assertEquals("BigInteger", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -190,9 +190,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(singletonList("java.math.BigDecimal"), idType.imports);
-        assertEquals("BigDecimal", idType.simpleType);
+        assertEquals("BigDecimal", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -202,9 +202,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(singletonList("java.sql.Date"), idType.imports);
-        assertEquals("Date", idType.simpleType);
+        assertEquals("Date", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -214,9 +214,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(singletonList("java.util.Date"), idType.imports);
-        assertEquals("Date", idType.simpleType);
+        assertEquals("Date", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -226,9 +226,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(asList("java.util.List", "java.math.BigInteger"), idType.imports);
-        assertEquals("List<BigInteger>", idType.simpleType);
+        assertEquals("List<BigInteger>", idType.type.generic);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -238,9 +238,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(asList("java.util.Map", "java.math.BigInteger"), idType.imports);
-        assertEquals("Map<String, BigInteger>", idType.simpleType);
+        assertEquals("Map<String, BigInteger>", idType.type.generic);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test
@@ -257,9 +257,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(emptyList(), idType.imports);
-        assertEquals("long", idType.simpleType);
+        assertEquals("long", idType.type.simple);
         assertEquals("id", idType.name);
-        assertFalse(idType.nullable);
+        assertFalse(idType.type.nullable);
     }
 
     @Test
@@ -276,9 +276,9 @@ public class WebResourceFieldTest {
         WebResourceField idType = findField();
 
         assertEquals(singletonList("java.math.BigDecimal"), idType.imports);
-        assertEquals("BigDecimal", idType.simpleType);
+        assertEquals("BigDecimal", idType.type.simple);
         assertEquals("id", idType.name);
-        assertTrue(idType.nullable);
+        assertTrue(idType.type.nullable);
     }
 
     @Test

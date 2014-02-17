@@ -155,7 +155,7 @@ public class ClassSourceWriter {
     private Object methodDeclaration(MethodBuilder method) {
         StringBuilder line = new StringBuilder();
         line.append(method.visibility).append(" ");
-        line.append(method.returnType.getSimpleName()).append(" ").append(method.name).append("(");
+        line.append(method.returnType.simple).append(" ").append(method.name).append("(");
         boolean first = true;
         for (ParameterBuilder parameter : method.parameters) {
             if (first)
@@ -165,9 +165,9 @@ public class ClassSourceWriter {
             for (AnnotationBuilder annotation : parameter.annotations) {
                 line.append(annotation(annotation)).append(' ');
             }
-            line.append(parameter.type.getSimpleName());
+            line.append(parameter.type.simple);
             if (parameter.uncollectedType != null)
-                line.append('<').append(parameter.uncollectedType.getSimpleName()).append('>');
+                line.append('<').append(parameter.uncollectedType).append('>');
             line.append(' ').append(parameter.name);
         }
         line.append(") {");

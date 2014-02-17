@@ -20,6 +20,12 @@ public class ClassBuilder extends AnnotatableBuilder {
         return builder;
     }
 
+    public MethodBuilder method(TypeString returnType, String methodName) {
+        MethodBuilder builder = new MethodBuilder(returnType, methodName);
+        methods.add(builder);
+        return builder;
+    }
+
     public MethodBuilder method(Class<?> returnType, String methodName) {
         MethodBuilder builder = new MethodBuilder(returnType, methodName);
         methods.add(builder);

@@ -1,70 +1,49 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.typewriter;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A helper for {@link WebResourceField}s, encapsulating everything about types.
+ * Encapsulates details about types passed in as a String or Class.
  * <p/>
  * Not smart enough for doubly nested type variables
  */
-class TypeString {
-    public static Class<?> type(String typeName) {
-        switch (typeName) {
-        case "long":
-            return Long.TYPE;
-        case "int":
-            return Integer.TYPE;
-        case "short":
-            return Short.TYPE;
-        case "byte":
-            return Byte.TYPE;
-        case "char":
-            return Character.TYPE;
-        case "double":
-            return Double.TYPE;
-        case "float":
-            return Float.TYPE;
-        case "boolean":
-            return Boolean.TYPE;
-        case "void":
-            return Void.TYPE;
-        default:
-            return forName(typeName);
-        }
-    }
-
-    private static Class<?> forName(String typeName) {
-        try {
-            return Class.forName(typeName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+public class TypeString {
     private static final String ID = "\\p{Alpha}\\p{Alnum}*";
     private static final String TYPE = ID + "(\\." + ID + ")*";
     private static final Pattern TYPE_PATTERN = Pattern.compile("(" + TYPE + ")(<(" + TYPE + "(, " + TYPE + ")*)>)?");
+    private static final List<String> COLLECTION_TYPES = Arrays.asList("Set", "List", "Collection");
 
     private final Matcher matcher;
 
-    final boolean nullable;
-    final String simpleType;
-    final boolean isCollection;
-    final Class<?> rawType;
-    final Class<?> uncollectedType;
-    final List<String> imports = new ArrayList<String>();
+    /** Is this a non-primitive type, i.e. can it be null */
+    public final boolean nullable;
+    /** The unqualified type name */
+    public final String simple;
+    /** The full type name, without generics */
+    public final String raw;
+    public final String generic;
+    /** Is this a collection type, i.e. List, Set, etc. */
+    public final boolean isCollection;
+    /** The type of the contents of a collection type, or this, if not. */
+    public final TypeString uncollected;
+    public final List<String> imports = new ArrayList<String>();
+
+    public TypeString(Class<?> type) {
+        this(type.getName());
+    }
 
     public TypeString(String string) {
         this.matcher = TYPE_PATTERN.matcher(string);
         if (!matcher.matches())
             throw new IllegalArgumentException("invalid type string: [" + string + "]");
         this.nullable = rawType().contains(".");
-        this.simpleType = simpleType();
-        this.rawType = type(rawType());
+        this.simple = simpleType(rawType());
+        this.generic = genericType();
+        this.raw = rawType();
         this.isCollection = isCollection();
-        this.uncollectedType = type((isCollection) ? typeArguments() : rawType());
+        this.uncollected = (isCollection) ? new TypeString(typeArguments()) : this;
 
         addImports();
     }
@@ -77,7 +56,7 @@ class TypeString {
         return matcher.group(4);
     }
 
-    private String simpleType() {
+    private String genericType() {
         StringBuilder out = new StringBuilder();
         out.append(simpleType(rawType()));
 
@@ -103,7 +82,7 @@ class TypeString {
     }
 
     private boolean isCollection() {
-        return Collection.class.isAssignableFrom(rawType);
+        return COLLECTION_TYPES.contains(simple);
     }
 
     private void addImports() {

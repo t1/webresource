@@ -110,8 +110,8 @@ class WebResourceWriter {
     }
 
     private void findByKeyMethod() {
-        MethodBuilder method = classBuilder.method(type.type(), "findByKey").private_();
-        method.parameter(type.key.rawType, type.key.name);
+        MethodBuilder method = classBuilder.method(type.type, "findByKey").private_();
+        method.parameter(type.key.type, type.key.name);
         store.findByKey(method.body());
     }
 
@@ -133,7 +133,7 @@ class WebResourceWriter {
     }
 
     private void typeParameter(MethodBuilder method) {
-        method.parameter(type.type(), type.lower);
+        method.parameter(type.type, type.lower);
     }
 
     private AnnotationBuilder uriInfoParameter(MethodBuilder method) {
@@ -150,7 +150,7 @@ class WebResourceWriter {
 
     private void idParameterWithKey(MethodBuilder method, String key) {
         method.annotate(Path.class).value(key);
-        method.parameter(type.key.rawType, type.key.name).annotate(PathParam.class).value("id");
+        method.parameter(type.key.type, type.key.name).annotate(PathParam.class).value("id");
     }
 
     private String toString(String name) {
@@ -166,7 +166,7 @@ class WebResourceWriter {
         PrintWriter body = method.body();
         body.println(logLine("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower));
         body.println();
-        if (type.key.nullable) {
+        if (type.key.type.nullable) {
             body.println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
             body.println("    " + type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
             body.println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
@@ -186,7 +186,7 @@ class WebResourceWriter {
             body.println("        return Response.status(Status.NOT_FOUND).build();");
             body.println("    }");
             body.println("    " + type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
-            if (type.version != null && type.version.nullable) {
+            if (type.version != null && type.version.type.nullable) {
                 body.println("    if (" + type.lower + "." + type.version.getter() + "() == null) {");
                 body.println("        " + type.lower + "." + type.version.setter() + "(existing."
                         + type.version.getter() + "());");
@@ -239,11 +239,11 @@ class WebResourceWriter {
     private void subresources() {
         for (WebResourceField subresource : type.subResourceFields) {
             subGET(subresource);
-            if (subresource.isCollection) {
+            if (subresource.type.isCollection) {
                 subPOST(subresource);
             }
             subPUT(subresource);
-            if (subresource.nullable) {
+            if (subresource.type.nullable) {
                 subDELETE(subresource);
             }
         }
@@ -267,7 +267,7 @@ class WebResourceWriter {
         MethodBuilder method = classBuilder.method(Response.class, "add" + type.simple + subresource.uppercaps());
         method.annotate(POST.class);
         idParameter(method, subresource.name);
-        method.parameter(subresource.uncollectedType, subresource.name);
+        method.parameter(subresource.type.uncollected, subresource.name);
         uriInfoParameter(method);
         PrintWriter body = method.body();
         body.println(logLine("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name,
@@ -289,9 +289,9 @@ class WebResourceWriter {
         method.annotate(PUT.class);
         idParameter(method, subresource.name);
         requestContextParameter(method);
-        ParameterBuilder parameter = method.parameter(subresource.rawType, subresource.name);
-        if (subresource.isCollection)
-            parameter.generic(subresource.uncollectedType);
+        ParameterBuilder parameter = method.parameter(subresource.type, subresource.name);
+        if (subresource.type.isCollection)
+            parameter.generic(subresource.type.uncollected.simple);
         PrintWriter body = method.body();
         body.println(logLine("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name,
                 type.key.name));

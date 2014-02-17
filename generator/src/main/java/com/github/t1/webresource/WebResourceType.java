@@ -4,8 +4,11 @@ import java.util.List;
 
 import javax.lang.model.element.*;
 
+import com.github.t1.webresource.typewriter.TypeString;
+
 public class WebResourceType {
-    final TypeElement type;
+    private final TypeElement typeElement;
+    final TypeString type;
     final String pkg;
     final String simple;
     final String entityName;
@@ -18,10 +21,11 @@ public class WebResourceType {
     public final WebResourceField version;
     final List<WebResourceField> subResourceFields;
 
-    public WebResourceType(TypeElement type) {
-        this.type = type;
+    public WebResourceType(TypeElement typeElement) {
+        this.typeElement = typeElement;
         this.pkg = pkg();
-        this.simple = type.getSimpleName().toString();
+        this.type = new TypeString(typeElement.getQualifiedName().toString());
+        this.simple = typeElement.getSimpleName().toString();
         this.entityName = entity();
         this.lower = simple.toLowerCase();
         this.plural = new WebResourceTypeInfo(simple).plural;
@@ -34,60 +38,56 @@ public class WebResourceType {
     }
 
     private String pkg() {
-        for (Element element = type; element != null; element = element.getEnclosingElement()) {
+        for (Element element = typeElement; element != null; element = element.getEnclosingElement()) {
             if (ElementKind.PACKAGE == element.getKind()) {
                 return ((PackageElement) element).getQualifiedName().toString();
             }
         }
-        throw new IllegalStateException("no package for " + type);
+        throw new IllegalStateException("no package for " + typeElement);
     }
 
     private boolean isExtended() {
-        WebResource annotation = type.getAnnotation(WebResource.class);
+        WebResource annotation = typeElement.getAnnotation(WebResource.class);
         if (annotation == null)
-            throw new RuntimeException("expected type to be annotated as WebResource: " + type);
+            throw new RuntimeException("expected type to be annotated as WebResource: " + typeElement);
         return annotation.extended();
     }
 
     private String qualified() {
-        return type.getQualifiedName().toString();
+        return typeElement.getQualifiedName().toString();
     }
 
     private String entity() {
-        AnnotationMirror annotation = WebResourceField.getAnnotation(type, "javax.persistence.Entity");
+        AnnotationMirror annotation = WebResourceField.getAnnotation(typeElement, "javax.persistence.Entity");
         if (annotation != null) {
             AnnotationValue name = annotation.getElementValues().get("name");
             if (name != null) {
                 return name.toString();
             }
         }
-        return type.getSimpleName().toString();
+        return typeElement.getSimpleName().toString();
     }
 
     private WebResourceField id() {
         // don't use the Id type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Id");
+        return WebResourceField.findField(typeElement, "javax.persistence.Id");
     }
 
     private WebResourceField key() {
-        WebResourceField keyField = WebResourceField.findField(type, WebResourceKey.class.getName());
+        WebResourceField keyField = WebResourceField.findField(typeElement, WebResourceKey.class.getName());
         return (keyField == null) ? id : keyField;
     }
 
     private WebResourceField version() {
         // don't use the Version type itself, it may not be available at compile-time
-        return WebResourceField.findField(type, "javax.persistence.Version");
+        return WebResourceField.findField(typeElement, "javax.persistence.Version");
     }
 
     private List<WebResourceField> subResourceFields() {
-        return WebResourceField.findFields(type, WebSubResource.class.getName());
+        return WebResourceField.findFields(typeElement, WebSubResource.class.getName());
     }
 
     public boolean primary() {
         return id.equals(key);
-    }
-
-    public Class<?> type() {
-        return TypeString.type(qualified);
     }
 }

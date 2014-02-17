@@ -7,6 +7,8 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+import com.github.t1.webresource.typewriter.TypeString;
+
 public class WebResourceField {
     protected static WebResourceField findField(TypeElement classElement, String annotationTypeName) {
         List<WebResourceField> list = findFields(classElement, annotationTypeName);
@@ -55,29 +57,16 @@ public class WebResourceField {
 
     /** The field name */
     final String name;
-    /** Is this a non-primitive type, i.e. can it be null */
-    final boolean nullable;
     /** What imports are required for this type */
     public final List<String> imports = new ArrayList<String>();
-    /** The unqualified type name */
-    final String simpleType;
-    /** Is this a collection type, i.e. List, Set, etc. */
-    final boolean isCollection;
-    /** The type of the contents of a collection field, or the {@link #rawType} */
-    final Class<?> uncollectedType;
-    /** The full type of the field */
-    final Class<?> rawType;
+
+    final TypeString type;
 
     private WebResourceField(Element field) {
         this.field = field;
         this.name = field.getSimpleName().toString();
-        TypeString typeString = new TypeString(field.asType().toString());
-        this.nullable = typeString.nullable;
-        this.imports.addAll(typeString.imports);
-        this.simpleType = typeString.simpleType;
-        this.isCollection = typeString.isCollection;
-        this.rawType = typeString.rawType;
-        this.uncollectedType = typeString.uncollectedType;
+        this.type = new TypeString(field.asType().toString());
+        this.imports.addAll(type.imports);
     }
 
     @Override
