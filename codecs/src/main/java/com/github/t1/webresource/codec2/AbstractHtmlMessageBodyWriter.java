@@ -48,11 +48,7 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
         Accessor<Object> accessor = accessors.of(item);
         String title = accessor.title(item);
         URI link = accessor.link(item);
-        if (link == null) {
-            out.append(title);
-        } else {
-            out.printf(link(link, title));
-        }
+        out.append((link == null) ? title : link(link, title));
     }
 
     protected String link(String path, String label) {
@@ -60,6 +56,8 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
     }
 
     protected String link(URI uri, String label) {
+        if (label == null)
+            return "<a href=\"" + uri + "\"/>";
         return "<a href=\"" + uri + "\">" + label + "</a>";
     }
 }

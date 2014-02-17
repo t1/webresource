@@ -1,6 +1,6 @@
 package com.github.t1.webresource.codec2;
 
-import java.net.*;
+import java.net.URI;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
@@ -8,31 +8,12 @@ import javax.ws.rs.core.UriInfo;
 public class BasePath {
     @Inject
     private UriInfo uriInfo;
+    @Inject
+    private UriEscaper escaper;
 
     public URI resolve(String path) {
-        URI escaped = escape(path);
+        URI escaped = escaper.escape(path);
         return baseUri().resolve(escaped);
-    }
-
-    // square brackets '[' and ']' are not allowed in URIs, but 'new URI(String,String,String)' escapes all but these :(
-    private URI escape(String path) {
-        if (!containsSquareBrackets(path))
-            return escapeNonSB(path);
-        StringBuilder out = new StringBuilder();
-
-        return URI.create(out.toString());
-    }
-
-    private boolean containsSquareBrackets(String path) {
-        return path.contains("[") || path.contains("]");
-    }
-
-    private URI escapeNonSB(String path) {
-        try {
-            return new URI(null, path, null);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public URI baseUri() {
