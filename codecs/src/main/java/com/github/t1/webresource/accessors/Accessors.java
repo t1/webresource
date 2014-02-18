@@ -43,7 +43,7 @@ public class Accessors {
                     return null;
                 }
             };
-        log.info("found accessor for {}: {}", element, accessor);
+        log.trace("found accessor for {}: {}", element, accessor);
 
         @SuppressWarnings("unchecked")
         Accessor<T> accessorT = (Accessor<T>) accessor;

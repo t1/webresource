@@ -29,6 +29,7 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
         out.println("<html><head>");
         printHead(t, out);
         out.println("</head><body>");
+        printHeadline(t, out);
         printBody(t, out);
         out.println("</body></html>");
         out.flush(); // JBoss doesn't work without :(
@@ -39,6 +40,14 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
         String title = accessor.title(t);
         if (title != null) {
             out.append("<title>").append(title).println("</title>");
+        }
+    }
+
+    protected void printHeadline(T t, PrintWriter out) {
+        Accessor<T> accessor = accessors.of(t);
+        String title = accessor.title(t);
+        if (title != null) {
+            out.append("<h1>").append(title).println("</h1>");
         }
     }
 
