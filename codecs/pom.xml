@@ -54,15 +54,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- "build" scope -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>0.11.6</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-
 		<!-- provided/optional scope -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -88,7 +79,7 @@
 		<dependency>
 			<groupId>com.github.t1</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>1.1-SNAPSHOT</version>
+			<version>1.2</version>
 			<optional>true</optional>
 		</dependency>
 
