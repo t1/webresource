@@ -68,14 +68,19 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- compile scope -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>webresource-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+<!-- 		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javawriter</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+ -->
 		<!-- test scope -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>

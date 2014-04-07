@@ -9,6 +9,7 @@ public class UriMetaData implements MetaData<URI> {
         this.title = title;
     }
 
+    @Override
     public String title() {
         return title;
     }
