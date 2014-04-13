@@ -46,7 +46,7 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteBody() throws Exception {
+    public void shouldWriteBody() {
         doAnswer(writeAnswer("body")).when(bodyWriter).write(any(Item.class));
 
         write("dummy");
@@ -55,7 +55,7 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteHead() throws Exception {
+    public void shouldWriteHead() {
         doAnswer(writeAnswer("head")).when(headWriter).write(any(Item.class));
 
         write("dummy");
@@ -64,7 +64,7 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteExceptionInBody() throws Exception {
+    public void shouldWriteExceptionInBody() {
         doThrow(RuntimeException.class).when(bodyWriter).write(any(Item.class));
 
         try {
@@ -79,7 +79,7 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteExceptionInHead() throws Exception {
+    public void shouldWriteExceptionInHead() {
         doThrow(RuntimeException.class).when(headWriter).write(any(Item.class));
 
         try {
@@ -104,10 +104,10 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
         public void decorate(Item item) {
             out.write(decoration);
         }
-    };
+    }
 
     @Test
-    public void shouldDecorateOne() throws Exception {
+    public void shouldDecorateOne() {
         givenDecorators(new Decorator("decoration"));
         doAnswer(writeAnswer("body")).when(bodyWriter).write(any(Item.class));
 
@@ -117,7 +117,7 @@ public class HtmlWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldDecorateTwo() throws Exception {
+    public void shouldDecorateTwo() {
         givenDecorators(new Decorator("foo"), new Decorator("bar"));
         doAnswer(writeAnswer("body")).when(bodyWriter).write(any(Item.class));
 

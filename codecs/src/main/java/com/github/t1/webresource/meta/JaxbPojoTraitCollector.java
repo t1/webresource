@@ -8,8 +8,7 @@ import java.util.*;
 import javax.xml.bind.annotation.*;
 
 import com.github.t1.stereotypes.Annotations;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
+import com.github.t1.webresource.meta.PojoTrait.Predicate;
 
 public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
     public JaxbPojoTraitCollector(Class<?> type) {
@@ -131,7 +130,7 @@ public class JaxbPojoTraitCollector extends AbstractPojoTraitCollector {
     }
 
     private Map<String, Trait> map(List<Trait> traits) {
-        Map<String, Trait> map = Maps.newHashMap();
+        Map<String, Trait> map = new HashMap<>();
         for (Trait trait : traits) {
             map.put(trait.name(), trait);
         }

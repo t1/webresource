@@ -18,7 +18,7 @@ public class JaxbTraitProviderTest {
     }
 
     @Test
-    public void shouldConsiderPublicGetter() throws Exception {
+    public void shouldConsiderPublicGetter() {
         List<Trait> traits = new JaxbPojoTraitCollector(Pojo.class).run();
 
         assertEquals(1, traits.size());
@@ -33,7 +33,7 @@ public class JaxbTraitProviderTest {
     }
 
     @Test
-    public void shouldConsiderAccessorOrder() throws Exception {
+    public void shouldConsiderAccessorOrder() {
         List<Trait> traits = new JaxbPojoTraitCollector(AlphabeticalPojo.class).run();
 
         assertEquals(2, traits.size());
@@ -49,7 +49,7 @@ public class JaxbTraitProviderTest {
     }
 
     @Test
-    public void shouldConsiderPropOrder1() throws Exception {
+    public void shouldConsiderPropOrder1() {
         List<Trait> traits = new JaxbPojoTraitCollector(Pojo1.class).run();
 
         assertEquals(2, traits.size());
@@ -65,7 +65,7 @@ public class JaxbTraitProviderTest {
     }
 
     @Test
-    public void shouldConsiderPropOrder2() throws Exception {
+    public void shouldConsiderPropOrder2() {
         List<Trait> traits = new JaxbPojoTraitCollector(Pojo2.class).run();
 
         assertEquals(2, traits.size());
@@ -81,7 +81,7 @@ public class JaxbTraitProviderTest {
     }
 
     @Test
-    public void shouldNotFindStaticGetter() throws Exception {
+    public void shouldNotFindStaticGetter() {
         List<Trait> traits = new JaxbPojoTraitCollector(StaticFieldAndGetter.class).run();
 
         assertEquals(0, traits.size());

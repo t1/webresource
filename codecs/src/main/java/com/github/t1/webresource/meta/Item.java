@@ -9,7 +9,7 @@ import java.util.*;
  * work with fields, getters, setters, etc. but work on a meta level. {@link #isSimple() Simple types} (incl.
  * <code>null</code>) are represented as items with one trait. Maps are represented just like objects (note that for
  * pojos and maps, the order of the traits is generally <i>not</i> guaranteed). {@link #isList() List} elements can be
- * accessed with {@link #getList()} that returns a list of Items.
+ * accessed with {@link #list()} that returns a list of Items.
  * <p/>
  * Design Decision: The implementation of this interface is currently based on reflection on POJOs, but the API is quite
  * generic, so it should be easy to extract an interface and write implementations that are based on e.g., xml, json,

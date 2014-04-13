@@ -48,7 +48,7 @@ public class WebResourceFieldTest {
     @Mock
     TypeElement type;
     Element field = mockField();
-    private final List<Element> fields = new ArrayList<Element>();
+    private final List<Element> fields = new ArrayList<>();
 
     @Before
     public void before() {
@@ -64,7 +64,7 @@ public class WebResourceFieldTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void shouldParseString() throws Exception {
+    public void shouldParseString() {
         mockFieldType(field, "java.lang.String");
 
         WebResourceField idType = findField();
@@ -76,7 +76,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseLong() throws Exception {
+    public void shouldParseLong() {
         mockFieldType(field, "java.lang.Long");
 
         WebResourceField idType = findField();
@@ -88,7 +88,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParsePrimitiveLong() throws Exception {
+    public void shouldParsePrimitiveLong() {
         mockFieldType(field, "long");
 
         WebResourceField idType = findField();
@@ -100,7 +100,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseInteger() throws Exception {
+    public void shouldParseInteger() {
         mockFieldType(field, "java.lang.Integer");
 
         WebResourceField idType = findField();
@@ -112,7 +112,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParsePrimitiveInt() throws Exception {
+    public void shouldParsePrimitiveInt() {
         mockFieldType(field, "int");
 
         WebResourceField idType = findField();
@@ -124,7 +124,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseShort() throws Exception {
+    public void shouldParseShort() {
         mockFieldType(field, "java.lang.Short");
 
         WebResourceField idType = findField();
@@ -136,7 +136,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParsePrimitiveShort() throws Exception {
+    public void shouldParsePrimitiveShort() {
         mockFieldType(field, "short");
 
         WebResourceField idType = findField();
@@ -148,7 +148,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseDouble() throws Exception {
+    public void shouldParseDouble() {
         mockFieldType(field, "java.lang.Double");
 
         WebResourceField idType = findField();
@@ -160,7 +160,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParsePrimitiveDouble() throws Exception {
+    public void shouldParsePrimitiveDouble() {
         mockFieldType(field, "double");
 
         WebResourceField idType = findField();
@@ -172,7 +172,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseBigInteger() throws Exception {
+    public void shouldParseBigInteger() {
         mockFieldType(field, "java.math.BigInteger");
 
         WebResourceField idType = findField();
@@ -184,7 +184,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseBigDecimal() throws Exception {
+    public void shouldParseBigDecimal() {
         mockFieldType(field, "java.math.BigDecimal");
 
         WebResourceField idType = findField();
@@ -196,7 +196,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseSqlDate() throws Exception {
+    public void shouldParseSqlDate() {
         mockFieldType(field, "java.sql.Date");
 
         WebResourceField idType = findField();
@@ -208,7 +208,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseUtilDate() throws Exception {
+    public void shouldParseUtilDate() {
         mockFieldType(field, "java.util.Date");
 
         WebResourceField idType = findField();
@@ -220,7 +220,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseGenericType() throws Exception {
+    public void shouldParseGenericType() {
         mockFieldType(field, "java.util.List<java.math.BigInteger>");
 
         WebResourceField idType = findField();
@@ -232,7 +232,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldParseTwoArgGenericType() throws Exception {
+    public void shouldParseTwoArgGenericType() {
         mockFieldType(field, "java.util.Map<java.lang.String, java.math.BigInteger>");
 
         WebResourceField idType = findField();
@@ -244,7 +244,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldInheritedPrimitiveLong() throws Exception {
+    public void shouldInheritedPrimitiveLong() {
         TypeElement parent = mock(TypeElement.class);
         DeclaredType parentMirror = mock(DeclaredType.class);
         when(parentMirror.asElement()).thenReturn(parent);
@@ -263,7 +263,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldInheritedBigDecimal() throws Exception {
+    public void shouldInheritedBigDecimal() {
         TypeElement parent = mock(TypeElement.class);
         DeclaredType parentMirror = mock(DeclaredType.class);
         when(parentMirror.asElement()).thenReturn(parent);
@@ -282,7 +282,7 @@ public class WebResourceFieldTest {
     }
 
     @Test
-    public void shouldFailWithTwoIdFields() throws Exception {
+    public void shouldFailWithTwoIdFields() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(CoreMatchers.startsWith("more than one javax.persistence.Id field found: "));
 

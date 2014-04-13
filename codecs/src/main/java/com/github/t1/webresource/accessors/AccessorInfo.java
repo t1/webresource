@@ -5,7 +5,7 @@ import java.util.*;
 
 public class AccessorInfo {
     private final Class<?> accessorType;
-    private final Map<TypeVariable<?>, Type> typeVariables = new HashMap<TypeVariable<?>, Type>();
+    private final Map<TypeVariable<?>, Type> typeVariables = new HashMap<>();
 
     public AccessorInfo(Accessor<?> accessor) {
         this.accessorType = accessor.getClass();

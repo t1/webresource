@@ -31,14 +31,12 @@ public class FormUrlEncodedWriter implements MessageBodyWriter<Object> {
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException,
             WebApplicationException {
         log.debug("start url-encoding");
-        Writer out = new OutputStreamWriter(entityStream);
-        try {
+        try (Writer out = new OutputStreamWriter(entityStream)) {
             new FormUrlEncoder(out).write(t);
         } catch (RuntimeException | IOException e) {
             log.error("error while encoding", e);
             throw e;
         } finally {
-            out.flush(); // doesn't work without this :-(
             log.debug("done url-encoding");
         }
     }

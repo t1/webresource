@@ -49,8 +49,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             WebApplicationException {
         log.debug("start html-encoding");
 
-        OutputStreamWriter out = new OutputStreamWriter(entityStream);
-        try {
+        try (OutputStreamWriter out = new OutputStreamWriter(entityStream)) {
             htmlOut.setOut(out);
             htmlWriter.write(Items.newItem(t));
         } catch (RuntimeException e) {
@@ -59,7 +58,6 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         } finally {
             htmlOut.setOut(null);
             log.debug("done html-encoding");
-            out.flush(); // doesn't work without this :-/
         }
     }
 }

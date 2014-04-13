@@ -39,7 +39,7 @@ public class UnionAnnotatedElementTest {
     }
 
     @Test
-    public void shouldStartEmpty() throws Exception {
+    public void shouldStartEmpty() {
         UnionAnnotatedElement union = new UnionAnnotatedElement();
 
         assertEquals(0, union.getAnnotations().length);
@@ -50,7 +50,7 @@ public class UnionAnnotatedElementTest {
     }
 
     @Test
-    public void shouldCollectEmpty() throws Exception {
+    public void shouldCollectEmpty() {
         UnionAnnotatedElement union = new UnionAnnotatedElement(EMPTY);
 
         assertEquals(0, union.getAnnotations().length);
@@ -61,7 +61,7 @@ public class UnionAnnotatedElementTest {
     }
 
     @Test
-    public void shouldCollectA() throws Exception {
+    public void shouldCollectA() {
         UnionAnnotatedElement union = new UnionAnnotatedElement(A);
 
         assertAnnotationTypes(union.getAnnotations(), XmlRootElement.class);
@@ -75,7 +75,7 @@ public class UnionAnnotatedElementTest {
     }
 
     @Test
-    public void shouldCollectB() throws Exception {
+    public void shouldCollectB() {
         UnionAnnotatedElement union = new UnionAnnotatedElement(B);
 
         assertAnnotationTypes(union.getAnnotations(), XmlType.class, XmlRootElement.class);
@@ -88,7 +88,7 @@ public class UnionAnnotatedElementTest {
     }
 
     @Test
-    public void shouldMergeAandB() throws Exception {
+    public void shouldMergeAandB() {
         UnionAnnotatedElement union = new UnionAnnotatedElement(A, B);
 
         assertAnnotationTypes(union.getAnnotations(), XmlRootElement.class, XmlType.class);

@@ -88,11 +88,6 @@
 			<version>1.2.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 		<!-- (integration-)test scope -->
 		<dependency>

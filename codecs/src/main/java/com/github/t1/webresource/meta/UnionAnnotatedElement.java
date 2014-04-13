@@ -2,9 +2,7 @@ package com.github.t1.webresource.meta;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-
-import com.google.common.collect.*;
-import com.google.common.collect.ImmutableList.Builder;
+import java.util.*;
 
 /**
  * The union of the unique annotations of zero or more {@link AnnotatedElement}s, i.e. if an annotation type is present
@@ -41,7 +39,7 @@ public class UnionAnnotatedElement implements AnnotatedElement {
 
     @Override
     public Annotation[] getAnnotations() {
-        ImmutableList.Builder<Annotation> result = ImmutableList.builder();
+        List<Annotation> result = new ArrayList<>();
         for (AnnotatedElement element : elements) {
             for (Annotation annotation : element.getAnnotations()) {
                 if (!containsType(result, annotation.getClass())) {
@@ -49,11 +47,11 @@ public class UnionAnnotatedElement implements AnnotatedElement {
                 }
             }
         }
-        return result.build().toArray(new Annotation[0]);
+        return result.toArray(new Annotation[0]);
     }
 
-    private boolean containsType(Builder<Annotation> result, Class<? extends Annotation> type) {
-        for (Annotation annotation : result.build()) {
+    private boolean containsType(List<Annotation> result, Class<? extends Annotation> type) {
+        for (Annotation annotation : result) {
             if (type.equals(annotation.getClass())) {
                 return true;
             }
@@ -63,7 +61,7 @@ public class UnionAnnotatedElement implements AnnotatedElement {
 
     @Override
     public Annotation[] getDeclaredAnnotations() {
-        ImmutableList.Builder<Annotation> result = ImmutableList.builder();
+        List<Annotation> result = new ArrayList<>();
         for (AnnotatedElement element : elements) {
             for (Annotation annotation : element.getDeclaredAnnotations()) {
                 if (!containsType(result, annotation.getClass())) {
@@ -71,6 +69,6 @@ public class UnionAnnotatedElement implements AnnotatedElement {
                 }
             }
         }
-        return result.build().toArray(new Annotation[0]);
+        return result.toArray(new Annotation[0]);
     }
 }

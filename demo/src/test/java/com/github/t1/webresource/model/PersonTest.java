@@ -1,14 +1,14 @@
 package com.github.t1.webresource.model;
 
+import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
 import java.io.*;
+import java.util.*;
 
 import javax.xml.bind.JAXB;
 
 import org.junit.*;
-
-import com.google.common.collect.ImmutableSet;
 
 public class PersonTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;
@@ -34,17 +34,17 @@ public class PersonTest {
     private final Person person = new Person("Joe", "Doe");
 
     @Test
-    public void shouldReturnEmptyTags() throws Exception {
+    public void shouldReturnEmptyTags() {
         assertTrue(person.getTags().isEmpty());
     }
 
     @Test
-    public void tagsShouldBeImmutable() throws Exception {
+    public void tagsShouldBeImmutable() {
         assertTrue(person.getTags().isEmpty());
     }
 
     @Test
-    public void shouldMarshal() throws Exception {
+    public void shouldMarshal() {
         StringWriter xml = new StringWriter();
         JAXB.marshal(person, xml);
 
@@ -52,7 +52,7 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldUnmarshal() throws Exception {
+    public void shouldUnmarshal() {
         Person person = JAXB.unmarshal(new StringReader(XML), Person.class);
 
         assertEquals("Joe", person.getFirst());
@@ -60,21 +60,25 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldTag() throws Exception {
+    public void shouldTag() {
         person.tag(TAG1);
 
-        assertEquals(ImmutableSet.of(TAG1), person.getTags());
+        assertEquals(set(TAG1), person.getTags());
+    }
+
+    private <T> Set<T> set(@SuppressWarnings("unchecked") T... values) {
+        return new LinkedHashSet<>(asList(values));
     }
 
     @Test
-    public void shouldTagTwo() throws Exception {
+    public void shouldTagTwo() {
         person.tag(TAG1).tag(TAG2);
 
-        assertEquals(ImmutableSet.of(TAG1, TAG2), person.getTags());
+        assertEquals(set(TAG1, TAG2), person.getTags());
     }
 
     @Test
-    public void shouldUntag() throws Exception {
+    public void shouldUntag() {
         person.tag(TAG1);
 
         boolean untagged = person.untag(TAG1);
@@ -84,7 +88,7 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldUntagKey() throws Exception {
+    public void shouldUntagKey() {
         person.tag(TAG1);
 
         boolean untagged = person.untag(TAG1.getKey());
@@ -94,7 +98,7 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldNotUntagUntagged() throws Exception {
+    public void shouldNotUntagUntagged() {
         boolean untagged = person.untag(TAG1);
 
         assertFalse(untagged);
@@ -102,7 +106,7 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldNotUntagUntaggedKey() throws Exception {
+    public void shouldNotUntagUntaggedKey() {
         boolean untagged = person.untag(TAG1.getKey());
 
         assertFalse(untagged);
@@ -110,37 +114,37 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldNotUntagUnknownKey() throws Exception {
+    public void shouldNotUntagUnknownKey() {
         person.tag(TAG1);
 
         boolean untagged = person.untag("wrong-key");
 
         assertFalse(untagged);
-        assertEquals(ImmutableSet.of(TAG1), person.getTags());
+        assertEquals(set(TAG1), person.getTags());
     }
 
     @Test
-    public void shouldNotUntagEmptyKey() throws Exception {
+    public void shouldNotUntagEmptyKey() {
         person.tag(TAG1);
 
         boolean untagged = person.untag("");
 
         assertFalse(untagged);
-        assertEquals(ImmutableSet.of(TAG1), person.getTags());
+        assertEquals(set(TAG1), person.getTags());
     }
 
     @Test
-    public void shouldNotUntagNullKey() throws Exception {
+    public void shouldNotUntagNullKey() {
         person.tag(TAG1);
 
         boolean untagged = person.untag((String) null);
 
         assertFalse(untagged);
-        assertEquals(ImmutableSet.of(TAG1), person.getTags());
+        assertEquals(set(TAG1), person.getTags());
     }
 
     @Test
-    public void shouldMarshalTagged() throws Exception {
+    public void shouldMarshalTagged() {
         person.tag(TAG1);
 
         StringWriter xml = new StringWriter();
@@ -150,17 +154,17 @@ public class PersonTest {
     }
 
     @Test
-    public void shouldUnmarshalTagged() throws Exception {
+    public void shouldUnmarshalTagged() {
         Person person = JAXB.unmarshal(new StringReader(TAGGED_XML), Person.class);
 
         assertEquals("Joe", person.getFirst());
         assertEquals("Doe", person.getLast());
-        assertEquals(ImmutableSet.of(TAG1), person.getTags());
+        assertEquals(set(TAG1), person.getTags());
     }
 
     @Test
     @Ignore
-    public void shouldMarshalTagList() throws Exception {
+    public void shouldMarshalTagList() {
         person.tag(TAG1).tag(TAG2);
 
         StringWriter xml = new StringWriter();

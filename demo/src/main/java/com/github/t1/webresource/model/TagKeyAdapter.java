@@ -3,7 +3,6 @@ package com.github.t1.webresource.model;
 import javax.persistence.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -29,7 +28,7 @@ public class TagKeyAdapter extends XmlAdapter<String, Tag> {
     }
 
     @Override
-    public Tag unmarshal(String key) throws Exception {
+    public Tag unmarshal(String key) {
         log.info("unmarshal {}", key);
         if (key == null)
             return null;
@@ -66,7 +65,7 @@ public class TagKeyAdapter extends XmlAdapter<String, Tag> {
     }
 
     @Override
-    public String marshal(Tag tag) throws Exception {
+    public String marshal(Tag tag) {
         return (tag == null) ? null : tag.getKey();
     }
 }

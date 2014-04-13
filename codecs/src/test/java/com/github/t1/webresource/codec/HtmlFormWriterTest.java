@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -14,7 +15,6 @@ import lombok.*;
 import org.junit.Test;
 
 import com.github.t1.webresource.meta.*;
-import com.google.common.collect.*;
 
 public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     HtmlFormWriter writer = new HtmlFormWriter();
@@ -59,7 +59,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeEmptyMap() throws Exception {
+    public void shouldEncodeEmptyMap() {
         Map<String, String> map = new LinkedHashMap<>();
 
         write(map);
@@ -68,7 +68,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneKeyMap() throws Exception {
+    public void shouldEncodeOneKeyMap() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");
 
@@ -78,7 +78,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeMap() throws Exception {
+    public void shouldEncodeMap() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");
         map.put("two", "222");
@@ -90,7 +90,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneStringPojoWithoutKey() {
         OneStringPojo pojo = new OneStringPojo("str");
 
         write(pojo);
@@ -99,7 +99,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringPojoNullValue() throws Exception {
+    public void shouldEncodeOneStringPojoNullValue() {
         OneStringPojo pojo = new OneStringPojo(null);
 
         Item item = Items.newItem(pojo);
@@ -112,7 +112,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringInputNamedPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneStringInputNamedPojoWithoutKey() {
         OneStringInputNamedPojo pojo = new OneStringInputNamedPojo("str");
 
         write(pojo);
@@ -121,7 +121,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringInputNamedPojoNullValue() throws Exception {
+    public void shouldEncodeOneStringInputNamedPojoNullValue() {
         OneStringInputNamedPojo pojo = new OneStringInputNamedPojo(null);
 
         write(pojo);
@@ -137,7 +137,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringInputTypedPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneStringInputTypedPojoWithoutKey() {
         OneStringInputTypedPojo pojo = new OneStringInputTypedPojo("str");
 
         write(pojo);
@@ -146,7 +146,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() throws Exception {
+    public void shouldEncodeTwoFieldPojoAsSequenceOfDivsWithLabelsAndReadonlyInputs() {
         TwoFieldPojo pojo = new TwoFieldPojo("dummy", 123);
 
         write(pojo);
@@ -164,7 +164,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneBooleanPojoWithoutKey() throws Exception {
+    public void shouldEncodeOneBooleanPojoWithoutKey() {
         TwoFieldsOneBooleanPojo pojo = new TwoFieldsOneBooleanPojo(true, "dummy");
 
         write(pojo);
@@ -180,7 +180,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodePojoWithId() throws Exception {
+    public void shouldEncodePojoWithId() {
         PojoWithId pojo = new PojoWithId(123, "dummy");
 
         write(pojo);
@@ -200,9 +200,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeSetPojo() throws Exception {
+    public void shouldEncodeSetPojo() {
         mockListWriter();
-        SetPojo pojo = new SetPojo("dummy", ImmutableSet.of("one", "two", "three"));
+        SetPojo pojo = new SetPojo("dummy", new LinkedHashSet<>(asList("one", "two", "three")));
 
         write(pojo);
 
@@ -212,9 +212,9 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeListPojo() throws Exception {
+    public void shouldEncodeListPojo() {
         mockListWriter();
-        ListPojo pojo = new ListPojo("dummy", ImmutableList.of("one", "two", "three"));
+        ListPojo pojo = new ListPojo("dummy", asList("one", "two", "three"));
 
         write(pojo);
 
@@ -224,7 +224,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeNestedPojo() throws Exception {
+    public void shouldEncodeNestedPojo() {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         ContainerPojo pojo = new ContainerPojo("dummy", new NestedPojo("foo", 123));
@@ -250,7 +250,7 @@ public class HtmlFormWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeLinkNestedPojo() throws Exception {
+    public void shouldEncodeLinkNestedPojo() {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         LinkContainerPojo pojo = new LinkContainerPojo(new LinkNestedPojo("foo", "bar"));

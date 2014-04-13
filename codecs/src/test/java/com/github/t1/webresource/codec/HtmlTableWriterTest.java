@@ -10,7 +10,6 @@ import java.util.*;
 import org.junit.Test;
 
 import com.github.t1.webresource.meta.*;
-import com.google.common.collect.ImmutableList;
 
 public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     HtmlTableWriter writer = new HtmlTableWriter();
@@ -44,7 +43,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeListOfOneElementMapsAsTable() throws Exception {
+    public void shouldEncodeListOfOneElementMapsAsTable() {
         Map<String, String> map0 = new LinkedHashMap<>();
         map0.put("one", "111");
 
@@ -57,7 +56,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeListOfMapsAsTable() throws Exception {
+    public void shouldEncodeListOfMapsAsTable() {
         Map<String, String> map0 = new LinkedHashMap<>();
         map0.put("one", "111");
         map0.put("two", "222");
@@ -77,7 +76,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringPojoListAsTable() throws Exception {
+    public void shouldEncodeOneStringPojoListAsTable() {
         OneStringPojo pojo1 = new OneStringPojo("one");
         OneStringPojo pojo2 = new OneStringPojo("two");
         OneStringPojo pojo3 = new OneStringPojo("three");
@@ -89,7 +88,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeOneStringInputNamedPojoListAsTable() throws Exception {
+    public void shouldEncodeOneStringInputNamedPojoListAsTable() {
         OneStringInputNamedPojo pojo1 = new OneStringInputNamedPojo("one");
         OneStringInputNamedPojo pojo2 = new OneStringInputNamedPojo("two");
         OneStringInputNamedPojo pojo3 = new OneStringInputNamedPojo("three");
@@ -101,7 +100,7 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeTwoFieldPojoListAsTable() throws Exception {
+    public void shouldEncodeTwoFieldPojoListAsTable() {
         TwoFieldPojo pojo1 = new TwoFieldPojo("one", 111);
         TwoFieldPojo pojo2 = new TwoFieldPojo("two", 222);
         List<TwoFieldPojo> list = Arrays.asList(pojo1, pojo2);
@@ -115,12 +114,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeTableWithListPojo() throws Exception {
+    public void shouldEncodeTableWithListPojo() {
         writer.listWriter = mock(HtmlListWriter.class);
         doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
-        ListPojo pojo1 = new ListPojo("dummy1", ImmutableList.of("one1", "two1", "three1"));
-        ListPojo pojo2 = new ListPojo("dummy2", ImmutableList.of("one2", "two2", "three2"));
-        List<ListPojo> list = ImmutableList.of(pojo1, pojo2);
+        ListPojo pojo1 = new ListPojo("dummy1", asList("one1", "two1", "three1"));
+        ListPojo pojo2 = new ListPojo("dummy2", asList("one2", "two2", "three2"));
+        List<ListPojo> list = asList(pojo1, pojo2);
 
         write(list);
 
@@ -133,12 +132,12 @@ public class HtmlTableWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeTableWithContainerPojo() throws Exception {
+    public void shouldEncodeTableWithContainerPojo() {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         ContainerPojo pojo1 = new ContainerPojo("dummy1", new NestedPojo("foo", 123));
         ContainerPojo pojo2 = new ContainerPojo("dummy2", new NestedPojo("bar", 321));
-        List<ContainerPojo> list = ImmutableList.of(pojo1, pojo2);
+        List<ContainerPojo> list = asList(pojo1, pojo2);
 
         write(list);
 

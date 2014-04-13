@@ -1,5 +1,6 @@
 package com.github.t1.webresource.meta;
 
+import static java.util.Arrays.*;
 import static javax.xml.bind.annotation.XmlAccessType.*;
 import static org.junit.Assert.*;
 
@@ -14,12 +15,10 @@ import lombok.*;
 
 import org.junit.Test;
 
-import com.google.common.collect.*;
-
 public class ItemTest {
 
     @Test
-    public void shouldHoldNull() throws Exception {
+    public void shouldHoldNull() {
         Item item = Items.newItem(null);
 
         assertTrue(item.isNull());
@@ -29,7 +28,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldString() throws Exception {
+    public void shouldHoldString() {
         Item item = Items.newItem("dummy");
 
         assertFalse(item.isNull());
@@ -39,7 +38,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldLong() throws Exception {
+    public void shouldHoldLong() {
         Item item = Items.newItem(1234L);
 
         assertFalse(item.isNull());
@@ -49,7 +48,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldDate() throws Exception {
+    public void shouldHoldDate() {
         Item item = Items.newItem(new Date(0));
 
         assertFalse(item.isNull());
@@ -59,7 +58,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldMap() throws Exception {
+    public void shouldHoldMap() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");
         map.put("two", "222");
@@ -89,7 +88,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldPojo() throws Exception {
+    public void shouldHoldPojo() {
         Item item = Items.newItem(new Pojo("111", "222", "333"));
 
         assertFalse(item.isNull());
@@ -132,7 +131,7 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldHoldJaxbPojo() throws Exception {
+    public void shouldHoldJaxbPojo() {
         Item item = Items.newItem(new JaxbPojo("111", "222", "333"));
 
         assertFalse(item.isNull());
@@ -174,16 +173,16 @@ public class ItemTest {
         @Size(50)
         private String last = "lll";
 
-        private Set<String> tags = ImmutableSet.of("one", "two");
+        private Set<String> tags = new LinkedHashSet<>(asList("one", "two"));
 
         @XmlList
         @XmlElement(name = "tags")
         public List<String> getTagList() {
-            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            List<String> list = new ArrayList<>();
             for (String tag : tags) {
-                builder.add(tag);
+                list.add(tag);
             }
-            return builder.build();
+            return list;
         }
 
         // not an XmlElement or XmlAttribute, and AccessorType is NONE
@@ -193,14 +192,14 @@ public class ItemTest {
     }
 
     @Test
-    public void shouldMarshalAdvancedItem() throws Exception {
+    public void shouldMarshalAdvancedItem() {
         JAXB.marshal(new AdvancedItem(), System.out);
 
         // no asserts... just check that the annotations are legal
     }
 
     @Test
-    public void shouldHoldProperties() throws Exception {
+    public void shouldHoldProperties() {
         Item item = Items.newItem(new AdvancedItem());
 
         assertEquals("first, lastName, tags", names(item.traits()));

@@ -5,8 +5,6 @@ import static com.github.t1.webresource.meta.Converter.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
-import com.google.common.base.Predicate;
-
 public class PojoAccessorTrait extends PojoTrait {
     private final Method getter;
 

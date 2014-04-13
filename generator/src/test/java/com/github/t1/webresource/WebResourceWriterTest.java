@@ -43,7 +43,7 @@ public class WebResourceWriterTest {
     Messager messager;
 
     Element idField;
-    List<Element> fields = new ArrayList<Element>();
+    List<Element> fields = new ArrayList<>();
 
     void mockAnnotationProcessor(boolean extended, String idType) {
         String packageName = "com.github.t1.webresource";
@@ -85,17 +85,18 @@ public class WebResourceWriterTest {
     }
 
     private String readReference(String fileName) throws IOException {
-        InputStream inputStream = WebResourceWriterTest.class.getResourceAsStream(fileName);
-        if (inputStream == null)
-            throw new FileNotFoundException(fileName);
-        StringBuilder result = new StringBuilder();
-        while (true) {
-            int c = inputStream.read();
-            if (c < 0)
-                break;
-            result.appendCodePoint(c);
+        try (InputStream inputStream = WebResourceWriterTest.class.getResourceAsStream(fileName)) {
+            if (inputStream == null)
+                throw new FileNotFoundException(fileName);
+            StringBuilder result = new StringBuilder();
+            while (true) {
+                int c = inputStream.read();
+                if (c < 0)
+                    break;
+                result.appendCodePoint(c);
+            }
+            return result.toString();
         }
-        return result.toString();
     }
 
     @Test
@@ -128,7 +129,7 @@ public class WebResourceWriterTest {
         DeclaredType declaredType = mock(DeclaredType.class);
         when(declaredType.toString()).thenReturn(Entity.class.getName());
         when(entity.getAnnotationType()).thenReturn(declaredType);
-        Map<String, AnnotationValue> map = new HashMap<String, AnnotationValue>();
+        Map<String, AnnotationValue> map = new LinkedHashMap<>();
         AnnotationValue name = mock(AnnotationValue.class);
         when(name.toString()).thenReturn("TEST_ENTITY");
         map.put("name", name);

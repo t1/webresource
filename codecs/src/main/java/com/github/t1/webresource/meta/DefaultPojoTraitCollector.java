@@ -1,6 +1,6 @@
 package com.github.t1.webresource.meta;
 
-import com.google.common.base.Predicate;
+import com.github.t1.webresource.meta.PojoTrait.Predicate;
 
 public class DefaultPojoTraitCollector extends AbstractPojoTraitCollector {
     public DefaultPojoTraitCollector(Class<?> type) {

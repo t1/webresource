@@ -10,7 +10,7 @@ public class ConverterTest {
     public final ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void shouldConvertStringToString() throws Exception {
+    public void shouldConvertStringToString() {
         Converter<String> converter = Converter.to(String.class);
 
         String result = converter.convert("test");
@@ -19,7 +19,7 @@ public class ConverterTest {
     }
 
     @Test
-    public void shouldConvertIntegerToNumber() throws Exception {
+    public void shouldConvertIntegerToNumber() {
         Converter<Number> converter = Converter.to(Number.class);
 
         Number result = converter.convert(123);
@@ -28,7 +28,7 @@ public class ConverterTest {
     }
 
     @Test
-    public void shouldConvertWithValueOfMethod() throws Exception {
+    public void shouldConvertWithValueOfMethod() {
         Converter<Integer> converter = Converter.to(Integer.class);
 
         int result = converter.convert("123");
@@ -39,7 +39,7 @@ public class ConverterTest {
     public static class Dummy {}
 
     @Test
-    public void shouldNotConvertWithoutValueOfMethod() throws Exception {
+    public void shouldNotConvertWithoutValueOfMethod() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("can't convert [123] to Dummy");
 
@@ -49,13 +49,13 @@ public class ConverterTest {
     }
 
     public static class NonStaticValueOf {
-        public NonStaticValueOf valueOf(String string) {
+        public NonStaticValueOf valueOf(@SuppressWarnings("unused") String string) {
             throw new UnsupportedOperationException();
         }
     }
 
     @Test
-    public void shouldNotConvertWithNonStaticValueOfMethod() throws Exception {
+    public void shouldNotConvertWithNonStaticValueOfMethod() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("can't convert [123] to NonStaticValueOf");
 
@@ -71,7 +71,7 @@ public class ConverterTest {
     }
 
     @Test
-    public void shouldNotConvertWithNoArgsValueOfMethod() throws Exception {
+    public void shouldNotConvertWithNoArgsValueOfMethod() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("can't convert [123] to NoArgsValueOf");
 
@@ -82,13 +82,14 @@ public class ConverterTest {
 
 
     public static class TwoArgsValueOf {
+        @SuppressWarnings("unused")
         public static NonStaticValueOf valueOf(String string1, String string2) {
             throw new UnsupportedOperationException();
         }
     }
 
     @Test
-    public void shouldNotConvertWithTwoArgsValueOfMethod() throws Exception {
+    public void shouldNotConvertWithTwoArgsValueOfMethod() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("can't convert [123] to TwoArgsValueOf");
 
@@ -110,7 +111,7 @@ public class ConverterTest {
     }
 
     @Test
-    public void shouldConvertSuperclassValueOfMethod() throws Exception {
+    public void shouldConvertSuperclassValueOfMethod() {
         Converter<NumberValueOf> converter = Converter.to(NumberValueOf.class);
 
         NumberValueOf converted = converter.convert(123);

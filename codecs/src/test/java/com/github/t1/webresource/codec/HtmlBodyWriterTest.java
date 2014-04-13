@@ -22,35 +22,35 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeNullObject() throws Exception {
+    public void shouldEncodeNullObject() {
         write(null);
 
         assertEquals("", result());
     }
 
     @Test
-    public void shouldEncodePrimitiveString() throws Exception {
+    public void shouldEncodePrimitiveString() {
         write("dummy");
 
         assertEquals("dummy", result());
     }
 
     @Test
-    public void shouldEscapeString() throws Exception {
+    public void shouldEscapeString() {
         write("string & ampersand");
 
         assertEquals("string &amp; ampersand", result());
     }
 
     @Test
-    public void shouldEncodePrimitiveInteger() throws Exception {
+    public void shouldEncodePrimitiveInteger() {
         write(1234);
 
         assertEquals("1234", result());
     }
 
     @Test
-    public void shouldEncodeEmptyList() throws Exception {
+    public void shouldEncodeEmptyList() {
         List<String> list = Collections.emptyList();
 
         write(list);
@@ -59,7 +59,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeNoTraitItem() throws Exception {
+    public void shouldEncodeNoTraitItem() {
         List<NoTraitPojo> list = asList(new NoTraitPojo(), new NoTraitPojo());
 
         write(list);
@@ -68,7 +68,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeStringList() throws Exception {
+    public void shouldEncodeStringList() {
         writer.listWriter = mock(HtmlListWriter.class);
         List<String> list = asList("one", "two", "three");
 
@@ -79,7 +79,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeTable() throws Exception {
+    public void shouldEncodeTable() {
         writer.tableWriter = mock(HtmlTableWriter.class);
         List<OneStringPojo> list =
                 asList(new OneStringPojo("one"), new OneStringPojo("two"), new OneStringPojo("three"));
@@ -91,7 +91,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeForm() throws Exception {
+    public void shouldEncodeForm() {
         writer.formWriter = mock(HtmlFormWriter.class);
         NoTraitPojo pojo = new NoTraitPojo();
 
@@ -103,7 +103,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeType() throws Exception {
+    public void shouldEncodeType() {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
 
@@ -115,7 +115,7 @@ public class HtmlBodyWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldEncodeListOfTypes() throws Exception {
+    public void shouldEncodeListOfTypes() {
         writer.listWriter = mock(HtmlListWriter.class);
         doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
         List<Class<? extends Object>> list = Arrays.asList(NoTraitPojo.class, OneStringPojo.class);

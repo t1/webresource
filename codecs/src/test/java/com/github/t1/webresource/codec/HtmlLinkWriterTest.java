@@ -21,7 +21,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
         HrefAttribute href = mock(HrefAttribute.class);
         when(href.to(any(Item.class))).thenAnswer(new Answer<Attribute>() {
             @Override
-            public Attribute answer(InvocationOnMock invocation) throws Throwable {
+            public Attribute answer(InvocationOnMock invocation) {
                 Item item = (Item) invocation.getArguments()[0];
                 return new Attribute("href", item.type() + "/" + HtmlId.of(item));
             }
@@ -47,7 +47,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteTwoStringPojo() throws Exception {
+    public void shouldWriteTwoStringPojo() {
         TwoStringPojo pojo = new TwoStringPojo("one", "two");
 
         write(pojo);
@@ -69,7 +69,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteHtmlTitleLink() throws Exception {
+    public void shouldWriteHtmlTitleLink() {
         HtmlTitlePojo pojo = new HtmlTitlePojo("one", "two");
 
         write(pojo);
@@ -87,7 +87,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteWebResourceKeyLink() throws Exception {
+    public void shouldWriteWebResourceKeyLink() {
         WebResourceKeyPojo pojo = new WebResourceKeyPojo("one");
 
         write(pojo);
@@ -112,7 +112,7 @@ public class HtmlLinkWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteVariableLink() throws Exception {
+    public void shouldWriteVariableLink() {
         VariablePojo pojo = new VariablePojo("one", "two");
 
         write(pojo);

@@ -27,7 +27,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteSimpe() throws Exception {
+    public void shouldWriteSimpe() {
         Item item = Items.newItem("<dummy>");
 
         write(item, SimpleTrait.of(item));
@@ -36,7 +36,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteStringField() throws Exception {
+    public void shouldWriteStringField() {
         Item item = Items.newItem(new OneStringPojo("foo"));
 
         write(item, item.trait("string"));
@@ -45,7 +45,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteStringFieldWithId() throws Exception {
+    public void shouldWriteStringFieldWithId() {
         Item item = Items.newItem(new OneStringPojo("foo"));
 
         write(item, item.trait("string"), "id-0");
@@ -61,7 +61,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteBooleanField() throws Exception {
+    public void shouldWriteBooleanField() {
         Item item = Items.newItem(new BooleanPojo(true));
 
         write(item, item.trait("b"));
@@ -77,7 +77,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteDoubleField() throws Exception {
+    public void shouldWriteDoubleField() {
         Item item = Items.newItem(new DoublePojo(123.45));
 
         write(item, item.trait("d"));
@@ -93,7 +93,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteIntegerField() throws Exception {
+    public void shouldWriteIntegerField() {
         Item item = Items.newItem(new NumberPojo(123));
 
         write(item, item.trait("b"));
@@ -109,7 +109,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteInputTypedPojo() throws Exception {
+    public void shouldWriteInputTypedPojo() {
         Item item = Items.newItem(new InputTypedPojo("foo"));
 
         write(item, item.trait("str"));
@@ -118,7 +118,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteNullTrait() throws Exception {
+    public void shouldWriteNullTrait() {
         Item item = Items.newItem(Collections.singletonMap("foo", "bar"));
 
         write(item, new SimpleTrait(null));
@@ -129,7 +129,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteUnknownTrait() throws Exception {
+    public void shouldWriteUnknownTrait() {
         Item item = Items.newItem(new OneStringPojo("foo"));
         AbstractTrait trait = mock(AbstractTrait.class);
         when(trait.name()).thenReturn("bar");
@@ -141,7 +141,7 @@ public class HtmlFieldWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteList() throws Exception {
+    public void shouldWriteList() {
         writer.listWriter = mock(HtmlListWriter.class);
         doAnswer(writeDummyAnswer("list")).when(writer.listWriter).write(any(Item.class));
         Item item = Items.newItem(new ListPojo("foo", Arrays.asList("one", "two", "three")));

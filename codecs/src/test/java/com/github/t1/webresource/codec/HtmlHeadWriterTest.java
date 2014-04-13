@@ -29,7 +29,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWritePojoWithOneHtmlTitle() throws Exception {
+    public void shouldWritePojoWithOneHtmlTitle() {
         PojoWithOneHtmlTitle pojo = new PojoWithOneHtmlTitle("dummy", 123);
         assertEquals(123, (int) pojo.i); // cover
 
@@ -47,7 +47,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWritePojoWithTwoHtmlTitle() throws Exception {
+    public void shouldWritePojoWithTwoHtmlTitle() {
         PojoWithTwoHtmlTitles pojo = new PojoWithTwoHtmlTitles("dummy0", "dummy1");
 
         write(pojo);
@@ -64,7 +64,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldLinkRootPathCssStyleSheet() throws Exception {
+    public void shouldLinkRootPathCssStyleSheet() {
         PojoWithRootPathCss pojo = new PojoWithRootPathCss("dummy");
 
         write(pojo);
@@ -77,7 +77,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWritePojoListWithRootPathCssStyleSheet() throws Exception {
+    public void shouldWritePojoListWithRootPathCssStyleSheet() {
         PojoWithRootPathCss pojo1 = new PojoWithRootPathCss("a");
         PojoWithRootPathCss pojo2 = new PojoWithRootPathCss("b");
         List<PojoWithRootPathCss> list = Arrays.asList(pojo1, pojo2);
@@ -96,7 +96,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldInlineFileCssStyleSheet() throws Exception {
+    public void shouldInlineFileCssStyleSheet() {
         PojoWithInlineFileCss pojo = new PojoWithInlineFileCss("dummy");
 
         write(pojo);
@@ -114,7 +114,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     @Ignore("needs a running service and I have no idea how to map that to a file-url")
-    public void shouldInlineRootResourceCssStyleSheet() throws Exception {
+    public void shouldInlineRootResourceCssStyleSheet() {
         PojoWithInlineRootResourceCss pojo = new PojoWithInlineRootResourceCss("dummy");
 
         write(pojo);
@@ -132,7 +132,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
 
     @Test
     @Ignore("needs a running service and I have no idea how to map that to a file-url")
-    public void shouldInlineLocalResourceCssStyleSheet() throws Exception {
+    public void shouldInlineLocalResourceCssStyleSheet() {
         PojoWithInlineLocalResourceCss pojo = new PojoWithInlineLocalResourceCss("dummy");
 
         write(pojo);
@@ -149,7 +149,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldLinkLocalCssStyleSheet() throws Exception {
+    public void shouldLinkLocalCssStyleSheet() {
         PojoWithLocalCss pojo = new PojoWithLocalCss("dummy");
 
         write(pojo);
@@ -166,7 +166,7 @@ public class HtmlHeadWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldLinkTwoCssStyleSheets() throws Exception {
+    public void shouldLinkTwoCssStyleSheets() {
         PojoWithTwoCss pojo = new PojoWithTwoCss("dummy");
 
         write(pojo);

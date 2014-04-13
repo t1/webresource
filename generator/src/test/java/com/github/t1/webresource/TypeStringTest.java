@@ -9,13 +9,14 @@ import org.junit.Test;
 import com.github.t1.webresource.typewriter.TypeString;
 
 public class TypeStringTest {
+    @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWithInvalidTypeString() throws Exception {
+    public void shouldFailWithInvalidTypeString() {
         new TypeString("-");
     }
 
     @Test
-    public void shouldParsePrimitiveInt() throws Exception {
+    public void shouldParsePrimitiveInt() {
         TypeString type = new TypeString("int");
 
         assertFalse(type.nullable);
@@ -24,7 +25,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseBoxedIntegerWithoutImport() throws Exception {
+    public void shouldParseBoxedIntegerWithoutImport() {
         TypeString type = new TypeString("java.lang.Integer");
 
         assertTrue(type.nullable);
@@ -33,7 +34,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseStringWithoutImport() throws Exception {
+    public void shouldParseStringWithoutImport() {
         TypeString type = new TypeString("java.lang.String");
 
         assertTrue(type.nullable);
@@ -42,7 +43,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseWithImport() throws Exception {
+    public void shouldParseWithImport() {
         TypeString type = new TypeString("java.math.BigInteger");
 
         assertTrue(type.nullable);
@@ -51,7 +52,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseGenericTypeWithElementImports() throws Exception {
+    public void shouldParseGenericTypeWithElementImports() {
         TypeString type = new TypeString("java.util.List<java.math.BigInteger>");
 
         assertTrue(type.nullable);
@@ -60,7 +61,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseGenericTypeWithoutElementImports() throws Exception {
+    public void shouldParseGenericTypeWithoutElementImports() {
         TypeString type = new TypeString("java.util.List<java.lang.Integer>");
 
         assertTrue(type.nullable);
@@ -69,7 +70,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseTwoElementGenericTypeWithOneElementImports() throws Exception {
+    public void shouldParseTwoElementGenericTypeWithOneElementImports() {
         TypeString type = new TypeString("java.util.Map<java.math.BigInteger, java.lang.String>");
 
         assertTrue(type.nullable);
@@ -78,7 +79,7 @@ public class TypeStringTest {
     }
 
     @Test
-    public void shouldParseTwoElementGenericTypeWithTwoElementImports() throws Exception {
+    public void shouldParseTwoElementGenericTypeWithTwoElementImports() {
         TypeString type = new TypeString("java.util.Map<java.math.BigInteger, java.math.BigDecimal>");
 
         assertTrue(type.nullable);

@@ -12,7 +12,7 @@ import com.github.t1.webresource.meta.*;
 @AllArgsConstructor
 public class FormUrlDecoder<T> {
     @AllArgsConstructor
-    private static class Decoder<T> {
+    private static class Decoder {
         private final Item item;
 
         public void decode(BufferedReader reader) throws IOException {
@@ -45,7 +45,7 @@ public class FormUrlDecoder<T> {
         log.debug("decoding {}", type);
         try {
             T instance = newInstance();
-            Decoder<T> decoder = new Decoder<T>(Items.newItem(instance));
+            Decoder decoder = new Decoder(Items.newItem(instance));
             decoder.decode(reader);
             return instance;
         } catch (ReflectiveOperationException e) {

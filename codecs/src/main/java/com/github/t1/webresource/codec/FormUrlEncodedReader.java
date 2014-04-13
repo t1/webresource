@@ -25,9 +25,8 @@ public class FormUrlEncodedReader implements MessageBodyReader<Object> {
             MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException,
             WebApplicationException {
         log.debug("start url-decoding {}, {}: {}", type, mediaType, annotations);
-        BufferedReader in = new BufferedReader(new InputStreamReader(entityStream));
-        try {
-            return new FormUrlDecoder<Object>(type).read(in);
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(entityStream))) {
+            return new FormUrlDecoder<>(type).read(in);
         } catch (RuntimeException | IOException e) {
             log.error("error while decoding", e);
             throw e;

@@ -20,7 +20,7 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     private Messager messager;
     private Filer filer;
     private TypeElement type;
-    private final List<String> index = new ArrayList<String>();
+    private final List<String> index = new ArrayList<>();
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -60,14 +60,8 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
         String source = generateSource();
         try {
             JavaFileObject sourceFile = createSourceFile(targetTypeName, type);
-            Writer writer = null;
-            try {
-                writer = sourceFile.openWriter();
+            try (Writer writer = sourceFile.openWriter()) {
                 writer.write(source);
-            } finally {
-                if (writer != null) {
-                    writer.close();
-                }
             }
         } catch (IOException e) {
             error("Can't write web resource\n" + e, type);

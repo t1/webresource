@@ -28,7 +28,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindDefaultAccessor() throws Exception {
+    public void shouldFindDefaultAccessor() {
         Accessors accessors = givenAccessors();
 
         Accessor<String> accessor = accessors.of("dummy");
@@ -37,7 +37,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldReturnNullTitleFromDefaultAccessor() throws Exception {
+    public void shouldReturnNullTitleFromDefaultAccessor() {
         Accessors accessors = givenAccessors();
 
         Accessor<String> accessor = accessors.of("dummy");
@@ -46,7 +46,7 @@ public class AccessorsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWithRawAccessor() throws Exception {
+    public void shouldFailWithRawAccessor() {
         @SuppressWarnings("rawtypes")
         Accessor rawAccessor = new Accessor() {
             @Override
@@ -64,7 +64,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindPrimitiveAccessor() throws Exception {
+    public void shouldFindPrimitiveAccessor() {
         Accessors accessors = givenAccessors(new Accessor<Integer>() {
             @Override
             public String title(Integer element) {
@@ -83,7 +83,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindSuperclassAccessor() throws Exception {
+    public void shouldFindSuperclassAccessor() {
         Accessors accessors = givenAccessors(new Accessor<Number>() {
             @Override
             public String title(Number element) {
@@ -102,7 +102,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindInterfaceAccessor() throws Exception {
+    public void shouldFindInterfaceAccessor() {
         Accessors accessors = givenAccessors(new Accessor<Runnable>() {
             @Override
             public String title(Runnable element) {
@@ -133,7 +133,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindAbstractAccessorImpl() throws Exception {
+    public void shouldFindAbstractAccessorImpl() {
         Accessors accessors = givenAccessors(new AbstractAccessorImpl());
 
         URI uri = URI.create("http://localhost");
@@ -145,7 +145,7 @@ public class AccessorsTest {
     private static class SuperAbstractAccessorImpl extends AbstractAccessorImpl {}
 
     @Test
-    public void shouldFindSuperAbstractAccessorImpl() throws Exception {
+    public void shouldFindSuperAbstractAccessorImpl() {
         Accessors accessors = givenAccessors(new SuperAbstractAccessorImpl());
 
         URI uri = URI.create("http://localhost");
@@ -169,7 +169,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldSkipOtherInterfaceBeforeAccessor() throws Exception {
+    public void shouldSkipOtherInterfaceBeforeAccessor() {
         Accessors accessors = givenAccessors(new OtherInterfaceBeforeAccessor());
 
         Accessor<String> accessor = accessors.of("dummy");
@@ -185,7 +185,7 @@ public class AccessorsTest {
     }
 
     @Test
-    public void shouldFindGenericTypeAccessor() throws Exception {
+    public void shouldFindGenericTypeAccessor() {
         Accessors accessors = givenAccessors(new GenericTypeAccessor());
 
         List<String> list = Arrays.asList("one", "two", "three");

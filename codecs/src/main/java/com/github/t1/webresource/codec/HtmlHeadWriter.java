@@ -2,6 +2,7 @@ package com.github.t1.webresource.codec;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.net.*;
 
 import javax.inject.Inject;
@@ -43,8 +44,11 @@ public class HtmlHeadWriter {
 
     private void writeStyleSheets(Item item) {
         log.debug("{} is annotated as:", item);
-        for (Annotation annotation : ((AbstractItem) item).annotations().getDeclaredAnnotations()) {
-            log.debug("   {}", annotation);
+        AnnotatedElement annotations = ((AbstractItem) item).annotations();
+        if (annotations != null) {
+            for (Annotation annotation : annotations.getDeclaredAnnotations()) {
+                log.debug("   {}", annotation);
+            }
         }
         if (item.is(HtmlStyleSheet.class)) {
             out.nl();

@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.WebResourceTypeInfo;
-import com.google.common.collect.*;
 
 public abstract class AbstractItem implements Item {
     protected final Object object;
@@ -54,13 +53,12 @@ public abstract class AbstractItem implements Item {
     @Override
     public final Collection<Trait> traits() {
         if (visibleTraits == null) {
-            ImmutableList.Builder<Trait> builder = ImmutableList.builder();
+            visibleTraits = new ArrayList<>();
             for (Trait trait : allTraits()) {
                 if (trait.visible()) {
-                    builder.add(trait);
+                    visibleTraits.add(trait);
                 }
             }
-            visibleTraits = builder.build();
         }
         return visibleTraits;
     }
@@ -71,11 +69,10 @@ public abstract class AbstractItem implements Item {
 
     private Map<String, Trait> traitMap() {
         if (traitMap == null) {
-            ImmutableMap.Builder<String, Trait> map = ImmutableMap.builder();
+            traitMap = new LinkedHashMap<>();
             for (Trait trait : fetchAllTraits()) {
-                map.put(trait.name(), trait);
+                traitMap.put(trait.name(), trait);
             }
-            traitMap = map.build();
         }
         return traitMap;
     }
@@ -104,13 +101,13 @@ public abstract class AbstractItem implements Item {
     @Override
     public <A extends Annotation> List<Trait> trait(Class<A> type) {
         // TODO use filter instead
-        ImmutableList.Builder<Trait> list = ImmutableList.builder();
+        List<Trait> list = new ArrayList<>();
         for (Trait trait : allTraits()) {
             if (trait.is(type)) {
                 list.add(trait);
             }
         }
-        return list.build();
+        return list;
     }
 
     @Override

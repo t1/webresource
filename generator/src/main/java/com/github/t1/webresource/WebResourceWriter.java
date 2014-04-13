@@ -59,13 +59,14 @@ class WebResourceWriter {
         MethodBuilder method = classBuilder.method(Response.class, "list" + type.simple);
         method.annotate(GET.class);
         uriInfoParameter(method);
-        PrintWriter body = method.body();
-        body.println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
-        body.println(logLine("get " + type.plural + " where {}", "queryParams"));
-        body.println();
-        store.list(body);
-        body.println();
-        body.println("return Response.ok(list).build();");
+        try (PrintWriter body = method.body()) {
+            body.println("MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();");
+            body.println(logLine("get " + type.plural + " where {}", "queryParams"));
+            body.println();
+            store.list(body);
+            body.println();
+            body.println("return Response.ok(list).build();");
+        }
     }
 
     private String logLine(String message, String... args) {
@@ -83,13 +84,14 @@ class WebResourceWriter {
         method.annotate(GET.class);
         idParameter(method);
         requestContextParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("get " + type.lower + " {}", type.key.name));
-        body.println();
-        findOrFail(body, "result");
-        evaluatePreconditions(body, "result");
-        body.println();
-        body.println("return Response.ok(result)" + etag("result") + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("get " + type.lower + " {}", type.key.name));
+            body.println();
+            findOrFail(body, "result");
+            evaluatePreconditions(body, "result");
+            body.println();
+            body.println("return Response.ok(result)" + etag("result") + ".build();");
+        }
     }
 
     private void requestContextParameter(MethodBuilder method) {
@@ -121,15 +123,16 @@ class WebResourceWriter {
         typeParameter(method);
         uriInfoParameter(method);
 
-        PrintWriter body = method.body();
-        body.println(logLine("post " + type.lower + " {}", type.lower));
-        body.println();
-        store.persist(body);
-        body.println();
-        body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        body.println("builder.path(\"" + type.plural + "\").path("
-                + toString(type.lower + "." + type.key.getter() + "()") + ");");
-        body.println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("post " + type.lower + " {}", type.lower));
+            body.println();
+            store.persist(body);
+            body.println();
+            body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+            body.println("builder.path(\"" + type.plural + "\").path("
+                    + toString(type.lower + "." + type.key.getter() + "()") + ");");
+            body.println("return Response.created(builder.build())" + etag(type.lower) + ".build();");
+        }
     }
 
     private void typeParameter(MethodBuilder method) {
@@ -163,50 +166,52 @@ class WebResourceWriter {
         idParameter(method);
         typeParameter(method);
         requestContextParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower));
-        body.println();
-        if (type.key.type.nullable) {
-            body.println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
-            body.println("    " + type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
-            body.println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name + ")) {");
-        } else {
-            body.println("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
-        }
-        body.println("    String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name
-                + " + \", body=\" + " + type.lower + "." + type.key.getter() + "() + \".\\n\"");
-        body.println("        + \"either leave the " + type.key.name + " in the body null or set it to the same "
-                + type.key.name + "\";");
-        body.println("    return Response.status(Status.BAD_REQUEST).entity(message).build();");
-        body.println("}");
-        if (!type.primary()) {
-            body.println("if (" + type.lower + "." + type.id.getter() + "() == null) {");
-            body.println("    " + type.simple + " existing = findByKey(" + type.key.name + ");");
-            body.println("    if (existing == null) {");
-            body.println("        return Response.status(Status.NOT_FOUND).build();");
-            body.println("    }");
-            body.println("    " + type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
-            if (type.version != null && type.version.type.nullable) {
-                body.println("    if (" + type.lower + "." + type.version.getter() + "() == null) {");
-                body.println("        " + type.lower + "." + type.version.setter() + "(existing."
-                        + type.version.getter() + "());");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("put " + type.lower + " " + type.key.name + " {}: {}", type.key.name, type.lower));
+            body.println();
+            if (type.key.type.nullable) {
+                body.println("if (" + type.lower + "." + type.key.getter() + "() == null) {");
+                body.println("    " + type.lower + "." + type.key.setter() + "(" + type.key.name + ");");
+                body.println("} else if (!" + type.lower + "." + type.key.getter() + "().equals(" + type.key.name
+                        + ")) {");
+            } else {
+                body.println("if (" + type.key.name + " != " + type.lower + "." + type.key.getter() + "()) {");
+            }
+            body.println("    String message = \"" + type.key.name + " conflict! path=\" + " + type.key.name
+                    + " + \", body=\" + " + type.lower + "." + type.key.getter() + "() + \".\\n\"");
+            body.println("        + \"either leave the " + type.key.name + " in the body null or set it to the same "
+                    + type.key.name + "\";");
+            body.println("    return Response.status(Status.BAD_REQUEST).entity(message).build();");
+            body.println("}");
+            if (!type.primary()) {
+                body.println("if (" + type.lower + "." + type.id.getter() + "() == null) {");
+                body.println("    " + type.simple + " existing = findByKey(" + type.key.name + ");");
+                body.println("    if (existing == null) {");
+                body.println("        return Response.status(Status.NOT_FOUND).build();");
                 body.println("    }");
+                body.println("    " + type.lower + "." + type.id.setter() + "(existing." + type.id.getter() + "());");
+                if (type.version != null && type.version.type.nullable) {
+                    body.println("    if (" + type.lower + "." + type.version.getter() + "() == null) {");
+                    body.println("        " + type.lower + "." + type.version.setter() + "(existing."
+                            + type.version.getter() + "());");
+                    body.println("    }");
+                }
+                body.println("}");
+            }
+            evaluatePreconditions(body, type.lower);
+            body.println();
+            store.merge(body);
+            body.println();
+            body.println("if (result == null) {");
+            if (type.primary()) {
+                body.println("    return Response.status(Status.NOT_FOUND).build();");
+            } else {
+                body.println("    throw new IllegalStateException(\"expected to be able to merge " + type.key.name
+                        + " \" + " + type.key.name + ");");
             }
             body.println("}");
+            body.println("return Response.ok(result)" + etag("result") + ".build();");
         }
-        evaluatePreconditions(body, type.lower);
-        body.println();
-        store.merge(body);
-        body.println();
-        body.println("if (result == null) {");
-        if (type.primary()) {
-            body.println("    return Response.status(Status.NOT_FOUND).build();");
-        } else {
-            body.println("    throw new IllegalStateException(\"expected to be able to merge " + type.key.name
-                    + " \" + " + type.key.name + ");");
-        }
-        body.println("}");
-        body.println("return Response.ok(result)" + etag("result") + ".build();");
     }
 
     private void evaluatePreconditions(PrintWriter out, String entity) {
@@ -225,15 +230,16 @@ class WebResourceWriter {
         method.annotate(DELETE.class);
         idParameter(method);
         requestContextParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("delete " + type.lower + " {}", type.key.name));
-        body.println();
-        findOrFail(body, "result");
-        evaluatePreconditions(body, "result");
-        body.println();
-        store.remove(body);
-        body.println();
-        body.println("return Response.ok(result)" + etag("result") + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("delete " + type.lower + " {}", type.key.name));
+            body.println();
+            findOrFail(body, "result");
+            evaluatePreconditions(body, "result");
+            body.println();
+            store.remove(body);
+            body.println();
+            body.println("return Response.ok(result)" + etag("result") + ".build();");
+        }
     }
 
     private void subresources() {
@@ -254,13 +260,14 @@ class WebResourceWriter {
         method.annotate(GET.class);
         idParameter(method, subresource.name);
         requestContextParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("get " + subresource.name + " from " + type.lower + " {}", type.key.name));
-        body.println();
-        findOrFail(body, "result");
-        evaluatePreconditions(body, "result");
-        body.println();
-        body.println("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("get " + subresource.name + " from " + type.lower + " {}", type.key.name));
+            body.println();
+            findOrFail(body, "result");
+            evaluatePreconditions(body, "result");
+            body.println();
+            body.println("return Response.ok(result." + subresource.getter() + "())" + etag("result") + ".build();");
+        }
     }
 
     private void subPOST(WebResourceField subresource) {
@@ -269,19 +276,20 @@ class WebResourceWriter {
         idParameter(method, subresource.name);
         method.parameter(subresource.type.uncollected, subresource.name);
         uriInfoParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name,
-                type.key.name));
-        body.println();
-        findOrFail(body, type.lower);
-        body.println();
-        body.println(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
-        store.flush(body);
-        body.println();
-        body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
-        body.println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\""
-                + subresource.name + "\").path(" + toString(subresource.name) + ");");
-        body.println("return Response.created(builder.build()).build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("post " + subresource.name + " {} for " + type.lower + " {}", subresource.name,
+                    type.key.name));
+            body.println();
+            findOrFail(body, type.lower);
+            body.println();
+            body.println(type.lower + "." + subresource.getter() + "().add(" + subresource.name + ");");
+            store.flush(body);
+            body.println();
+            body.println("UriBuilder builder = uriInfo.getBaseUriBuilder();");
+            body.println("builder.path(\"" + type.plural + "\").path(" + toString(type.key.name) + ").path(\""
+                    + subresource.name + "\").path(" + toString(subresource.name) + ");");
+            body.println("return Response.created(builder.build()).build();");
+        }
     }
 
     private void subPUT(WebResourceField subresource) {
@@ -292,17 +300,18 @@ class WebResourceWriter {
         ParameterBuilder parameter = method.parameter(subresource.type, subresource.name);
         if (subresource.type.isCollection)
             parameter.generic(subresource.type.uncollected.simple);
-        PrintWriter body = method.body();
-        body.println(logLine("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name,
-                type.key.name));
-        body.println();
-        findOrFail(body, type.lower);
-        evaluatePreconditions(body, type.lower);
-        body.println();
-        body.println(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
-        store.flush(body);
-        body.println();
-        body.println("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("put " + subresource.name + " {} of " + type.lower + " {}", subresource.name,
+                    type.key.name));
+            body.println();
+            findOrFail(body, type.lower);
+            evaluatePreconditions(body, type.lower);
+            body.println();
+            body.println(type.lower + "." + subresource.setter() + "(" + subresource.name + ");");
+            store.flush(body);
+            body.println();
+            body.println("return Response.ok(" + subresource.name + ")" + etag(type.lower) + ".build();");
+        }
     }
 
     private void subDELETE(WebResourceField subresource) {
@@ -310,15 +319,16 @@ class WebResourceWriter {
         method.annotate(DELETE.class);
         idParameter(method, subresource.name);
         requestContextParameter(method);
-        PrintWriter body = method.body();
-        body.println(logLine("delete " + subresource.name + " of " + type.lower + " {}", type.key.name));
-        body.println();
-        findOrFail(body, type.lower);
-        evaluatePreconditions(body, type.lower);
-        body.println();
-        body.println(type.lower + "." + subresource.setter() + "(null);");
-        store.flush(body);
-        body.println();
-        body.println("return Response.ok()" + etag(type.lower) + ".build();");
+        try (PrintWriter body = method.body()) {
+            body.println(logLine("delete " + subresource.name + " of " + type.lower + " {}", type.key.name));
+            body.println();
+            findOrFail(body, type.lower);
+            evaluatePreconditions(body, type.lower);
+            body.println();
+            body.println(type.lower + "." + subresource.setter() + "(null);");
+            store.flush(body);
+            body.println();
+            body.println("return Response.ok()" + etag(type.lower) + ".build();");
+        }
     }
 }

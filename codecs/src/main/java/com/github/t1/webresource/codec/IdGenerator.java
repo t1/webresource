@@ -5,7 +5,6 @@ import java.util.*;
 import com.github.t1.webresource.meta.Trait;
 
 public class IdGenerator {
-
     private final Map<String, Integer> map = new HashMap<>();
 
     public String get(String name) {

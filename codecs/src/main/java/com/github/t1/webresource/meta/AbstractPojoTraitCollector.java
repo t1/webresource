@@ -5,7 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.github.t1.stereotypes.Annotations;
-import com.google.common.base.Predicate;
+import com.github.t1.webresource.meta.PojoTrait.Predicate;
 
 /**
  * TODO traits of super classes
@@ -119,5 +119,5 @@ public abstract class AbstractPojoTraitCollector {
         existingTrait.add(newTrait.annotations);
     }
 
-    protected void sort(List<Trait> traits) {}
+    protected void sort(@SuppressWarnings("unused") List<Trait> traits) {}
 }

@@ -35,7 +35,7 @@ abstract class AbstractProcessor2 extends AbstractProcessor {
         if (supported == null)
             return super.getSupportedAnnotationTypes();
 
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (Class<? extends Annotation> annotation : supported.value()) {
             result.add(annotation.getName());
         }

@@ -39,7 +39,7 @@ public class BasePathTest {
     }
 
     @Test
-    public void shouldResolveSimplePath() throws Exception {
+    public void shouldResolveSimplePath() {
         URI resolved = basePath.resolve("path");
 
         assertEquals(BASE + "/path", resolved.toASCIIString());

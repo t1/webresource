@@ -19,7 +19,7 @@ public class HtmlListWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteEmptyList() throws Exception {
+    public void shouldWriteEmptyList() {
         List<String> list = Collections.emptyList();
 
         write(list);
@@ -28,7 +28,7 @@ public class HtmlListWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWriteSimpleList() throws Exception {
+    public void shouldWriteSimpleList() {
         List<String> list = Arrays.asList("one", "two", "three");
 
         write(list);
@@ -37,7 +37,7 @@ public class HtmlListWriterTest extends AbstractHtmlWriterTest {
     }
 
     @Test
-    public void shouldWritePojoList() throws Exception {
+    public void shouldWritePojoList() {
         writer.linkWriter = mock(HtmlLinkWriter.class);
         doAnswer(writeDummyAnswer("link")).when(writer.linkWriter).write(any(Item.class), anyString());
         List<OneStringPojo> list = Arrays.asList(new OneStringPojo("one"), new OneStringPojo("two"));

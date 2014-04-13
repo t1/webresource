@@ -6,7 +6,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import com.github.t1.stereotypes.Annotations;
-import com.google.common.base.Predicate;
 
 public class PojoFieldTrait extends PojoTrait {
 

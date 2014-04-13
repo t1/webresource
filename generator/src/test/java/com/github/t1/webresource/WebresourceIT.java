@@ -31,7 +31,7 @@ public class WebresourceIT {
     }
 
     @Test
-    public void shouldHttpGet() throws Exception {
+    public void shouldHttpGet() {
         WebTarget target = CLIENT.target("http://example.com/shop");
         Form form = new Form().param("customer", "Bill").param("product", "IPhone 5").param("CC", "4444 4444 4444 4444");
         Response response = target.request().post(Entity.form(form));
@@ -40,7 +40,7 @@ public class WebresourceIT {
     }
 
     @Test
-    public void shouldConvertXmlSuffixToMediaType() throws Exception {
+    public void shouldConvertXmlSuffixToMediaType() {
         WebTarget target = CLIENT.target("http://example.com/" + WAR + "/testentity.xml");
         Response response = target.request().get();
         assertEquals(200, response.getStatus());

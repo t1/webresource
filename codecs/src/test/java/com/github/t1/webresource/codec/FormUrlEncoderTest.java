@@ -9,8 +9,6 @@ import lombok.*;
 
 import org.junit.Test;
 
-import com.github.t1.webresource.codec.FormUrlEncoder;
-
 public class FormUrlEncoderTest {
 
     private final Writer out = new StringWriter();
@@ -103,7 +101,7 @@ public class FormUrlEncoderTest {
 
     @Test
     public void shouldWriteEmptyMap() throws Exception {
-        Map<Integer, Double> map = new HashMap<>();
+        Map<Integer, Double> map = new LinkedHashMap<>();
 
         writer.write(map);
 
@@ -112,7 +110,7 @@ public class FormUrlEncoderTest {
 
     @Test
     public void shouldWriteOneElementMap() throws Exception {
-        Map<Integer, Double> map = new HashMap<>();
+        Map<Integer, Double> map = new LinkedHashMap<>();
         map.put(123, 4.5);
 
         writer.write(map);

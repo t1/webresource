@@ -1,5 +1,6 @@
 package com.github.t1.webresource.meta;
 
+import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
 import java.lang.annotation.Annotation;
@@ -8,7 +9,6 @@ import java.util.List;
 import org.junit.Test;
 
 import com.github.t1.webresource.codec.*;
-import com.google.common.collect.ImmutableList;
 
 public class ListItemTest {
 
@@ -19,8 +19,8 @@ public class ListItemTest {
     static class B {}
 
     @Test
-    public void shouldFindClassAnnotationsInList() throws Exception {
-        List<Class<?>> list = ImmutableList.of(A.class, B.class);
+    public void shouldFindClassAnnotationsInList() {
+        List<Class<?>> list = asList(A.class, B.class);
         ListItem item = new ListItem(list);
 
         Annotation[] annotations = item.annotations().getAnnotations();

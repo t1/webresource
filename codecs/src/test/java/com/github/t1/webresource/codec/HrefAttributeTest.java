@@ -23,7 +23,7 @@ public class HrefAttributeTest {
     HrefAttribute href = new HrefAttribute();
 
     @Test
-    public void shouldResolve() throws Exception {
+    public void shouldResolve() {
         Item simpleItem = Items.newItem("simple");
         when(resolver.resolveBase(anyString())).thenReturn(URI.create("resolved-dummy"));
 
@@ -34,7 +34,7 @@ public class HrefAttributeTest {
     }
 
     @Test
-    public void shouldResolveSimple() throws Exception {
+    public void shouldResolveSimple() {
         Item simpleItem = Items.newItem("simple");
 
         href.to(simpleItem);
@@ -43,7 +43,7 @@ public class HrefAttributeTest {
     }
 
     @Test
-    public void shouldResolveType() throws Exception {
+    public void shouldResolveType() {
         Item simpleItem = Items.newItem(String.class);
 
         href.to(simpleItem);

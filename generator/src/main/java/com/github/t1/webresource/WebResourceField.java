@@ -20,7 +20,7 @@ public class WebResourceField {
     }
 
     static List<WebResourceField> findFields(TypeElement classElement, String annotationTypeName) {
-        List<WebResourceField> result = new ArrayList<WebResourceField>();
+        List<WebResourceField> result = new ArrayList<>();
         for (Element enclosedElement : classElement.getEnclosedElements()) {
             if (ElementKind.FIELD != enclosedElement.getKind())
                 continue;
@@ -58,7 +58,7 @@ public class WebResourceField {
     /** The field name */
     final String name;
     /** What imports are required for this type */
-    public final List<String> imports = new ArrayList<String>();
+    public final List<String> imports = new ArrayList<>();
 
     final TypeString type;
 

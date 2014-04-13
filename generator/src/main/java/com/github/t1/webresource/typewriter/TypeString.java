@@ -28,7 +28,7 @@ public class TypeString {
     public final boolean isCollection;
     /** The type of the contents of a collection type, or this, if not. */
     public final TypeString uncollected;
-    public final List<String> imports = new ArrayList<String>();
+    public final List<String> imports = new ArrayList<>();
 
     public TypeString(Class<?> type) {
         this(type.getName());
