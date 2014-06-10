@@ -1,8 +1,9 @@
 package com.github.t1.webresource.codec;
 
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
-import java.lang.annotation.Retention;
+import java.lang.annotation.*;
 
 /**
  * Adds a CSS file to the header. Given a resource path <code>http://example.com/myapp/rest/resource</code> the
@@ -43,6 +44,8 @@ import java.lang.annotation.Retention;
  * </table>
  */
 @Retention(RUNTIME)
+@Target({ TYPE, ANNOTATION_TYPE, PACKAGE })
+@Inherited
 public @interface HtmlStyleSheet {
     /** The name of the style sheet resource */
     public String value();

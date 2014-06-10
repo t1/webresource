@@ -13,11 +13,10 @@ import javax.enterprise.inject.Instance;
 import org.junit.Test;
 
 public class AccessorsTest {
-    private Accessors givenAccessors(@SuppressWarnings("rawtypes") Accessor... accessor) {
-        Accessors accessors = new Accessors();
-        accessors.instances = accessorInstances(accessor);
-        accessors.init();
-        return accessors;
+    private Accessors givenAccessors(@SuppressWarnings("rawtypes") Accessor... accessors) {
+        Accessors result = new Accessors();
+        result.instances = accessorInstances(accessors);
+        return result;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -60,7 +59,9 @@ public class AccessorsTest {
             }
         };
 
-        givenAccessors(rawAccessor);
+        Accessors accessors = givenAccessors(rawAccessor);
+
+        accessors.of("dummy");
     }
 
     @Test

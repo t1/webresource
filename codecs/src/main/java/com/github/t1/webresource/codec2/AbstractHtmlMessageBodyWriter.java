@@ -10,6 +10,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import com.github.t1.webresource.accessors.*;
+import com.github.t1.webresource.html.*;
 
 public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWriter<T> {
     @Inject
@@ -25,29 +26,36 @@ public abstract class AbstractHtmlMessageBodyWriter<T> implements MessageBodyWri
     @Override
     public void writeTo(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) {
-        PrintWriter out = new PrintWriter(entityStream);
-        out.println("<html><head>");
-        printHead(t, out);
-        out.println("</head><body>");
-        printHeadline(t, out);
-        printBody(t, out);
-        out.println("</body></html>");
-        out.flush(); // JBoss doesn't work without :(
+        PrintWriter writer = new PrintWriter(entityStream);
+        try (Html html = new Html(writer)) {
+            try (Head head = html.head()) {
+                printHead(t, head);
+            }
+            try (Body body = html.body()) {
+                printHeadline(t, body);
+                printBody(t, writer);
+            }
+        }
+        writer.flush(); // JBoss doesn't work without :(
     }
 
-    private void printHead(T t, PrintWriter out) {
+    private void printHead(T t, Head head) {
         Accessor<T> accessor = accessors.of(t);
-        String title = accessor.title(t);
-        if (title != null) {
-            out.append("<title>").append(title).println("</title>");
+        String titleString = accessor.title(t);
+        if (titleString != null) {
+            try (Title titleTag = head.title()) {
+                head.write(titleString);
+            }
         }
     }
 
-    protected void printHeadline(T t, PrintWriter out) {
+    protected void printHeadline(T t, Body body) {
         Accessor<T> accessor = accessors.of(t);
         String title = accessor.title(t);
         if (title != null) {
-            out.append("<h1>").append(title).println("</h1>");
+            try (H1 h1 = body.h1()) {
+                h1.write(title);
+            }
         }
     }
 

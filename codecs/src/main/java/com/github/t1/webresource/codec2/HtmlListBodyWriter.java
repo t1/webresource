@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-@javax.ws.rs.ext.Provider
-@javax.ws.rs.Produces("text/html")
 public class HtmlListBodyWriter extends AbstractHtmlMessageBodyWriter<List<?>> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {

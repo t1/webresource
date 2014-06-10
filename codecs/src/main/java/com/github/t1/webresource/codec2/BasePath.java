@@ -13,11 +13,17 @@ public class BasePath {
 
     public URI resolve(String path) {
         URI escaped = escaper.escape(path);
-        return baseUri().resolve(escaped);
+        return resolve(escaped);
+    }
+
+    public URI resolve(URI uri) {
+        return baseUri().resolve(uri);
     }
 
     public URI baseUri() {
         URI baseUri = uriInfo.getBaseUri();
+        if (baseUri == null) // TODO this is not for real
+            baseUri = URI.create("http://some.example.com/");
         String string = baseUri.toASCIIString();
         if (!string.endsWith("/"))
             string = string + "/";

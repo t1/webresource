@@ -3,11 +3,12 @@ package com.github.t1.webresource.accessors;
 import java.net.URI;
 import java.util.*;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.slf4j.*;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class Accessors {
     private final Logger log = LoggerFactory.getLogger(Accessors.class);
@@ -15,19 +16,7 @@ public class Accessors {
     @Inject
     Instance<Accessor<?>> instances;
 
-    private final Map<Class<?>, Accessor<?>> accessors = new HashMap<>();
-
-    @PostConstruct
-    void init() {
-        log.info("init accessors");
-        for (Accessor<?> accessor : instances) {
-            Class<?> type = new AccessorInfo(accessor).type();
-            log.info("init accessor for {}: {}", type, accessor);
-            if (type != null) {
-                accessors.put(type, accessor);
-            }
-        }
-    }
+    private Map<Class<?>, Accessor<?>> accessors;
 
     public <T> Accessor<T> of(T element) {
         Accessor<?> accessor = findAccessor(element.getClass());
@@ -51,7 +40,7 @@ public class Accessors {
     }
 
     private Accessor<?> findAccessor(Class<?> type) {
-        Accessor<?> accessor = accessors.get(type);
+        Accessor<?> accessor = accessors().get(type);
         if (accessor == null) {
             for (Class<?> interface_ : type.getInterfaces()) {
                 accessor = findAccessor(interface_);
@@ -64,5 +53,26 @@ public class Accessors {
             }
         }
         return accessor;
+    }
+
+    @VisibleForTesting
+    Map<Class<?>, Accessor<?>> accessors() {
+        if (accessors == null) {
+            accessors = new HashMap<>();
+            initAccessors();
+        }
+        return accessors;
+    }
+
+    private Map<Class<?>, Accessor<?>> initAccessors() {
+        log.info("init accessors");
+        for (Accessor<?> accessor : instances) {
+            Class<?> type = new AccessorInfo(accessor).type();
+            log.info("init accessor for {}: {}", type, accessor);
+            if (type != null) {
+                accessors.put(type, accessor);
+            }
+        }
+        return accessors();
     }
 }
