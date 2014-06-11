@@ -2,7 +2,7 @@ package com.github.t1.webresource.codec2;
 
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.List;
+import java.util.*;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
@@ -17,6 +17,10 @@ public class HtmlPartResover {
     private HtmlPartWriter resolve(Object item) {
         if (item instanceof List) {
             return new HtmlListPartWriter((List<?>) item);
+        } else if (item instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> map = (Map<Object, Object>) item;
+            return new HtmlMapPartWriter(map);
         } else if (item instanceof URI) {
             return new HtmlLinkPartWriter((URI) item);
         } else {

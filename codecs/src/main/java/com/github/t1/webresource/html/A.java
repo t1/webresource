@@ -4,7 +4,7 @@ import java.net.URI;
 
 public class A extends Part {
     public A(Tag container) {
-        super(container, "a");
+        super(container, "a", false);
     }
 
     public A href(URI uri) {

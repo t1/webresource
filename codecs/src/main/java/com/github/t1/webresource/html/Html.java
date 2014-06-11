@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 
 public class Html extends Tag {
     public Html(PrintWriter writer) {
-        super(writer, "html");
+        super(writer, "html", true);
     }
 
     public Head head() {

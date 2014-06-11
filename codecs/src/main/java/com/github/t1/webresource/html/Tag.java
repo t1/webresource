@@ -5,15 +5,22 @@ import java.io.PrintWriter;
 public class Tag implements AutoCloseable {
     private final PrintWriter writer;
     private final String tagName;
+    private final boolean nl;
+
     private boolean started;
 
-    public Tag(Tag container, String tagName) {
-        this(container.startedWriter(), tagName);
+    /**
+     * @param nl
+     *            print a newline after the opening tag
+     */
+    public Tag(Tag container, String tagName, boolean nl) {
+        this(container.startedWriter(), tagName, nl);
     }
 
-    protected Tag(PrintWriter writer, String tagName) {
+    protected Tag(PrintWriter writer, String tagName, boolean nl) {
         this.writer = writer;
         this.tagName = tagName;
+        this.nl = nl;
         this.started = false;
 
         writer.append('<').append(tagName);
@@ -23,6 +30,9 @@ public class Tag implements AutoCloseable {
         if (!started) {
             started = true;
             writer.append('>');
+            if (nl) {
+                writer.append('\n');
+            }
         }
         return writer;
     }

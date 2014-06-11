@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.List;
+import java.util.*;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -50,23 +50,15 @@ public class HtmlMessageBodyWriterTest {
 
     private final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    @Test
-    public void shouldProduceHtmlFromList() {
-        List<String> list = asList("one", "two", "three");
-        meta.put(list, new ListMetaData("some list"));
-
-        writer.writeTo(list, List.class, null, null, null, null, stream);
-
-        assertEquals("<html><head><title>some list</title>\n" //
+    private String html(String title, String body) {
+        return "<html>\n" //
+                + "<head><title>" + title + "</title>\n" //
                 + "</head>\n" //
-                + "<body><h1>some list</h1>\n" //
-                + "<ul><li>one</li>\n" //
-                + "<li>two</li>\n" //
-                + "<li>three</li>\n" //
-                + "</ul>\n" //
+                + "<body>\n" //
+                + "<h1>" + title + "</h1>\n" //
+                + body //
                 + "</body>\n" //
-                + "</html>\n" //
-        , stream.toString());
+                + "</html>\n";
     }
 
     @Test
@@ -77,12 +69,52 @@ public class HtmlMessageBodyWriterTest {
 
         writer.writeTo(uri, URI.class, null, null, null, null, stream);
 
-        assertEquals("<html><head><title>some link</title>\n" //
-                + "</head>\n" //
-                + "<body><h1>some link</h1>\n" //
-                + "<a href=\"http://example.com/\">some link</a>\n" //
-                + "</body>\n" //
-                + "</html>\n" //
-        , stream.toString());
+        assertEquals(html("some link", "<a href=\"http://example.com/\">some link</a>\n"), stream.toString());
+    }
+
+    @Test
+    public void shouldProduceHtmlFromList() {
+        List<String> list = asList("one", "two", "three");
+        meta.put(list, new ListMetaData("some list"));
+
+        writer.writeTo(list, List.class, null, null, null, null, stream);
+
+        assertEquals(html("some list", "<ul>\n" //
+                + "<li>one</li>\n" //
+                + "<li>two</li>\n" //
+                + "<li>three</li>\n" //
+                + "</ul>\n" //
+        ), stream.toString());
+    }
+
+    @Test
+    public void shouldProduceHtmlFromMap() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("one", "111");
+        map.put("two", "222");
+        map.put("three", "333");
+        meta.put(map, new MapMetaData("some map", "some key", "some value"));
+
+        writer.writeTo(map, Map.class, null, null, null, null, stream);
+
+        assertEquals(html("some map", "<table>\n" //
+                + "<tr>\n" //
+                + "<td>some key</td>\n" //
+                + "<td>some value</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>one</td>\n" //
+                + "<td>111</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>two</td>\n" //
+                + "<td>222</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>three</td>\n" //
+                + "<td>333</td>\n" //
+                + "</tr>\n" //
+                + "</table>\n" //
+        ), stream.toString());
     }
 }
