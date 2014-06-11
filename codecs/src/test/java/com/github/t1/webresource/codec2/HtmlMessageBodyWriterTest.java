@@ -88,6 +88,34 @@ public class HtmlMessageBodyWriterTest {
     }
 
     @Test
+    public void shouldProduceHtmlFromListInList() {
+        List<String> list1 = asList("one", "two");
+        List<String> list2 = asList("three", "four");
+        List<List<String>> list = asList(list1, list2);
+        meta.put(list, new ListMetaData("some list"));
+
+        writer.writeTo(list, List.class, null, null, null, null, stream);
+
+        assertEquals(html("some list", "<ul>\n" //
+                + "<li>" //
+                + "<ul>\n" //
+                + "<li>one</li>\n" //
+                + "<li>two</li>\n" //
+                + "</ul>\n" //
+                + "</li>\n" //
+                //
+                + "<li>" //
+                + "<ul>\n" //
+                + "<li>three</li>\n" //
+                + "<li>four</li>\n" //
+                + "</ul>\n" //
+                + "</li>\n" //
+                //
+                + "</ul>\n" //
+        ), stream.toString());
+    }
+
+    @Test
     public void shouldProduceHtmlFromMap() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("one", "111");
@@ -114,6 +142,69 @@ public class HtmlMessageBodyWriterTest {
                 + "<td>three</td>\n" //
                 + "<td>333</td>\n" //
                 + "</tr>\n" //
+                + "</table>\n" //
+        ), stream.toString());
+    }
+
+    @Test
+    public void shouldProduceHtmlFromMapInMap() {
+        Map<String, String> map1 = new LinkedHashMap<>();
+        map1.put("one", "111");
+        meta.put(map1, new MapMetaData("map1", "key1", "value1"));
+
+        Map<String, String> map2 = new LinkedHashMap<>();
+        map2.put("two", "222");
+        meta.put(map2, new MapMetaData("map2", "key2", "value2"));
+
+        Map<String, Map<String, String>> map = new LinkedHashMap<>();
+        map.put("foo", map1);
+        map.put("bar", map2);
+        meta.put(map, new MapMetaData("map", "key", "value"));
+
+        writer.writeTo(map, Map.class, null, null, null, null, stream);
+
+        assertEquals(html("map", "<table>\n" //
+                + "<tr>\n" //
+                + "<td>key</td>\n" //
+                + "<td>value</td>\n" //
+                + "</tr>\n" //
+                //
+                + "<tr>\n" //
+                + "<td>foo</td>\n" //
+                + "<td>" //
+                //
+                + "<table>\n" //
+                + "<tr>\n" //
+                + "<td>key1</td>\n" //
+                + "<td>value1</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>one</td>\n" //
+                + "<td>111</td>\n" //
+                + "</tr>\n" //
+                + "</table>\n" //
+                //
+                + "</td>\n" //
+                + "</tr>\n" //
+                //
+                + "<tr>\n" //
+                + "<td>bar</td>\n" //
+                + "<td>" //
+                //
+                + "<table>\n" //
+                + "<tr>\n" //
+                + "<td>key2</td>\n" //
+                + "<td>value2</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>two</td>\n" //
+                + "<td>222</td>\n" //
+                + "</tr>\n" //
+                + "</table>\n" //
+                //
+                + "</td>\n" //
+                + "</tr>\n" //
+                //
                 + "</table>\n" //
         ), stream.toString());
     }
