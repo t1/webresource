@@ -8,4 +8,19 @@ public class MapAccessor extends AbstractAccessor<Map<?, ?>> {
     public URI link(Map<?, ?> element) {
         return null; // TODO put into MapMetaData
     }
+
+    public String keyTitle(Map<?, ?> element) {
+        MapMetaData meta = meta(element);
+        return (meta == null) ? "Key" : meta.keyTitle();
+    }
+
+    public String valueTitle(Map<?, ?> element) {
+        MapMetaData meta = meta(element);
+        return (meta == null) ? "Value" : meta.valueTitle();
+    }
+
+    @Override
+    protected MapMetaData meta(Map<?, ?> element) {
+        return (MapMetaData) super.meta(element);
+    }
 }
