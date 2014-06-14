@@ -22,8 +22,6 @@ public class BasePath {
 
     public URI baseUri() {
         URI baseUri = uriInfo.getBaseUri();
-        if (baseUri == null) // TODO this is not for real
-            baseUri = URI.create("http://some.example.com/");
         String string = baseUri.toASCIIString();
         if (!string.endsWith("/"))
             string = string + "/";
