@@ -4,23 +4,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import lombok.RequiredArgsConstructor;
-
 import com.github.t1.webresource.html.*;
 
-@RequiredArgsConstructor
-public class HtmlListPartWriter implements HtmlPartWriter {
+public class HtmlListPartWriter implements HtmlPartWriter<List<?>> {
     @Inject
     private HtmlPartResover parts;
 
-    private final List<?> list;
-
     @Override
-    public void writeTo(Part container) {
+    public void write(List<?> list, Part container) {
         try (UL ul = container.ul()) {
             for (Object item : list) {
                 try (LI li = ul.li()) {
-                    parts.of(item).writeTo(li);
+                    parts.of(item).write(item, li);
                 }
             }
         }

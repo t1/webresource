@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec2;
 
+import static com.github.t1.webresource.codec2.UriInfoMockProducer.*;
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -8,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.*;
 
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
@@ -39,14 +39,7 @@ public class HtmlMessageBodyWriterTest {
     @Inject
     HtmlMessageBodyWriter writer;
     @Inject
-    Accessors accessors;
-    @Inject
-    HtmlPartResover parts;
-    @Inject
     MetaDataStore meta;
-
-    @Produces
-    UriInfo uriInfo = mock(UriInfo.class);
 
     private final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 

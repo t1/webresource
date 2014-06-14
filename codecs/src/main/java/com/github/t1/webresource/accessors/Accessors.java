@@ -8,8 +8,6 @@ import javax.inject.Inject;
 
 import org.slf4j.*;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class Accessors {
     private final Logger log = LoggerFactory.getLogger(Accessors.class);
 
@@ -55,8 +53,7 @@ public class Accessors {
         return accessor;
     }
 
-    @VisibleForTesting
-    Map<Class<?>, Accessor<?>> accessors() {
+    private Map<Class<?>, Accessor<?>> accessors() {
         if (accessors == null) {
             accessors = new HashMap<>();
             initAccessors();

@@ -21,7 +21,6 @@ import com.github.t1.webresource.meta.Items;
 @javax.ws.rs.Produces("text/html")
 @Logged
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
-
     @Inject
     HtmlWriter htmlWriter;
 

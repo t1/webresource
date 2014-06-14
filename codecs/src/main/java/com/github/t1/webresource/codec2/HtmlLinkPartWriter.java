@@ -10,16 +10,14 @@ import com.github.t1.webresource.accessors.*;
 import com.github.t1.webresource.html.*;
 
 @RequiredArgsConstructor
-public class HtmlLinkPartWriter implements HtmlPartWriter {
+public class HtmlLinkPartWriter implements HtmlPartWriter<URI> {
     @Inject
     private BasePath basePath;
     @Inject
     private Accessors accessors;
 
-    private final URI item;
-
     @Override
-    public void writeTo(Part container) {
+    public void write(URI item, Part container) {
         Accessor<URI> accessor = accessors.of(item);
         String title = accessor.title(item);
         URI link = accessor.link(item);

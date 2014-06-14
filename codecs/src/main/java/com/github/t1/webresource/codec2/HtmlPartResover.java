@@ -1,48 +1,36 @@
 package com.github.t1.webresource.codec2;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.*;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+@RequestScoped
 public class HtmlPartResover {
-    public HtmlPartWriter of(Object item) {
-        HtmlPartWriter resolved = resolve(item);
-        inject(resolved);
-        return resolved;
+    @Inject
+    HtmlListPartWriter listWriter;
+    @Inject
+    HtmlMapPartWriter mapWriter;
+    @Inject
+    HtmlLinkPartWriter uriWriter;
+    @Inject
+    ToStringPartWriter objectWriter;
+
+    @SuppressWarnings("unchecked")
+    public <T> HtmlPartWriter<T> of(T item) {
+        return (HtmlPartWriter<T>) resolve(item);
     }
 
-    private HtmlPartWriter resolve(Object item) {
+    private HtmlPartWriter<?> resolve(Object item) {
         if (item instanceof List) {
-            return new HtmlListPartWriter((List<?>) item);
+            return listWriter;
         } else if (item instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<Object, Object> map = (Map<Object, Object>) item;
-            return new HtmlMapPartWriter(map);
+            return mapWriter;
         } else if (item instanceof URI) {
-            return new HtmlLinkPartWriter((URI) item);
+            return uriWriter;
         } else {
-            return new ToStringPartWriter(item);
+            return objectWriter;
         }
-    }
-
-    private void inject(Object target) {
-        Class<? extends Object> type = target.getClass();
-        for (Field field : type.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                field.setAccessible(true);
-                try {
-                    field.set(target, instance(field.getType()));
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    private Object instance(Class<?> type) {
-        return CDI.current().select(type).get(); // TODO this is not for real
     }
 }

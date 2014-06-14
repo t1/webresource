@@ -5,14 +5,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import javax.inject.Inject;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
-import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.*;
 
 import com.github.t1.webresource.accessors.*;
 import com.github.t1.webresource.html.*;
 
-@javax.ws.rs.ext.Provider
-@javax.ws.rs.Produces("text/html")
+@Provider
+@Produces("text/html2")
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     @Inject
     private Accessors accessors;
@@ -39,7 +40,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             }
             try (Body body = html.body()) {
                 printHeadline(t, body);
-                parts.of(t).writeTo(body);
+                parts.of(t).write(t, body);
             }
         }
         writer.flush(); // JBoss doesn't work without :(

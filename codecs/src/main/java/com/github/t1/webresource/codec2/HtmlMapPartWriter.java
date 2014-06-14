@@ -10,23 +10,21 @@ import com.github.t1.webresource.accessors.MapAccessor;
 import com.github.t1.webresource.html.*;
 
 @RequiredArgsConstructor
-public class HtmlMapPartWriter implements HtmlPartWriter {
-    @Inject
-    private HtmlPartResover parts;
+public class HtmlMapPartWriter implements HtmlPartWriter<Map<Object, Object>> {
     @Inject
     private MapAccessor accessor;
-
-    private final Map<Object, Object> map;
+    @Inject
+    private HtmlPartResover parts;
 
     @Override
-    public void writeTo(Part container) {
+    public void write(Map<Object, Object> map, Part container) {
         try (Table table = container.table()) {
-            printHeader(table);
-            printBody(table);
+            printHeader(map, table);
+            printBody(map, table);
         }
     }
 
-    private void printHeader(Table table) {
+    private void printHeader(Map<Object, Object> map, Table table) {
         try (TR tr = table.tr()) {
             try (TD td = tr.td()) {
                 td.write(accessor.keyTitle(map));
@@ -37,14 +35,16 @@ public class HtmlMapPartWriter implements HtmlPartWriter {
         }
     }
 
-    private void printBody(Table table) {
+    private void printBody(Map<Object, Object> map, Table table) {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             try (TR tr = table.tr()) {
                 try (TD td = tr.td()) {
-                    parts.of(entry.getKey()).writeTo(td);
+                    Object key = entry.getKey();
+                    parts.of(key).write(key, td);
                 }
                 try (TD td = tr.td()) {
-                    parts.of(entry.getValue()).writeTo(td);
+                    Object value = entry.getValue();
+                    parts.of(value).write(value, td);
                 }
             }
         }

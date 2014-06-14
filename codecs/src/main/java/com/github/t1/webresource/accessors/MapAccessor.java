@@ -6,7 +6,12 @@ import java.util.Map;
 public class MapAccessor extends AbstractAccessor<Map<?, ?>> {
     @Override
     public URI link(Map<?, ?> element) {
-        return null; // TODO put into MapMetaData
+        return null; // TODO put into MapMetaData?
+    }
+
+    @Override
+    protected MapMetaData meta(Map<?, ?> element) {
+        return (MapMetaData) super.meta(element);
     }
 
     public String keyTitle(Map<?, ?> element) {
@@ -17,10 +22,5 @@ public class MapAccessor extends AbstractAccessor<Map<?, ?>> {
     public String valueTitle(Map<?, ?> element) {
         MapMetaData meta = meta(element);
         return (meta == null) ? "Value" : meta.valueTitle();
-    }
-
-    @Override
-    protected MapMetaData meta(Map<?, ?> element) {
-        return (MapMetaData) super.meta(element);
     }
 }
