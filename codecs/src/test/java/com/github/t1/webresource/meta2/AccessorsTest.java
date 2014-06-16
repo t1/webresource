@@ -1,4 +1,4 @@
-package com.github.t1.webresource.accessors;
+package com.github.t1.webresource.meta2;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
@@ -11,6 +11,8 @@ import java.util.*;
 import javax.enterprise.inject.Instance;
 
 import org.junit.Test;
+
+import com.github.t1.webresource.meta2.*;
 
 public class AccessorsTest {
     private Accessors givenAccessors(@SuppressWarnings("rawtypes") Accessor... accessors) {

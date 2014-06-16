@@ -6,8 +6,8 @@ import javax.inject.Inject;
 
 import lombok.RequiredArgsConstructor;
 
-import com.github.t1.webresource.accessors.MapAccessor;
 import com.github.t1.webresource.html.*;
+import com.github.t1.webresource.meta2.MapAccessor;
 
 @RequiredArgsConstructor
 public class HtmlMapPartWriter implements HtmlPartWriter<Map<Object, Object>> {

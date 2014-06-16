@@ -20,8 +20,8 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.t1.webresource.accessors.*;
 import com.github.t1.webresource.html.Html;
+import com.github.t1.webresource.meta2.*;
 
 @RunWith(Arquillian.class)
 public class HtmlMessageBodyWriterTest {

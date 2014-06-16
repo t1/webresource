@@ -6,8 +6,8 @@ import javax.inject.Inject;
 
 import lombok.RequiredArgsConstructor;
 
-import com.github.t1.webresource.accessors.*;
 import com.github.t1.webresource.html.*;
+import com.github.t1.webresource.meta2.*;
 
 @RequiredArgsConstructor
 public class HtmlLinkPartWriter implements HtmlPartWriter<URI> {

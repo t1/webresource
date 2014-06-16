@@ -9,8 +9,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import javax.ws.rs.ext.*;
 
-import com.github.t1.webresource.accessors.*;
 import com.github.t1.webresource.html.*;
+import com.github.t1.webresource.meta2.*;
 
 @Provider
 @Produces("text/html2")
