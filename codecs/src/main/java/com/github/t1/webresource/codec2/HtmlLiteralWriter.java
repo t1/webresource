@@ -20,7 +20,7 @@ public class HtmlLiteralWriter {
     }
 
     private void printOrFail(String text) throws IOException {
-        StringCharacterIterator iter = new StringCharacterIterator(text);
+        CharacterIterator iter = new StringCharacterIterator(text);
         boolean newline = true;
         for (char c = iter.first(); c != CharacterIterator.DONE; c = iter.next()) {
             if (newline) {

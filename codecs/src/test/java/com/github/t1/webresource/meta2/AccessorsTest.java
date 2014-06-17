@@ -11,21 +11,16 @@ import java.util.*;
 import javax.enterprise.inject.Instance;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import com.github.t1.webresource.meta2.*;
-
+@RunWith(MockitoJUnitRunner.class)
 public class AccessorsTest {
-    private Accessors givenAccessors(@SuppressWarnings("rawtypes") Accessor... accessors) {
-        Accessors result = new Accessors();
-        result.instances = accessorInstances(accessors);
-        return result;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Instance<Accessor<?>> accessorInstances(Accessor... accessors) {
+    private Accessors givenAccessors(Accessor<?>... accessors) {
+        @SuppressWarnings("unchecked")
         Instance<Accessor<?>> mock = mock(Instance.class);
-        when(mock.iterator()).thenReturn((Iterator) asList(accessors).iterator());
-        return mock;
+        when(mock.iterator()).thenReturn(asList(accessors).iterator());
+        return new Accessors(mock);
     }
 
     @Test

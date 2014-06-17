@@ -18,7 +18,9 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     @Inject
     private Accessors accessors;
     @Inject
-    private HtmlPartResover parts;
+    private HtmlPartVisitor parts;
+    @Inject
+    private Items items;
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -40,7 +42,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             }
             try (Body body = html.body()) {
                 printHeadline(t, body);
-                parts.of(t).write(t, body);
+                parts.visit(items.of(t), body);
             }
         }
         writer.flush(); // JBoss doesn't work without :(

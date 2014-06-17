@@ -1,50 +1,46 @@
 package com.github.t1.webresource.codec2;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import lombok.RequiredArgsConstructor;
 
 import com.github.t1.webresource.html.*;
-import com.github.t1.webresource.meta2.MapAccessor;
+import com.github.t1.webresource.meta2.*;
 
 @RequiredArgsConstructor
-public class HtmlMapPartWriter implements HtmlPartWriter<Map<Object, Object>> {
+public class HtmlMapPartWriter implements HtmlPartWriter<Compound> {
     @Inject
-    private MapAccessor accessor;
-    @Inject
-    private HtmlPartResover parts;
+    private HtmlPartVisitor parts;
 
     @Override
-    public void write(Map<Object, Object> map, Part container) {
+    public void write(Compound compound, Part container) {
         try (Table table = container.table()) {
-            printHeader(map, table);
-            printBody(map, table);
+            printHeader(compound, table);
+            printBody(compound, table);
         }
     }
 
-    private void printHeader(Map<Object, Object> map, Table table) {
+    private void printHeader(Compound compound, Table table) {
         try (TR tr = table.tr()) {
             try (TD td = tr.td()) {
-                td.write(accessor.keyTitle(map));
+                td.write(compound.keyTitle().toString());
             }
             try (TD td = tr.td()) {
-                td.write(accessor.valueTitle(map));
+                td.write(compound.valueTitle().toString());
             }
         }
     }
 
-    private void printBody(Map<Object, Object> map, Table table) {
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
+    private void printBody(Compound compound, Table table) {
+        for (Compound.Entry entry : compound) {
             try (TR tr = table.tr()) {
                 try (TD td = tr.td()) {
-                    Object key = entry.getKey();
-                    parts.of(key).write(key, td);
+                    Item key = entry.getKey();
+                    parts.visit(key, td);
                 }
                 try (TD td = tr.td()) {
-                    Object value = entry.getValue();
-                    parts.of(value).write(value, td);
+                    Item value = entry.getValue();
+                    parts.visit(value, td);
                 }
             }
         }

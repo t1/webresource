@@ -1,21 +1,20 @@
 package com.github.t1.webresource.codec2;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import com.github.t1.webresource.html.*;
+import com.github.t1.webresource.meta2.*;
 
-public class HtmlListPartWriter implements HtmlPartWriter<List<?>> {
+public class HtmlListPartWriter implements HtmlPartWriter<Sequence> {
     @Inject
-    private HtmlPartResover parts;
+    private HtmlPartVisitor parts;
 
     @Override
-    public void write(List<?> list, Part container) {
+    public void write(Sequence sequence, Part container) {
         try (UL ul = container.ul()) {
-            for (Object item : list) {
+            for (Item item : sequence) {
                 try (LI li = ul.li()) {
-                    parts.of(item).write(item, li);
+                    parts.visit(item, li);
                 }
             }
         }

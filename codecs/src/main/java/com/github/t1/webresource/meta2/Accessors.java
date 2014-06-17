@@ -6,15 +6,23 @@ import java.util.*;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import org.slf4j.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Accessors {
-    private final Logger log = LoggerFactory.getLogger(Accessors.class);
+    private final Map<Class<?>, Accessor<?>> accessors = new HashMap<>();
 
     @Inject
-    Instance<Accessor<?>> instances;
-
-    private Map<Class<?>, Accessor<?>> accessors;
+    public Accessors(Instance<Accessor<?>> instances) {
+        log.debug("init accessors");
+        for (Accessor<?> accessor : instances) {
+            Class<?> type = new AccessorInfo(accessor).type();
+            log.debug("init accessor for {}: {}", type, accessor);
+            if (type != null) {
+                accessors.put(type, accessor);
+            }
+        }
+    }
 
     public <T> Accessor<T> of(T element) {
         Accessor<?> accessor = findAccessor(element.getClass());
@@ -54,22 +62,6 @@ public class Accessors {
     }
 
     private Map<Class<?>, Accessor<?>> accessors() {
-        if (accessors == null) {
-            accessors = new HashMap<>();
-            initAccessors();
-        }
         return accessors;
-    }
-
-    private Map<Class<?>, Accessor<?>> initAccessors() {
-        log.info("init accessors");
-        for (Accessor<?> accessor : instances) {
-            Class<?> type = new AccessorInfo(accessor).type();
-            log.info("init accessor for {}: {}", type, accessor);
-            if (type != null) {
-                accessors.put(type, accessor);
-            }
-        }
-        return accessors();
     }
 }

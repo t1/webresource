@@ -37,9 +37,9 @@ public class HtmlMessageBodyWriterTest {
     }
 
     @Inject
-    HtmlMessageBodyWriter writer;
+    private HtmlMessageBodyWriter writer;
     @Inject
-    MetaDataStore meta;
+    private MetaDataStore meta;
 
     private final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
