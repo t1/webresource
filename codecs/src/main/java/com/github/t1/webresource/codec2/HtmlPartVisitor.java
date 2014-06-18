@@ -11,39 +11,39 @@ import com.github.t1.webresource.meta2.*;
 @RequestScoped
 public class HtmlPartVisitor {
     @Inject
-    private HtmlListPartWriter listWriter;
+    private SequenceHtmlPartWriter sequenceWriter;
     @Inject
-    private HtmlMapPartWriter mapWriter;
+    private CompoundHtmlPartWriter compoundWriter;
     @Inject
-    private HtmlLinkPartWriter uriWriter;
+    private UriHtmlPartWriter uriWriter;
     @Inject
-    private ToStringPartWriter toStringWriter;
+    private PrimitiveHtmlPartWriter primitiveWriter;
 
     public void visit(Item item, final Part container) {
         ItemVisitor visitor = new ItemVisitor() {
             @Override
-            public void visit(Primitive primitive) {
-                HtmlPartWriter<Object> writer = primitiveWriterFor(primitive.getObject());
-                writer.write(primitive.getObject(), container);
+            public void visit(Primitive<?> primitive) {
+                HtmlPartWriter<Primitive<?>> writer = primitiveWriterFor(primitive.getObject());
+                writer.write(primitive, container);
             }
 
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            private HtmlPartWriter<Object> primitiveWriterFor(Object item) {
+            private HtmlPartWriter<Primitive<?>> primitiveWriterFor(Object item) {
                 if (item instanceof URI) {
                     return (HtmlPartWriter) uriWriter;
                 } else {
-                    return toStringWriter;
+                    return (HtmlPartWriter) primitiveWriter;
                 }
             }
 
             @Override
             public void visit(Sequence sequence) {
-                listWriter.write(sequence, container);
+                sequenceWriter.write(sequence, container);
             }
 
             @Override
             public void visit(Compound compound) {
-                mapWriter.write(compound, container);
+                compoundWriter.write(compound, container);
             }
         };
         item.visit(visitor);

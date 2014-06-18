@@ -12,6 +12,8 @@ import java.util.*;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import lombok.Value;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -68,11 +70,11 @@ public class HtmlMessageBodyWriterTest {
     @Test
     public void shouldProduceHtmlFromList() {
         List<String> list = asList("one", "two", "three");
-        meta.put(list, new ListMetaData("some list"));
+        meta.put(list, new ListMetaData("list-of-strings"));
 
         writer.writeTo(list, List.class, null, null, null, null, stream);
 
-        assertEquals(html("some list", "<ul>\n" //
+        assertEquals(html("list-of-strings", "<ul>\n" //
                 + "<li>one</li>\n" //
                 + "<li>two</li>\n" //
                 + "<li>three</li>\n" //
@@ -85,11 +87,11 @@ public class HtmlMessageBodyWriterTest {
         List<String> list1 = asList("one", "two");
         List<String> list2 = asList("three", "four");
         List<List<String>> list = asList(list1, list2);
-        meta.put(list, new ListMetaData("some list"));
+        meta.put(list, new ListMetaData("list-of-lists"));
 
         writer.writeTo(list, List.class, null, null, null, null, stream);
 
-        assertEquals(html("some list", "<ul>\n" //
+        assertEquals(html("list-of-lists", "<ul>\n" //
                 + "<li>" //
                 + "<ul>\n" //
                 + "<li>one</li>\n" //
@@ -123,6 +125,40 @@ public class HtmlMessageBodyWriterTest {
                 + "<td>some key</td>\n" //
                 + "<td>some value</td>\n" //
                 + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>one</td>\n" //
+                + "<td>111</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>two</td>\n" //
+                + "<td>222</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>three</td>\n" //
+                + "<td>333</td>\n" //
+                + "</tr>\n" //
+                + "</table>\n" //
+        ), stream.toString());
+    }
+
+    @Value
+    public static class Pojo {
+        String one, two, three;
+
+        @Override
+        public String toString() {
+            return "Pojo[" + one + "]";
+        }
+    }
+
+    @Test
+    public void shouldProduceHtmlFromPojo() {
+        Pojo pojo = new Pojo("111", "222", "333");
+        // meta.put(map, new MapMetaData("some map", "some key", "some value"));
+
+        writer.writeTo(pojo, Pojo.class, null, null, null, null, stream);
+
+        assertEquals(html("Pojo[111]", "<table>\n" //
                 + "<tr>\n" //
                 + "<td>one</td>\n" //
                 + "<td>111</td>\n" //
@@ -198,6 +234,41 @@ public class HtmlMessageBodyWriterTest {
                 + "</td>\n" //
                 + "</tr>\n" //
                 //
+                + "</table>\n" //
+        ), stream.toString());
+    }
+
+    @Test
+    public void shouldProduceHtmlFromListOfPojo() {
+        Pojo pojo0 = new Pojo("01", "02", "03");
+        Pojo pojo1 = new Pojo("11", "12", "13");
+        Pojo pojo2 = new Pojo("21", "22", "23");
+        List<Pojo> list = asList(pojo0, pojo1, pojo2);
+        meta.put(list, new ListMetaData("list-of-pojos"));
+
+        writer.writeTo(list, List.class, null, null, null, null, stream);
+
+        assertEquals(html("list-of-pojos", "<table>\n" //
+                + "<tr>\n" //
+                + "<td>one</td>\n" //
+                + "<td>two</td>\n" //
+                + "<td>three</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>01</td>\n" //
+                + "<td>02</td>\n" //
+                + "<td>03</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>11</td>\n" //
+                + "<td>12</td>\n" //
+                + "<td>13</td>\n" //
+                + "</tr>\n" //
+                + "<tr>\n" //
+                + "<td>21</td>\n" //
+                + "<td>22</td>\n" //
+                + "<td>23</td>\n" //
+                + "</tr>\n" //
                 + "</table>\n" //
         ), stream.toString());
     }

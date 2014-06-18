@@ -6,8 +6,9 @@ import lombok.Value;
 
 @Value
 class ListSequence implements Sequence {
-    List<?> list;
+    List<Item> list;
     Items items;
+    ListAccessor accessor;
 
     @Override
     public void visit(ItemVisitor visitor) {

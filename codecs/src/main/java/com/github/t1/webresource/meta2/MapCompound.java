@@ -16,34 +16,39 @@ public class MapCompound implements Compound {
     }
 
     @Override
-    public Iterator<Entry> iterator() {
-        final Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
-        return new Iterator<Entry>() {
+    public Iterable<Property> properties() {
+        return new Iterable<Property>() {
             @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
+            public Iterator<Property> iterator() {
+                final Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+                return new Iterator<Property>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
 
-            @Override
-            public Entry next() {
-                Map.Entry<String, Object> next = iterator.next();
-                return new Entry(new Primitive(next.getKey()), items.of(next.getValue()));
-            }
+                    @Override
+                    public Property next() {
+                        Map.Entry<String, Object> next = iterator.next();
+                        return new Property(new Primitive<>(next.getKey()), items.of(next.getValue()));
+                    }
 
-            @Override
-            public void remove() {
-                iterator.remove();
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+                    }
+                };
             }
         };
     }
 
     @Override
-    public Primitive keyTitle() {
-        return new Primitive(accessor.keyTitle(map));
+    public Primitive<String> keyTitle() {
+        return new Primitive<>(accessor.keyTitle(map));
     }
 
     @Override
-    public Primitive valueTitle() {
-        return new Primitive(accessor.valueTitle(map));
+    public Primitive<String> valueTitle() {
+        return new Primitive<>(accessor.valueTitle(map));
     }
 }

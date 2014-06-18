@@ -1,17 +1,19 @@
 package com.github.t1.webresource.meta2;
 
 import lombok.Value;
+import lombok.experimental.Accessors;
 
-import com.github.t1.webresource.meta2.Compound.Entry;
-
-public interface Compound extends Item, Iterable<Entry> {
+public interface Compound extends Item {
     @Value
-    public static class Entry {
-        Primitive key;
+    @Accessors(fluent = true)
+    public static class Property {
+        Primitive<String> name;
         Item value;
     }
 
-    Primitive keyTitle();
+    Iterable<Property> properties();
 
-    Primitive valueTitle();
+    Primitive<String> keyTitle();
+
+    Primitive<String> valueTitle();
 }

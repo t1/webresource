@@ -3,8 +3,8 @@ package com.github.t1.webresource.meta2;
 import lombok.Value;
 
 @Value
-public class Primitive implements Item {
-    Object object;
+public class Primitive<T> implements Item {
+    T object;
 
     @Override
     public String toString() {
