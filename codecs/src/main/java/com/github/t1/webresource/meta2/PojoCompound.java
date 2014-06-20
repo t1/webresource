@@ -1,39 +1,36 @@
 package com.github.t1.webresource.meta2;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import lombok.Value;
 import lombok.experimental.Accessors;
 
+import com.github.t1.webresource.meta2.PojoType.PojoProperty;
+
 @Value
 @Accessors(fluent = true)
 public class PojoCompound implements Compound {
+    private final PojoType type;
     private final Object pojo;
     private final Items items;
 
-    private final List<Property> properties = new ArrayList<>();
+    private final List<Property> properties;
 
     public PojoCompound(Object pojo, Items items) {
+        this.type = PojoType.of(pojo.getClass());
         this.pojo = pojo;
         this.items = items;
-        initProperties();
+        this.properties = initProperties();
     }
 
-    private void initProperties() {
-        for (Field field : pojo.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            Primitive<String> fieldName = new Primitive<>(field.getName());
-            properties.add(new Property(fieldName, value(field)));
+    private List<Property> initProperties() {
+        List<Property> list = new ArrayList<>();
+        for (PojoProperty pojoProperty : type.pojoProperties()) {
+            Primitive<String> name = new Primitive<>(pojoProperty.name());
+            Item value = items.of(pojoProperty.get(pojo));
+            list.add(new Property(name, value));
         }
-    }
-
-    private Item value(Field field) {
-        try {
-            return items.of(field.get(pojo));
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return list;
     }
 
     @Override

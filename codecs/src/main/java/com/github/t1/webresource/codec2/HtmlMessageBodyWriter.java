@@ -13,7 +13,7 @@ import com.github.t1.webresource.html.*;
 import com.github.t1.webresource.meta2.*;
 
 @Provider
-@Produces("text/html2")
+@Produces("text/html")
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     @Inject
     private Accessors accessors;

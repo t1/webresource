@@ -28,7 +28,7 @@ public class Items {
     }
 
     private boolean isPrimitive(Object object) {
-        return object instanceof Boolean || object instanceof Character || object instanceof Number
+        return object == null || object instanceof Boolean || object instanceof Character || object instanceof Number
                 || object instanceof String || object instanceof URI;
     }
 }

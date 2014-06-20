@@ -14,10 +14,10 @@ public class Accessors {
 
     @Inject
     public Accessors(Instance<Accessor<?>> instances) {
-        log.debug("init accessors");
+        log.trace("init accessors");
         for (Accessor<?> accessor : instances) {
             Class<?> type = new AccessorInfo(accessor).type();
-            log.debug("init accessor for {}: {}", type, accessor);
+            log.trace("init accessor for {}: {}", type, accessor);
             if (type != null) {
                 accessors.put(type, accessor);
             }
