@@ -11,6 +11,7 @@ import java.util.*;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlTransient;
 
 import lombok.Value;
 
@@ -268,6 +269,34 @@ public class HtmlMessageBodyWriterTest {
                 + "<td>21</td>\n" //
                 + "<td>22</td>\n" //
                 + "<td>23</td>\n" //
+                + "</tr>\n" //
+                + "</table>\n" //
+        ), stream.toString());
+    }
+
+    @Value
+    public static class TransientPojo {
+        String one;
+        transient String two;
+        @XmlTransient
+        String three;
+
+        @Override
+        public String toString() {
+            return "TransientPojo[" + one + "]";
+        }
+    }
+
+    @Test
+    public void shouldProduceHtmlFromTransientPojo() {
+        TransientPojo pojo = new TransientPojo("111", "222", "333");
+
+        writer.writeTo(pojo, TransientPojo.class, null, null, null, null, stream);
+
+        assertEquals(html("TransientPojo[111]", "<table>\n" //
+                + "<tr>\n" //
+                + "<td>one</td>\n" //
+                + "<td>111</td>\n" //
                 + "</tr>\n" //
                 + "</table>\n" //
         ), stream.toString());
