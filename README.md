@@ -19,3 +19,6 @@ TODO generator:
 has similarities to http://isis.apache.org
 TODO codec:
 * Provide favicons: <link rel="icon" type="image/png" href="/images/icon.png">
+
+
+[![Join the chat at https://gitter.im/t1/webresource](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/t1/webresource?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
