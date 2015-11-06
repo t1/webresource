@@ -66,6 +66,10 @@
 					<artifactId>xalan</artifactId>
 					<groupId>org.apache.xalan</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>xalan</artifactId>
+					<groupId>xalan</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
