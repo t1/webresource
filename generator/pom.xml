@@ -17,7 +17,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.3</version>
 				<configuration>
 					<!-- the annotation processors have not yet been built -->
 					<proc>none</proc>
@@ -28,7 +28,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.0</version>
+				<version>2.4.2</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>org.jboss.spec</groupId>
 			<artifactId>jboss-javaee-6.0</artifactId>
-			<version>3.0.2.Final</version>
+			<version>${jboss-javaee-6.0.version}</version>
 			<type>pom</type>
 			<scope>provided</scope>
 			<exclusions>
@@ -130,7 +130,6 @@
 				<dependency>
 					<groupId>org.slf4j</groupId>
 					<artifactId>log4j-over-slf4j</artifactId>
-					<version>1.6.6</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>
@@ -139,7 +138,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.6</version>
+						<version>2.10</version>
 						<executions>
 							<execution>
 								<id>unpack</id>
@@ -165,7 +164,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
-						<version>2.13</version>
+						<version>2.19</version>
 						<executions>
 							<execution>
 								<goals>

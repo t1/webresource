@@ -1,10 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.github.t1</groupId>
     <artifactId>webresource</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Webresource Parent POM</name>
     <description>Generates the REST boundary for an entity or DAO</description>
 
@@ -12,25 +14,32 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <resteasy.version>3.0.8.Final</resteasy.version>
+        <resteasy.version>3.0.13.Final</resteasy.version>
+        <slf4j.version>1.7.13</slf4j.version>
+        <jboss-javaee-6.0.version>3.0.3.Final</jboss-javaee-6.0.version>
     </properties>
 
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
+
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
+                <version>2.6</version>
                 <configuration>
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
@@ -46,16 +55,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- import scope -->
             <dependency>
                 <groupId>org.jboss.spec</groupId>
                 <artifactId>jboss-javaee-6.0</artifactId>
-                <version>3.0.2.Final</version>
+                <version>${jboss-javaee-6.0.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
                 <exclusions>
                     <exclusion>
                         <artifactId>xalan</artifactId>
                         <groupId>org.apache.xalan</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xalan</artifactId>
+                        <groupId>xalan</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -67,15 +81,41 @@
                 <scope>import</scope>
             </dependency>
 
-			<!-- provided scope -->
+            <!-- provided scope -->
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>jaxrs-api</artifactId>
-                <version>${resteasy.version}</version>
+                <version>3.0.12.Final</version><!-- 3.0.13.Final wasn't released -->
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
 
-			<!-- test scope -->
+            <!-- "overlay" scope -->
+            <dependency>
+                <groupId>com.github.t1</groupId>
+                <artifactId>logging-interceptor</artifactId>
+                <version>3.0.0</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- default scope -->
+            <dependency>
+                <groupId>com.github.t1</groupId>
+                <artifactId>stereotype-helper</artifactId>
+                <version>1.0.3</version>
+            </dependency>
+
+            <!-- test scope -->
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-jaxrs</artifactId>
@@ -92,45 +132,62 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.1.3</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>1.1.4.Final</version>
+                <version>1.1.10.Final</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
+                <version>1.0.0.CR9</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-core</artifactId>
+                <version>2.2.0.SP1</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-		<!-- "build" scope -->
+        <!-- "build" scope -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.12.6</version>
+            <version>1.16.6</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
 
-		<!-- provided scope -->
+        <!-- provided scope -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.7</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
 
-		<!-- test scope -->
+        <!-- test scope -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version><!--$NO-MVN-MAN-VER$-->
+            <version>4.12</version><!--$NO-MVN-MAN-VER$ -->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

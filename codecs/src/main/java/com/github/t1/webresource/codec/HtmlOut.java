@@ -87,7 +87,9 @@ public class HtmlOut {
 
     public void writeEscaped(String string) {
         try {
-            new HtmlEscapeWriter(out).write(string);
+            @SuppressWarnings("resource")
+            HtmlEscapeWriter htmlEscapeWriter = new HtmlEscapeWriter(out);
+            htmlEscapeWriter.write(string);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

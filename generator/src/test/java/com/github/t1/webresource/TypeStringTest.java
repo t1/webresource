@@ -9,7 +9,6 @@ import org.junit.Test;
 import com.github.t1.webresource.typewriter.TypeString;
 
 public class TypeStringTest {
-    @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailWithInvalidTypeString() {
         new TypeString("-");
