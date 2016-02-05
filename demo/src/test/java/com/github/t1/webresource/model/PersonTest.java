@@ -66,7 +66,8 @@ public class PersonTest {
         assertEquals(set(TAG1), person.getTags());
     }
 
-    private <T> Set<T> set(@SuppressWarnings("unchecked") T... values) {
+    @SafeVarargs
+    private final <T> Set<T> set(T... values) {
         return new LinkedHashSet<>(asList(values));
     }
 
@@ -171,10 +172,10 @@ public class PersonTest {
         JAXB.marshal(person.getTags(), xml);
 
         assertEquals(XML_HEADER //
-                + "<tags>\n" //
-                + "    <tag key=\"tag1\">description-1</tag>\n" //
-                + "    <tag key=\"tag2\">description-2</tag>\n" //
-                + "</tags>\n" //
-        , xml.toString());
+                        + "<tags>\n" //
+                        + "    <tag key=\"tag1\">description-1</tag>\n" //
+                        + "    <tag key=\"tag2\">description-2</tag>\n" //
+                        + "</tags>\n" //
+                , xml.toString());
     }
 }
