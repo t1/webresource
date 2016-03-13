@@ -18,26 +18,39 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class StringTool implements Function<String, String> {
     // ----------------- static convenience
-    public static String camelToWords(String camel) {
-        return StringTool.of(new CamelToWords<IntStream>()).apply(camel);
+    public static String camelToWords(String in) {
+        return of(camelToWords()).apply(in);
     }
 
     // ----------------- core
 
+    @SafeVarargs
+    public static StringTool of(IntFunction<? extends IntStream> first, IntFunction<? extends IntStream>... rest) {
+        StringTool tool = StringTool.of(first);
+        for (IntFunction<? extends IntStream> function : rest)
+            tool = tool.and(function);
+        return tool;
+    }
+
     public static StringTool of(IntFunction<? extends IntStream> function) {
-        return new StringTool(function);
+        return new StringTool(function, Function.identity());
     }
 
     public StringTool and(IntFunction<? extends IntStream> function) {
-        return new StringTool(IntFunction_andThen(this.function, function));
+        return new StringTool(IntFunction_andThen(this.function, function), Function.identity());
+    }
+
+    public StringTool and(Function<String, String> finisher) {
+        return new StringTool(this.function, this.finisher.andThen(finisher));
     }
 
     private final IntFunction<? extends IntStream> function;
+    private final Function<String, String> finisher;
 
     @Override public String apply(String in) {
         StringBuilder out = new StringBuilder();
         in.codePoints().flatMap(function).forEach(out::appendCodePoint);
-        return out.toString();
+        return finisher.apply(out.toString());
     }
 
     // ----------------- functions
@@ -45,6 +58,8 @@ public class StringTool implements Function<String, String> {
     public static IntStream uppercase(int codePoint) {
         return IntStream.of(Character.toUpperCase(codePoint));
     }
+
+    public static CamelToWords<IntStream> camelToWords() { return new CamelToWords<>(); }
 
     public static class CamelToWords<T> implements IntFunction<IntStream> {
         private boolean first = true;
@@ -59,6 +74,10 @@ public class StringTool implements Function<String, String> {
                 first = false;
             }
         }
+    }
+
+    public static String pluralize(String string) {
+        return string + "s"; // TODO get smarter than this ;)
     }
 
     // ----------------- helpers

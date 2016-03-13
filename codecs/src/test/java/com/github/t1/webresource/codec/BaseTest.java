@@ -1,4 +1,4 @@
-package com.github.t1.webresource.codec3;
+package com.github.t1.webresource.codec;
 
 import lombok.*;
 import org.junit.Test;
@@ -6,8 +6,11 @@ import org.junit.Test;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.nio.file.*;
+import java.util.List;
 
+import static java.util.Arrays.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -19,7 +22,12 @@ public class BaseTest {
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Class<?> type = object.getClass();
-        writer.writeTo(object, type, type, new Annotation[0], TEXT_HTML_TYPE, headers, stream);
+        Type genericType = type;
+        if (object instanceof GenericEntity) {
+            genericType = ((GenericEntity) object).getType();
+            object = ((GenericEntity) object).getEntity();
+        }
+        writer.writeTo(object, type, genericType, new Annotation[0], TEXT_HTML_TYPE, headers, stream);
         return stream.toString();
     }
 
@@ -50,6 +58,11 @@ public class BaseTest {
                 + "</html>\n";
     }
 
+    @SneakyThrows(IOException.class)
+    private void writeToFile(String html) {
+        Files.write(Paths.get("target/test-output.html"), html.getBytes());
+    }
+
     @Test
     public void shouldGenerateBasicHtml() {
         class EmptyPojo {}
@@ -67,8 +80,6 @@ public class BaseTest {
 
         String html = write(new SimplePojo());
 
-        Files.write(Paths.get("target", "simple-pojo.html"), html.getBytes());
-
         assertThat(html).isEqualTo(html("Simple Pojo", ""
                 + "    <dl class=\"dl-horizontal\">\n"
                 + "      <dt>one</dt>\n"
@@ -82,13 +93,50 @@ public class BaseTest {
                 + "    </dl>\n"));
     }
 
-    // TODO content panel with default heading
-    //+ "    <div class=\"panel panel-default\">\n"
-    //+ "      <div class=\"panel-heading\"><h1>Deployments</h1></div>\n"
-    //+ "\n"
-    // ...
-    //+ "    </div>\n"
-    //+ "\n"
+    @Test
+    public void shouldWriteListOfSimplePojos() {
+        @Data
+        @AllArgsConstructor
+        class SimplePojo {
+            String one, two;
+
+            public String toString() {
+                return "«" + one + ":" + two + "»";
+            }
+        }
+
+        String html = write(new GenericEntity<List<SimplePojo>>(
+                asList(new SimplePojo("1", "a"), new SimplePojo("2", "b"))) {});
+
+        assertThat(html).isEqualTo(html("Simple Pojos", ""
+                + "    <ul>\n"
+                + "      <li>«1:a»</li>\n"
+                + "      <li>«2:b»</li>\n"
+                + "    </ul>\n"
+        ));
+    }
+
+    @Test
+    public void shouldWritePojoWithPane() {
+        @Data
+        @HtmlPanel
+        class PanedPojo {
+            String one = "a";
+        }
+
+        String html = write(new PanedPojo());
+
+        writeToFile(html);
+        assertThat(html).isEqualTo(html("Paned Pojo", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-heading\"><h1>Deployments</h1></div>\n"
+                + "    <dl class=\"dl-horizontal\">\n"
+                + "      <dt>one</dt>\n"
+                + "      <dd>a</dd>\n"
+                + "    </dl>\n"
+                + "    </div>\n"
+                + "    </div>\n"));
+    }
 
     // TODO content panel with custom heading
     //+ "    <div class=\"panel panel-default\">\n"
