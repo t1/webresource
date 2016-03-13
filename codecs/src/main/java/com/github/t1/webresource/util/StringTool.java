@@ -24,6 +24,14 @@ public class StringTool implements Function<String, String> {
 
     // ----------------- core
 
+    public static StringTool empty() {
+        return of(IntFunction_identityStream());
+    }
+
+    public static StringTool of(IntFunction<? extends IntStream> function) {
+        return new StringTool(function, Function.identity());
+    }
+
     @SafeVarargs
     public static StringTool of(IntFunction<? extends IntStream> first, IntFunction<? extends IntStream>... rest) {
         StringTool tool = StringTool.of(first);
@@ -32,12 +40,8 @@ public class StringTool implements Function<String, String> {
         return tool;
     }
 
-    public static StringTool of(IntFunction<? extends IntStream> function) {
-        return new StringTool(function, Function.identity());
-    }
-
     public StringTool and(IntFunction<? extends IntStream> function) {
-        return new StringTool(IntFunction_andThen(this.function, function), Function.identity());
+        return new StringTool(IntFunction_andThen(this.function, function), finisher);
     }
 
     public StringTool and(Function<String, String> finisher) {

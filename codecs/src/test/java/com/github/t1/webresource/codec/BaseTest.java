@@ -64,10 +64,18 @@ public class BaseTest {
     }
 
     @Test
-    public void shouldGenerateBasicHtml() {
+    public void shouldWriteEmptyPojo() {
         class EmptyPojo {}
 
         assertThat(write(new EmptyPojo())).isEqualTo(html("Empty Pojo", ""));
+    }
+
+    @Test
+    public void shouldWriteEmptyPojoWithTitle() {
+        @HtmlTitle("HelloWorld!")
+        class EmptyPojo {}
+
+        assertThat(write(new EmptyPojo())).isEqualTo(html("HelloWorld!", ""));
     }
 
     @Test
@@ -114,6 +122,38 @@ public class BaseTest {
                 + "      <li>«2:b»</li>\n"
                 + "    </ul>\n"
         ));
+    }
+
+    @Test
+    public void shouldWriteListOfPojosWithSingularTitle() {
+        @Value
+        @HtmlTitle("HelloWorld!")
+        class WorldPojo {
+            String value;
+        }
+
+        assertThat(write(new GenericEntity<List<WorldPojo>>(asList(new WorldPojo("a"), new WorldPojo("b"))) {}))
+                .isEqualTo(html("HelloWorld!s", ""
+                        + "    <ul>\n"
+                        + "      <li>WorldPojo(value=a)</li>\n"
+                        + "      <li>WorldPojo(value=b)</li>\n"
+                        + "    </ul>\n"));
+    }
+
+    @Test
+    public void shouldWriteListOfPojosWithPluralTitle() {
+        @Value
+        @HtmlTitle(value = "HelloWorld!", plural = "HelloWorlds!")
+        class WorldPojo {
+            String value;
+        }
+
+        assertThat(write(new GenericEntity<List<WorldPojo>>(asList(new WorldPojo("a"), new WorldPojo("b"))) {}))
+                .isEqualTo(html("HelloWorlds!", ""
+                        + "    <ul>\n"
+                        + "      <li>WorldPojo(value=a)</li>\n"
+                        + "      <li>WorldPojo(value=b)</li>\n"
+                        + "    </ul>\n"));
     }
 
     @Test

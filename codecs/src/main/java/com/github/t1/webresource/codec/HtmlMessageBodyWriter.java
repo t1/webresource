@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import com.github.t1.log.shaded.stereotypes.Annotations;
 import com.github.t1.meta.Meta;
 import com.github.t1.webresource.util.StringTool;
 import lombok.extern.slf4j.Slf4j;
@@ -107,14 +108,26 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     }
 
     private String title(Type type) {
-        StringTool tool = of(camelToWords());
+        StringTool tool = empty();
         if (isCollection(type)) {
             type = elementType(type);
+            if (hasHtmlTitle(type) && !getHtmlTitle(type).plural().isEmpty())
+                return getHtmlTitle(type).plural();
             tool = tool.and(StringTool::pluralize);
         }
-        String typeName = (type instanceof Class)
-                ? ((Class<?>) type).getSimpleName()
-                : type.getTypeName();
+        String typeName;
+        if (type instanceof Class) {
+            Class<?> clazz = (Class<?>) type;
+            if (hasHtmlTitle(clazz)) {
+                typeName = getHtmlTitle(clazz).value();
+            } else {
+                tool = tool.and(camelToWords());
+                typeName = clazz.getSimpleName();
+            }
+        } else {
+            typeName = type.getTypeName();
+            tool = tool.and(camelToWords());
+        }
         return tool.apply(typeName);
     }
 
@@ -129,6 +142,15 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     private Type elementType(Type type) {
         return ((ParameterizedType) type).getActualTypeArguments()[0];
     }
+
+    private boolean hasHtmlTitle(Type type) {
+        return (type instanceof Class) && annotationsOn(type).isAnnotationPresent(HtmlTitle.class);
+    }
+
+    private HtmlTitle getHtmlTitle(Type type) { return annotationsOn(type).getAnnotation(HtmlTitle.class); }
+
+    private AnnotatedElement annotationsOn(Type type) {return Annotations.on((Class<?>) type);}
+
 
     private void appendPojo(Writer out, Object pojo) {
         new Meta().visitTo(pojo).by(new HtmlBodyVisitor(out)).run();
