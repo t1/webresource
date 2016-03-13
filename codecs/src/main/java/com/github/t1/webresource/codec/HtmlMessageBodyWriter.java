@@ -1,8 +1,6 @@
 package com.github.t1.webresource.codec;
 
-import com.github.t1.log.shaded.stereotypes.Annotations;
 import com.github.t1.meta.Meta;
-import com.github.t1.webresource.util.StringTool;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
@@ -10,11 +8,9 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.ext.*;
 import java.io.*;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.Collection;
 
-import static com.github.t1.webresource.util.StringTool.*;
 import static java.util.Arrays.*;
 import static javax.ws.rs.core.MediaType.*;
 
@@ -108,49 +104,8 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     }
 
     private String title(Type type) {
-        StringTool tool = empty();
-        if (isCollection(type)) {
-            type = elementType(type);
-            if (hasHtmlTitle(type) && !getHtmlTitle(type).plural().isEmpty())
-                return getHtmlTitle(type).plural();
-            tool = tool.and(StringTool::pluralize);
-        }
-        String typeName;
-        if (type instanceof Class) {
-            Class<?> clazz = (Class<?>) type;
-            if (hasHtmlTitle(clazz)) {
-                typeName = getHtmlTitle(clazz).value();
-            } else {
-                tool = tool.and(camelToWords());
-                typeName = clazz.getSimpleName();
-            }
-        } else {
-            typeName = type.getTypeName();
-            tool = tool.and(camelToWords());
-        }
-        return tool.apply(typeName);
+        return new TitleBuilder(type).toString();
     }
-
-    private boolean isCollection(Type type) {
-        return type instanceof ParameterizedType && Collection.class.isAssignableFrom(raw(type));
-    }
-
-    private Class<?> raw(Type type) {
-        return (Class<?>) ((ParameterizedType) type).getRawType();
-    }
-
-    private Type elementType(Type type) {
-        return ((ParameterizedType) type).getActualTypeArguments()[0];
-    }
-
-    private boolean hasHtmlTitle(Type type) {
-        return (type instanceof Class) && annotationsOn(type).isAnnotationPresent(HtmlTitle.class);
-    }
-
-    private HtmlTitle getHtmlTitle(Type type) { return annotationsOn(type).getAnnotation(HtmlTitle.class); }
-
-    private AnnotatedElement annotationsOn(Type type) {return Annotations.on((Class<?>) type);}
-
 
     private void appendPojo(Writer out, Object pojo) {
         new Meta().visitTo(pojo).by(new HtmlBodyVisitor(out)).run();

@@ -26,17 +26,21 @@ class HtmlBodyVisitor extends Visitor {
     @Override public void enterMapping() {
         if (isHtmlPanel()) {
             println("    <div class=\"panel panel-default\">");
-            println("      <div class=\"panel-heading\"><h1>Deployments</h1></div>");
+            println("      <div class=\"panel-heading\"><h1>" + new TitleBuilder(destination().getClass()).toString()
+                    + "</h1></div>");
         }
         if (isSequence) {
-            print(guide().getDestination().toString());
+            print(destination().toString());
         }
     }
 
     private boolean isHtmlPanel() {
-        return Annotations
-                .on(guide().getDestination().getClass()).isAnnotationPresent(HtmlPanel.class);
+        return Annotations.on(destinationType()).isAnnotationPresent(HtmlPanel.class);
     }
+
+    private Object destination() { return guide().getDestination(); }
+
+    private Class<?> destinationType() { return destination().getClass(); }
 
     @Override public void enterProperty(String key) {
         if (isSequence)

@@ -157,19 +157,42 @@ public class BaseTest {
     }
 
     @Test
-    public void shouldWritePojoWithPane() {
+    public void shouldWritePojoWithPanel() {
         @Data
         @HtmlPanel
-        class PanedPojo {
+        class PanelPojo {
             String one = "a";
         }
 
-        String html = write(new PanedPojo());
+        String html = write(new PanelPojo());
 
         writeToFile(html);
-        assertThat(html).isEqualTo(html("Paned Pojo", ""
+        assertThat(html).isEqualTo(html("Panel Pojo", ""
                 + "    <div class=\"panel panel-default\">\n"
-                + "      <div class=\"panel-heading\"><h1>Deployments</h1></div>\n"
+                + "      <div class=\"panel-heading\"><h1>Panel Pojo</h1></div>\n"
+                + "    <dl class=\"dl-horizontal\">\n"
+                + "      <dt>one</dt>\n"
+                + "      <dd>a</dd>\n"
+                + "    </dl>\n"
+                + "    </div>\n"
+                + "    </div>\n"));
+    }
+
+    @Test
+    public void shouldWritePojoWithTitleAndPanel() {
+        @Data
+        @HtmlPanel
+        @HtmlTitle("Foo")
+        class PanelPojo {
+            String one = "a";
+        }
+
+        String html = write(new PanelPojo());
+
+        writeToFile(html);
+        assertThat(html).isEqualTo(html("Foo", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-heading\"><h1>Foo</h1></div>\n"
                 + "    <dl class=\"dl-horizontal\">\n"
                 + "      <dt>one</dt>\n"
                 + "      <dd>a</dd>\n"
