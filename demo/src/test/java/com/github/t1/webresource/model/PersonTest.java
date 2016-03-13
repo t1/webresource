@@ -1,14 +1,13 @@
 package com.github.t1.webresource.model;
 
-import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import org.junit.*;
 
+import javax.xml.bind.JAXB;
 import java.io.*;
 import java.util.*;
 
-import javax.xml.bind.JAXB;
-
-import org.junit.*;
+import static java.util.Arrays.*;
+import static org.junit.Assert.*;
 
 public class PersonTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;

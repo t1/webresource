@@ -1,21 +1,20 @@
 package com.github.t1.webresource.model;
 
-import static javax.ws.rs.core.MediaType.*;
-import static org.junit.Assert.*;
-
-import java.util.*;
-import java.util.regex.*;
-
-import javax.inject.Inject;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.*;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.*;
 import org.junit.runner.RunWith;
+
+import javax.inject.Inject;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.*;
+import java.util.*;
+import java.util.regex.*;
+
+import static javax.ws.rs.core.MediaType.*;
+import static org.junit.Assert.*;
 
 @RunWith(Arquillian.class)
 @Ignore("TODO finish update to jax-rs client api")
@@ -24,12 +23,13 @@ public class PersonWebResourceIT {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class, PersonWebResourceIT.class.getName() + ".war") //
                 .addClasses(Person.class, Tag.class).addClass(Person.class.getName() + "WebResource") //
-        ;
+                ;
     }
 
     static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
     private static final Pattern PERSON =
-            Pattern.compile("<person id=\"(?<id>[0-9]+)\"><first>(?<first>\\w*)</first><last>(?<last>\\w*)</last></person>(?<overflow>.*)");
+            Pattern.compile(
+                    "<person id=\"(?<id>[0-9]+)\"><first>(?<first>\\w*)</first><last>(?<last>\\w*)</last></person>(?<overflow>.*)");
 
     public static void main(String[] args) {
         new PersonWebResourceIT().run();

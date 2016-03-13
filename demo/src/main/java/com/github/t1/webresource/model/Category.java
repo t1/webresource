@@ -1,23 +1,22 @@
 package com.github.t1.webresource.model;
 
-import java.io.Serializable;
+import com.github.t1.webresource.WebResource;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
-import com.github.t1.webresource.WebResource;
-
-import lombok.*;
+import static lombok.AccessLevel.*;
 
 @Entity
 @WebResource
-// JAXB
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-// lombok
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor(access = PRIVATE)
 public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -36,10 +35,6 @@ public class Category implements Serializable {
 
     private @Column
     String description;
-
-    /** @deprecated required by JAXB */
-    @Deprecated
-    Category() {}
 
     public Category(String name, String description) {
         this.name = name;

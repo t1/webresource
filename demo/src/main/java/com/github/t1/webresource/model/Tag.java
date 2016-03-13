@@ -1,19 +1,20 @@
 package com.github.t1.webresource.model;
 
-import java.io.Serializable;
+import com.github.t1.webresource.*;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
-import com.github.t1.webresource.*;
+import static lombok.AccessLevel.*;
 
 @Entity
 @WebResource
-// JAXB
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-// lombok
 @lombok.Data
+@NoArgsConstructor(access = PRIVATE)
 public class Tag implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -35,10 +36,6 @@ public class Tag implements Serializable {
     private @Column
     @WebSubResource
     String description;
-
-    /** @deprecated required by JAXB and JPA */
-    @Deprecated
-    Tag() {}
 
     public Tag(String key, String description) {
         this.key = key;

@@ -1,12 +1,11 @@
 package com.github.t1.webresource.model;
 
-import static org.junit.Assert.*;
-
-import java.io.*;
+import org.junit.Test;
 
 import javax.xml.bind.JAXB;
+import java.io.*;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class TagTest {
     private static final String XML_HEADER = PersonWebResourceIT.XML_HEADER;

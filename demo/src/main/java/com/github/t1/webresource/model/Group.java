@@ -1,20 +1,16 @@
 package com.github.t1.webresource.model;
 
-import java.io.Serializable;
+import com.github.t1.webresource.WebResource;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
-
-import com.github.t1.webresource.WebResource;
-
-import lombok.*;
+import java.io.Serializable;
 
 @Entity(name = "group_")
 @WebResource
-// JAXB
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-// lombok
 @Getter
 @Setter
 @ToString

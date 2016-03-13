@@ -1,26 +1,23 @@
 package com.github.t1.webresource.model;
 
-import java.io.Serializable;
-import java.util.*;
+import com.github.t1.webresource.*;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
+import java.util.*;
 
-import lombok.*;
-
-import com.github.t1.webresource.*;
-import com.github.t1.webresource.codec.HtmlStyleSheet;
+import static lombok.AccessLevel.*;
 
 @Entity
 @WebResource
-// JAXB
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-// lombok
 @Getter
 @Setter
 @ToString
-@HtmlStyleSheet("stylesheets/main.css")
+@NoArgsConstructor(access = PRIVATE)
 public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -56,10 +53,6 @@ public class Person implements Serializable {
     private @ManyToMany(fetch = FetchType.EAGER)
     Set<Group> groups;
 
-    /** @deprecated required by JAXB and JPA */
-    @Deprecated
-    Person() {}
-
     public Person(String first, String last) {
         this.first = first;
         this.last = last;
@@ -79,15 +72,13 @@ public class Person implements Serializable {
     }
 
     public boolean untag(Tag tag) {
-        if (tags == null)
-            return false;
-        return tags.remove(tag);
+        return (tags != null) && tags.remove(tag);
     }
 
     public boolean untag(String key) {
         if (tags == null)
             return false;
-        for (Iterator<Tag> iter = tags.iterator(); iter.hasNext();) {
+        for (Iterator<Tag> iter = tags.iterator(); iter.hasNext(); ) {
             Tag tag = iter.next();
             if (tag.getKey().equals(key)) {
                 iter.remove();
