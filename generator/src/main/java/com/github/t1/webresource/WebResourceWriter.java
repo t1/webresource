@@ -1,6 +1,7 @@
 package com.github.t1.webresource;
 
-import java.io.PrintWriter;
+import com.github.t1.webresource.typewriter.*;
+import org.slf4j.*;
 
 import javax.annotation.processing.Messager;
 import javax.ejb.Stateless;
@@ -8,11 +9,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.t1.webresource.typewriter.*;
+import java.io.PrintWriter;
 
 class WebResourceWriter {
     private final WebResourceType type;
@@ -64,14 +61,17 @@ class WebResourceWriter {
             body.println(logLine("get " + type.plural + " where {}", "queryParams"));
             body.println();
             store.list(body);
+            body.println(
+                    "GenericEntity<List<" + type.simple + ">> genericEntity = new GenericEntity<List<" + type.simple
+                            + ">>(list) {};");
             body.println();
-            body.println("return Response.ok(list).build();");
+            body.println("return Response.ok(genericEntity).build();");
         }
     }
 
     private String logLine(String message, String... args) {
         StringBuilder line = new StringBuilder();
-        line.append("log.debug(\"" + message + "\"");
+        line.append("log.debug(\"").append(message).append("\"");
         for (String arg : args) {
             line.append(", ").append(arg);
         }

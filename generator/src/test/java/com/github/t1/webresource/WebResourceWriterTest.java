@@ -1,22 +1,24 @@
 package com.github.t1.webresource;
 
-import static com.github.t1.webresource.WebResourceFieldTest.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.io.*;
-import java.util.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.processing.Messager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.persistence.Entity;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.*;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import static com.github.t1.webresource.WebResourceFieldTest.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
@@ -79,8 +81,8 @@ public class WebResourceWriterTest {
 
         String generated = new WebResourceWriter(messager, type).run();
 
-        String expected = readReference("TestEntityWebResource-noversion-nokey.txt") //
-        .replace("${extended}", extended ? "(type = PersistenceContextType.EXTENDED)" : "");
+        String expected = readReference("TestEntityWebResource-noversion-nokey.txt")
+                .replace("${extended}", extended ? "(type = PersistenceContextType.EXTENDED)" : "");
         assertEquals(expected, generated);
     }
 
@@ -118,14 +120,14 @@ public class WebResourceWriterTest {
         Element version = mockField();
         mockFieldType(version, "java.lang.Long", "version", javax.persistence.Version.class);
 
-        doReturn(Arrays.asList(key, idField, version)).when(type).getEnclosedElements();
+        doReturn(asList(key, idField, version)).when(type).getEnclosedElements();
     }
 
     @Test
     public void shouldGenerateBigDecimal() throws Exception {
         mockAnnotationProcessor(false, "java.math.BigDecimal");
         AnnotationMirror entity = mock(AnnotationMirror.class);
-        doReturn(Arrays.asList(entity)).when(type).getAnnotationMirrors();
+        doReturn(singletonList(entity)).when(type).getAnnotationMirrors();
         DeclaredType declaredType = mock(DeclaredType.class);
         when(declaredType.toString()).thenReturn(Entity.class.getName());
         when(entity.getAnnotationType()).thenReturn(declaredType);

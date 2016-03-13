@@ -42,8 +42,9 @@ public class TestEntityWebResource {
         if (where != null)
             query.where(where);
         List<TestEntity> list = em.createQuery(query.select(from)).getResultList();
+        GenericEntity<List<TestEntity>> genericEntity = new GenericEntity<List<TestEntity>>(list) {};
 
-        return Response.ok(list).build();
+        return Response.ok(genericEntity).build();
     }
 
     @GET

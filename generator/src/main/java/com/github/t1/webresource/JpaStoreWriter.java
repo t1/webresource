@@ -1,10 +1,9 @@
 package com.github.t1.webresource;
 
-import java.io.PrintWriter;
+import com.github.t1.webresource.typewriter.*;
 
 import javax.persistence.*;
-
-import com.github.t1.webresource.typewriter.*;
+import java.io.PrintWriter;
 
 /** Writes the JPA specific parts of a WebResouce class */
 public class JpaStoreWriter {
@@ -41,11 +40,11 @@ public class JpaStoreWriter {
     }
 
     public void find(PrintWriter body, String variableName) {
-        body.append(type.simple + " " + variableName + " = ");
+        body.append(type.simple).append(" ").append(variableName).append(" = ");
         if (type.primary()) {
-            body.append("em.find(" + type.simple + ".class, " + type.key.name + ");");
+            body.append("em.find(").append(type.simple).append(".class, ").append(type.key.name).append(");");
         } else {
-            body.append("findByKey(" + type.key.name + ");");
+            body.append("findByKey(").append(type.key.name).append(");");
         }
         body.println();
     }
