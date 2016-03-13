@@ -15,7 +15,7 @@ import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class BaseTest {
-    HtmlMessageBodyWriter writer = new HtmlMessageBodyWriter();
+    private final HtmlMessageBodyWriter writer = new HtmlMessageBodyWriter();
 
     @SneakyThrows(IOException.class)
     private String write(Object object) {

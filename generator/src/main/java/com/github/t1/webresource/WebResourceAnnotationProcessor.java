@@ -1,14 +1,12 @@
 package com.github.t1.webresource;
 
-import java.io.*;
-import java.util.*;
-
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
+import java.io.*;
+import java.util.*;
 
 /**
  * The annotation processor that generates the REST bindings
@@ -25,9 +23,8 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
     @Override
     public synchronized void init(ProcessingEnvironment env) {
         super.init(env);
-        Messager messager = getMessager();
 
-        this.messager = messager;
+        this.messager = getMessager();
         this.filer = env.getFiler();
     }
 

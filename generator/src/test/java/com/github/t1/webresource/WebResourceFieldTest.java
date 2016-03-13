@@ -1,23 +1,22 @@
 package com.github.t1.webresource;
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.*;
-
-import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.persistence.Id;
-
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.lang.model.element.*;
+import javax.lang.model.type.*;
+import javax.persistence.Id;
+import java.util.ArrayList;
+import java.util.*;
+
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceFieldTest {
@@ -38,7 +37,7 @@ public class WebResourceFieldTest {
 
         when(fieldTypeMirror.toString()).thenReturn(fieldType);
         AnnotationMirror annotationMirror = mock(AnnotationMirror.class);
-        doReturn(Arrays.asList(annotationMirror)).when(field).getAnnotationMirrors();
+        doReturn(singletonList(annotationMirror)).when(field).getAnnotationMirrors();
 
         DeclaredType declaredAnnotationType = mock(DeclaredType.class);
         when(annotationMirror.getAnnotationType()).thenReturn(declaredAnnotationType);
@@ -251,7 +250,7 @@ public class WebResourceFieldTest {
         when(type.getSuperclass()).thenReturn(parentMirror);
 
         Element field2 = mockField();
-        doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
+        doReturn(singletonList(field2)).when(parent).getEnclosedElements();
         mockFieldType(field2, "long");
 
         WebResourceField idType = findField();
@@ -270,7 +269,7 @@ public class WebResourceFieldTest {
         when(type.getSuperclass()).thenReturn(parentMirror);
 
         Element field2 = mockField();
-        doReturn(Arrays.asList(field2)).when(parent).getEnclosedElements();
+        doReturn(singletonList(field2)).when(parent).getEnclosedElements();
         mockFieldType(field2, "java.math.BigDecimal");
 
         WebResourceField idType = findField();

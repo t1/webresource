@@ -5,7 +5,7 @@ import com.github.t1.webresource.typewriter.*;
 import javax.persistence.*;
 import java.io.PrintWriter;
 
-/** Writes the JPA specific parts of a WebResouce class */
+/** Writes the JPA specific parts of a WebResource class */
 public class JpaStoreWriter {
     private final WebResourceType type;
 

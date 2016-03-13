@@ -18,20 +18,18 @@ public class HtmlWriter {
     private int indent = 0;
 
     @SneakyThrows(IOException.class)
-    private HtmlWriter print(String text) {
+    private void print(String text) {
         if (isNewLine)
             out.append(SPACES.substring(0, indent * 2));
         isNewLine = false;
         out.append(text);
-        return this;
     }
 
-    public HtmlWriter nl() {
+    public void nl() {
         isNewLine = false; // empty lines (i.e. two consecutive nl()s) don't need indent
         finishOpenTag();
         print("\n");
         isNewLine = true;
-        return this;
     }
 
     public HtmlWriter open(String tagName) {

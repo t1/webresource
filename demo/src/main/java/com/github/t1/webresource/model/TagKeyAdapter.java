@@ -7,15 +7,17 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 @Slf4j
 public class TagKeyAdapter extends XmlAdapter<String, Tag> {
-    static EntityManagerFactory entityManagerFactory;
+    private static final EntityManagerFactory entityManagerFactory = loadEntityManagerFactory();
 
-    static {
+    private static EntityManagerFactory loadEntityManagerFactory() {
         try {
             log.debug("loading entity manager factory");
-            entityManagerFactory = Persistence.createEntityManagerFactory("primary");
-            log.debug("entity manager factory found: {}", entityManagerFactory);
+            EntityManagerFactory factory = Persistence.createEntityManagerFactory("primary");
+            log.debug("entity manager factory found: {}", factory);
+            return factory;
         } catch (PersistenceException e) {
             log.warn("can't load entity manager factory: {}", e.getMessage());
+            return null;
         }
     }
 
@@ -32,14 +34,14 @@ public class TagKeyAdapter extends XmlAdapter<String, Tag> {
         log.info("unmarshal {}", key);
         if (key == null)
             return null;
-        if (entityManagerFactory == null) {
-            log.info("no entity manager factory available... creating tag dummy");
-            return new TagDummy(key);
-        }
         return loadTag(key);
     }
 
     private Tag loadTag(String key) {
+        if (entityManagerFactory == null) {
+            log.info("no entity manager factory available... creating tag dummy");
+            return new TagDummy(key);
+        }
         try {
             EntityManager em = entityManagerFactory.createEntityManager(); // not AutoCloseable :(
             try {

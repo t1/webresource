@@ -1,8 +1,8 @@
 package com.github.t1.webresource;
 
-import static java.lang.annotation.ElementType.*;
-
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.*;
 
 /**
  * Annotate your {@link javax.persistence.Entity JPA-Entity} and add the generator to your build, and a complete REST
@@ -15,5 +15,5 @@ public @interface WebResource {
      * have fields that are loaded lazily, because the transaction is closed before the the entity is marshaled to XML,
      * JSON, etc. But it may impact performance and scalability to use extended entity managers.
      */
-    public boolean extended() default false;
+    boolean extended() default false;
 }

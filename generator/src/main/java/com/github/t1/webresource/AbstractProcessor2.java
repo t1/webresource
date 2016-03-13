@@ -1,10 +1,8 @@
 package com.github.t1.webresource;
 
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.annotation.processing.*;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 /**
  * Extends the {@link AbstractProcessor} with the handling for the {@link SupportedAnnotationClasses} annotation and
