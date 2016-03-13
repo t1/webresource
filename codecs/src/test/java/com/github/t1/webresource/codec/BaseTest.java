@@ -42,18 +42,18 @@ public class BaseTest {
                 + "\n"
                 + "    <title>" + title + "</title>\n"
                 + "\n"
-                + "    <link rel=\"stylesheet\" href=\"" + writer.bootstrapCssUri() + "\" \n"
-                + "        integrity=\"" + writer.bootstrapCssIntegrity() + "\" \n"
-                + "        crossorigin=\"anonymous\">\n"
+                + "    <link rel=\"stylesheet\" href=\"" + writer.bootstrapCssUri() + "\" "
+                + /*   */ "integrity=\"" + writer.bootstrapCssIntegrity() + "\" "
+                + /*   */ "crossorigin=\"anonymous\"/>\n"
                 + "  </head>\n"
                 + "  <body class=\"container-fluid\" style=\"padding-top: 70px\">\n"
                 + body
-                + "    <script src=\"" + writer.jqueryUri() + "\" \n"
-                + "        integrity=\"" + writer.jqueryIntegrity() + "\" \n"
-                + "        crossorigin=\"anonymous\"></script>\n"
-                + "    <script src=\"" + writer.bootstrapJsUri() + "\" \n"
-                + "        integrity=\"" + writer.bootstrapJsIntegrity() + "\" \n"
-                + "        crossorigin=\"anonymous\"></script>\n"
+                + "    <script src=\"" + writer.jqueryUri() + "\" "
+                + /*   */ "integrity=\"" + writer.jqueryIntegrity() + "\" "
+                + /*   */ "crossorigin=\"anonymous\"></script>\n"
+                + "    <script src=\"" + writer.bootstrapJsUri() + "\" "
+                + /*   */ "integrity=\"" + writer.bootstrapJsIntegrity() + "\" "
+                + /*   */ "crossorigin=\"anonymous\"></script>\n"
                 + "  </body>\n"
                 + "</html>\n";
     }
@@ -166,15 +166,13 @@ public class BaseTest {
 
         String html = write(new PanelPojo());
 
-        writeToFile(html);
         assertThat(html).isEqualTo(html("Panel Pojo", ""
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1>Panel Pojo</h1></div>\n"
-                + "    <dl class=\"dl-horizontal\">\n"
-                + "      <dt>one</dt>\n"
-                + "      <dd>a</dd>\n"
-                + "    </dl>\n"
-                + "    </div>\n"
+                + "      <dl class=\"dl-horizontal\">\n"
+                + "        <dt>one</dt>\n"
+                + "        <dd>a</dd>\n"
+                + "      </dl>\n"
                 + "    </div>\n"));
     }
 
@@ -193,11 +191,10 @@ public class BaseTest {
         assertThat(html).isEqualTo(html("Foo", ""
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1>Foo</h1></div>\n"
-                + "    <dl class=\"dl-horizontal\">\n"
-                + "      <dt>one</dt>\n"
-                + "      <dd>a</dd>\n"
-                + "    </dl>\n"
-                + "    </div>\n"
+                + "      <dl class=\"dl-horizontal\">\n"
+                + "        <dt>one</dt>\n"
+                + "        <dd>a</dd>\n"
+                + "      </dl>\n"
                 + "    </div>\n"));
     }
 

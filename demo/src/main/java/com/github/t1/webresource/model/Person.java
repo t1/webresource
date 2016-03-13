@@ -87,4 +87,8 @@ public class Person implements Serializable {
         }
         return false;
     }
+
+    public String toString() {
+        return first + " " + last;
+    }
 }

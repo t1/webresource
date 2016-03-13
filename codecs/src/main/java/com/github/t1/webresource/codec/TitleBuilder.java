@@ -1,6 +1,6 @@
 package com.github.t1.webresource.codec;
 
-import com.github.t1.log.shaded.stereotypes.Annotations;
+import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.util.StringTool;
 
 import java.lang.reflect.*;

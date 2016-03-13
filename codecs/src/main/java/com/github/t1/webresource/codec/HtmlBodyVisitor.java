@@ -1,36 +1,26 @@
 package com.github.t1.webresource.codec;
 
-import com.github.t1.log.shaded.stereotypes.Annotations;
 import com.github.t1.meta.visitor.Visitor;
-import lombok.*;
-
-import java.io.*;
+import com.github.t1.stereotypes.Annotations;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 class HtmlBodyVisitor extends Visitor {
-    private final Writer out;
+    private final HtmlWriter html;
+
     /** lazy write, so empty pojo writes nothing */
     boolean dlWritten = false;
     private boolean isSequence = false;
 
-    @SneakyThrows(IOException.class)
-    private void println(String text) {
-        out.append(text).append('\n');
-    }
-
-    @SneakyThrows(IOException.class)
-    private Writer print(String text) {
-        return out.append(text);
-    }
-
     @Override public void enterMapping() {
         if (isHtmlPanel()) {
-            println("    <div class=\"panel panel-default\">");
-            println("      <div class=\"panel-heading\"><h1>" + new TitleBuilder(destination().getClass()).toString()
-                    + "</h1></div>");
+            html.open("div").a("class", "panel panel-default").nl();
+            html.open("div").a("class", "panel-heading")
+                    .open("h1").text(new TitleBuilder(destination().getClass())).close("h1")
+                    .close("div").nl();
         }
         if (isSequence) {
-            print(destination().toString());
+            html.text(destination().toString());
         }
     }
 
@@ -46,49 +36,46 @@ class HtmlBodyVisitor extends Visitor {
         if (isSequence)
             return;
         if (!dlWritten) {
-            println("    <dl class=\"dl-horizontal\">");
+            html.open("dl").a("class", "dl-horizontal").nl();
             dlWritten = true;
         }
-        println("      <dt>" + key + "</dt>");
+        html.open("dt").text(key).close("dt").nl();
     }
 
     @Override public void visitScalar(Object value) {
         if (isSequence)
             return;
-        println("      <dd>" + value + "</dd>");
+        html.open("dd").text(value).close("dd").nl();
     }
 
     @Override public void continueMapping() {
         if (isSequence)
             return;
-        println("");
+        html.nl();
     }
 
     @Override public void leaveMapping() {
         if (isSequence)
             return;
         if (dlWritten)
-            println("    </dl>");
+            html.close("dl").nl();
         if (isHtmlPanel()) {
-            println("    </div>");
-            println("    </div>");
+            html.close("div").nl();
         }
     }
 
     @Override public void enterSequence() {
         this.isSequence = true;
-        println("    <ul>");
+        html.open("ul").nl();
     }
 
     @Override public void enterItem() {
-        print("      <li>");
+        html.open("li");
     }
 
-    @Override public void leaveItem() {
-        println("</li>");
-    }
+    @Override public void leaveItem() { html.close("li").nl(); }
 
     @Override public void leaveSequence() {
-        println("    </ul>");
+        html.close("ul").nl();
     }
 }
