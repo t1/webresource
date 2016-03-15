@@ -53,31 +53,31 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             html.text("<!DOCTYPE html>").nl();
             html.open("html").nl();
 
-            head(genericType);
+            head();
             body(pojo);
             html.close("html").nl();
 
             html.flush();
         }
 
-        private void head(Type genericType) {
+        private void head() {
             html.open("head").nl();
             html.open("meta").a("charset", "utf-8").close("meta").nl();
             html.open("meta").a("http-equiv", "X-UA-Compatible").a("content", "IE=edge").close("meta").nl();
-            html.open("meta").a("name", "viewport").a("content", "width=device-width, initial-scale=1").close("meta")
-                    .nl();
+            html.open("meta").a("name", "viewport").a("content", "width=device-width, initial-scale=1")
+                    .close("meta").nl();
             html.nl();
 
-            html.open("title").text(title(genericType)).close("title").nl();
+            html.open("title").text(title()).close("title").nl();
             html.nl();
             bootstrapCss();
             html.close("head").nl();
         }
 
         private void body(Object pojo) {
-            html.open("body").a("class", "container-fluid").a("style", "padding-top: 70px").nl();
+            html.open("body").a("class", "container-fluid").a("style", "padding-top: 15px").nl();
 
-            appendPojo(pojo);
+            new Meta().visitTo(pojo).by(new HtmlBodyVisitor(genericType, html)).run();
 
             jqueryJs();
             bootstrapJs();
@@ -111,12 +111,8 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
                     .nl();
         }
 
-        private String title(Type type) {
-            return new TitleBuilder(type).toString();
-        }
-
-        private void appendPojo(Object pojo) {
-            new Meta().visitTo(pojo).by(new HtmlBodyVisitor(html)).run();
+        private String title() {
+            return new TitleBuilder(genericType).toString();
         }
     }
 

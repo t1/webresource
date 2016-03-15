@@ -46,7 +46,7 @@ public class BaseTest {
                 + /*   */ "integrity=\"" + writer.bootstrapCssIntegrity() + "\" "
                 + /*   */ "crossorigin=\"anonymous\"/>\n"
                 + "  </head>\n"
-                + "  <body class=\"container-fluid\" style=\"padding-top: 70px\">\n"
+                + "  <body class=\"container-fluid\" style=\"padding-top: 15px\">\n"
                 + body
                 + "    <script src=\"" + writer.jqueryUri() + "\" "
                 + /*   */ "integrity=\"" + writer.jqueryIntegrity() + "\" "
@@ -168,11 +168,35 @@ public class BaseTest {
 
         assertThat(html).isEqualTo(html("Panel Pojo", ""
                 + "    <div class=\"panel panel-default\">\n"
-                + "      <div class=\"panel-heading\"><h1>Panel Pojo</h1></div>\n"
-                + "      <dl class=\"dl-horizontal\">\n"
-                + "        <dt>one</dt>\n"
-                + "        <dd>a</dd>\n"
-                + "      </dl>\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <dl class=\"dl-horizontal\">\n"
+                + "          <dt>one</dt>\n"
+                + "          <dd>a</dd>\n"
+                + "        </dl>\n"
+                + "      </div>\n"
+                + "    </div>\n"));
+    }
+
+    @Test
+    public void shouldWritePojoWithPanelAndTitle() {
+        @Data
+        @HtmlPanel
+        @HtmlTitle
+        class PanelTitlePojo {
+            String one = "a";
+        }
+
+        String html = write(new PanelTitlePojo());
+
+        assertThat(html).isEqualTo(html("Panel Title Pojo", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-heading\"><h1>Panel Title Pojo</h1></div>\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <dl class=\"dl-horizontal\">\n"
+                + "          <dt>one</dt>\n"
+                + "          <dd>a</dd>\n"
+                + "        </dl>\n"
+                + "      </div>\n"
                 + "    </div>\n"));
     }
 
@@ -187,14 +211,87 @@ public class BaseTest {
 
         String html = write(new PanelPojo());
 
-        writeToFile(html);
         assertThat(html).isEqualTo(html("Foo", ""
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1>Foo</h1></div>\n"
-                + "      <dl class=\"dl-horizontal\">\n"
-                + "        <dt>one</dt>\n"
-                + "        <dd>a</dd>\n"
-                + "      </dl>\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <dl class=\"dl-horizontal\">\n"
+                + "          <dt>one</dt>\n"
+                + "          <dd>a</dd>\n"
+                + "        </dl>\n"
+                + "      </div>\n"
+                + "    </div>\n"));
+    }
+
+    @Test
+    public void shouldWritePojoListWithPanel() {
+        @Value
+        @HtmlPanel
+        class PanelPojo {
+            String one;
+        }
+
+        String html = write(new GenericEntity<List<PanelPojo>>(
+                asList(new PanelPojo("a"), new PanelPojo("b"))) {});
+
+        assertThat(html).isEqualTo(html("Panel Pojos", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <ul>\n"
+                + "          <li>PanelPojo(one=a)</li>\n"
+                + "          <li>PanelPojo(one=b)</li>\n"
+                + "        </ul>\n"
+                + "      </div>\n"
+                + "    </div>\n"));
+    }
+
+    @Test
+    public void shouldWritePojoListWithTitlePanel() {
+        @Value
+        @HtmlPanel
+        @HtmlTitle
+        class PanelPojo {
+            String one;
+        }
+
+        String html = write(new GenericEntity<List<PanelPojo>>(
+                asList(new PanelPojo("a"), new PanelPojo("b"))) {});
+
+        writeToFile(html);
+        assertThat(html).isEqualTo(html("Panel Pojos", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-heading\"><h1>Panel Pojos</h1></div>\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <ul>\n"
+                + "          <li>PanelPojo(one=a)</li>\n"
+                + "          <li>PanelPojo(one=b)</li>\n"
+                + "        </ul>\n"
+                + "      </div>\n"
+                + "    </div>\n"));
+    }
+
+    @Value
+    @HtmlPanel
+    @HtmlTitle(value = "Foo", plural = "Foosball")
+    public static class Player {
+        String name;
+    }
+
+    @Test
+    public void shouldWriteStaticPojoListWithPluralTitlePanel() {
+        String html = write(new GenericEntity<List<Player>>(
+                asList(new Player("a"), new Player("b"))) {});
+
+        writeToFile(html);
+        assertThat(html).isEqualTo(html("Foosball", ""
+                + "    <div class=\"panel panel-default\">\n"
+                + "      <div class=\"panel-heading\"><h1>Foosball</h1></div>\n"
+                + "      <div class=\"panel-body\">\n"
+                + "        <ul>\n"
+                + "          <li>BaseTest.Player(name=a)</li>\n"
+                + "          <li>BaseTest.Player(name=b)</li>\n"
+                + "        </ul>\n"
+                + "      </div>\n"
                 + "    </div>\n"));
     }
 

@@ -1,6 +1,7 @@
 package com.github.t1.webresource.model;
 
 import com.github.t1.webresource.*;
+import com.github.t1.webresource.codec.HtmlTitle;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,8 +17,8 @@ import static lombok.AccessLevel.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor(access = PRIVATE)
+@HtmlTitle(value = "Person", plural = "People")
 public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
 

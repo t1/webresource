@@ -1,12 +1,11 @@
 package com.github.t1.webresource.codec;
 
-import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.util.StringTool;
 
 import java.lang.reflect.*;
-import java.util.Collection;
 
 import static com.github.t1.webresource.util.StringTool.*;
+import static com.github.t1.webresource.util.Types.*;
 
 class TitleBuilder {
     private final String title;
@@ -17,8 +16,8 @@ class TitleBuilder {
 
     private String buildTitle(Type type) {
         StringTool tool = empty();
-        if (isCollection(type)) {
-            type = elementType(type);
+        if (isGenericCollection(type)) {
+            type = elementType((ParameterizedType) type);
             if (hasHtmlTitle(type) && !getHtmlTitle(type).plural().isEmpty())
                 return getHtmlTitle(type).plural();
             tool = tool.and(StringTool::pluralize);
@@ -39,25 +38,13 @@ class TitleBuilder {
         return tool.apply(typeName);
     }
 
-    private boolean isCollection(Type type) {
-        return type instanceof ParameterizedType && Collection.class.isAssignableFrom(raw(type));
-    }
-
-    private Class<?> raw(Type type) {
-        return (Class<?>) ((ParameterizedType) type).getRawType();
-    }
-
-    private Type elementType(Type type) {
-        return ((ParameterizedType) type).getActualTypeArguments()[0];
-    }
-
     private boolean hasHtmlTitle(Type type) {
-        return (type instanceof Class) && annotationsOn(type).isAnnotationPresent(HtmlTitle.class);
+        return (type instanceof Class)
+                && annotationsOn(type).isAnnotationPresent(HtmlTitle.class)
+                && !annotationsOn(type).getAnnotation(HtmlTitle.class).value().isEmpty();
     }
 
     private HtmlTitle getHtmlTitle(Type type) { return annotationsOn(type).getAnnotation(HtmlTitle.class); }
-
-    private AnnotatedElement annotationsOn(Type type) { return Annotations.on((Class<?>) type); }
 
     @Override public String toString() {
         return title;
