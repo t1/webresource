@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import com.github.t1.log.shaded.stereotypes.Annotations;
 import com.github.t1.meta.Meta;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,9 +9,10 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.ext.*;
 import java.io.*;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.net.URI;
 
+import static com.github.t1.webresource.util.Types.*;
 import static java.util.Arrays.*;
 import static javax.ws.rs.core.MediaType.*;
 
@@ -68,10 +70,39 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
                     .close("meta").nl();
             html.nl();
 
-            html.open("title").text(title()).close("title").nl();
+            html.open("title").text(new TitleBuilder(genericType).toString()).close("title").nl();
             html.nl();
-            bootstrapCss();
+            styleSheets();
             html.close("head").nl();
+        }
+
+        private void styleSheets() {
+            bootstrapCss();
+            HtmlStyleSheet css = annotations().getAnnotation(HtmlStyleSheet.class); // TODO list on type + more
+            if (css != null)
+                stylesheet(URI.create(css.value()), css.integrity());
+        }
+
+        private void bootstrapCss() {
+            stylesheet(bootstrapCssUri(), bootstrapCssIntegrity());
+        }
+
+        private void stylesheet(URI uri, String integrity) {
+            html.open("link")
+                    .a("rel", "stylesheet")
+                    .a("href", uri);
+            if (integrity != null && !integrity.isEmpty())
+                html
+                        .a("integrity", integrity)
+                        .a("crossorigin", "anonymous");
+            html.close("link").nl();
+        }
+
+        private AnnotatedElement annotations() {
+            Class<?> type = (Class<?>) (isGenericCollection(genericType)
+                    ? elementType((ParameterizedType) genericType)
+                    : genericType);
+            return Annotations.on(type);
         }
 
         private void body(Object pojo) {
@@ -84,21 +115,12 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             html.close("body").nl();
         }
 
-        private void bootstrapCss() {
-            html.open("link")
-                    .a("rel", "stylesheet")
-                    .a("href", bootstrapCssUri())
-                    .a("integrity", bootstrapCssIntegrity())
-                    .a("crossorigin", "anonymous")
-                    .close("link").nl();
+        private void jqueryJs() {
+            script(jqueryUri(), jqueryIntegrity());
         }
 
         private void bootstrapJs() {
             script(bootstrapJsUri(), bootstrapJsIntegrity());
-        }
-
-        private void jqueryJs() {
-            script(jqueryUri(), jqueryIntegrity());
         }
 
         private void script(URI uri, String integrity) {
@@ -109,10 +131,6 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
                     .text("")
                     .close("script")
                     .nl();
-        }
-
-        private String title() {
-            return new TitleBuilder(genericType).toString();
         }
     }
 

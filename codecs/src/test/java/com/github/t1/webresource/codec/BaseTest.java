@@ -32,6 +32,10 @@ public class BaseTest {
     }
 
     private String html(String title, String body) {
+        return head(title, "") + body(body);
+    }
+
+    private String head(String title, String more) {
         return ""
                 + "<!DOCTYPE html>\n"
                 + "<html>\n"
@@ -45,7 +49,12 @@ public class BaseTest {
                 + "    <link rel=\"stylesheet\" href=\"" + writer.bootstrapCssUri() + "\" "
                 + /*   */ "integrity=\"" + writer.bootstrapCssIntegrity() + "\" "
                 + /*   */ "crossorigin=\"anonymous\"/>\n"
-                + "  </head>\n"
+                + more
+                + "  </head>\n";
+    }
+
+    private String body(String body) {
+        return ""
                 + "  <body class=\"container-fluid\" style=\"padding-top: 15px\">\n"
                 + body
                 + "    <script src=\"" + writer.jqueryUri() + "\" "
@@ -72,10 +81,10 @@ public class BaseTest {
 
     @Test
     public void shouldWriteEmptyPojoWithTitle() {
-        @HtmlTitle("HelloWorld!")
+        @HtmlTitle("Hello, World!")
         class EmptyPojo {}
 
-        assertThat(write(new EmptyPojo())).isEqualTo(html("HelloWorld!", ""));
+        assertThat(write(new EmptyPojo())).isEqualTo(html("Hello, World!", ""));
     }
 
     @Test
@@ -99,6 +108,40 @@ public class BaseTest {
                 + "      <dt>three</dt>\n"
                 + "      <dd>3</dd>\n"
                 + "    </dl>\n"));
+    }
+
+    @Test
+    public void shouldWriteSimplePojoWithStyleSheet() throws IOException {
+        @Data
+        @HtmlStyleSheet("/foo.css")
+        class StyledPojo {
+            String one = "a";
+        }
+
+        String html = write(new StyledPojo());
+
+        assertThat(html).isEqualTo(head("Styled Pojo", ""
+                + "    <link rel=\"stylesheet\" href=\"/foo.css\"/>\n")
+                + body(""
+                + "    <dl class=\"dl-horizontal\">\n"
+                + "      <dt>one</dt>\n"
+                + "      <dd>a</dd>\n"
+                + "    </dl>\n"));
+    }
+
+    @Test
+    public void shouldWriteSimplePojoWithStyleSheetWithIntegrity() throws IOException {
+        @Data
+        @HtmlStyleSheet(value = "/foo.css", integrity = "abc")
+        class EmptyPojo {}
+
+        String html = write(new EmptyPojo());
+
+        assertThat(html).isEqualTo(head("Empty Pojo", ""
+                + "    <link rel=\"stylesheet\" href=\"/foo.css\" "
+                + /*   */ "integrity=\"abc\" "
+                + /*   */ "crossorigin=\"anonymous\"/>\n")
+                + body(""));
     }
 
     @Test
