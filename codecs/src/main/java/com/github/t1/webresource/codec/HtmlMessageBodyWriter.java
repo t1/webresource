@@ -1,7 +1,8 @@
 package com.github.t1.webresource.codec;
 
-import com.github.t1.log.shaded.stereotypes.Annotations;
 import com.github.t1.meta.Meta;
+import com.github.t1.stereotypes.Annotations;
+import com.github.t1.webresource.util.HtmlWriter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
@@ -20,7 +21,7 @@ import static javax.ws.rs.core.MediaType.*;
 @Provider
 @Produces("text/html")
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
-    private static final String BOOTSTRAP_BASE = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/";
+    private static final String BOOTSTRAP_BASE = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6";
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -39,19 +40,21 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         log.debug("write {}/{} with {} as {} with headers {}", type, genericType, asList(annotations), mediaType,
                 httpHeaders);
 
-        new Builder(genericType, entityStream).build(pojo);
+        new Builder(genericType, pojo, entityStream).build();
     }
 
     private class Builder {
-        private final HtmlWriter html;
         private final Type genericType;
+        private final Object pojo;
+        private final HtmlWriter html;
 
-        public Builder(Type genericType, OutputStream entityStream) {
+        public Builder(Type genericType, Object pojo, OutputStream entityStream) {
             this.genericType = genericType;
+            this.pojo = pojo;
             this.html = new HtmlWriter(new OutputStreamWriter(entityStream));
         }
 
-        public void build(Object pojo) {
+        public void build() {
             html.text("<!DOCTYPE html>").nl();
             html.open("html").nl();
 
@@ -70,7 +73,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
                     .close("meta").nl();
             html.nl();
 
-            html.open("title").text(new TitleBuilder(genericType).toString()).close("title").nl();
+            html.open("title").text(new TitleBuilder(genericType, pojo).build()).close("title").nl();
             html.nl();
             styleSheets();
             html.close("head").nl();

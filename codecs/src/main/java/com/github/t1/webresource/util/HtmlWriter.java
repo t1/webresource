@@ -1,5 +1,6 @@
-package com.github.t1.webresource.codec;
+package com.github.t1.webresource.util;
 
+import com.github.t1.webresource.codec.DebugWriter;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +41,7 @@ public class HtmlWriter {
     }
 
     public HtmlWriter open(String tagName) {
-        log.trace("open {}", tagName);
+        log.trace("open {} <- {}", tagName, tags);
         finishOpenTag();
         print("<" + tagName);
         tags.push(tagName);
@@ -71,7 +72,7 @@ public class HtmlWriter {
     }
 
     public HtmlWriter close(String expectedTag) {
-        log.trace("close {}", expectedTag);
+        log.trace("close {} <- {}", expectedTag, tags);
         String tagName = tags.pop();
         assert expectedTag.equals(tagName) : "expected to close " + expectedTag + " but found " + tagName;
         if (doneOpenTag) {

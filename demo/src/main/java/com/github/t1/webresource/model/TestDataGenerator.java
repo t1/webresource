@@ -14,22 +14,44 @@ public class TestDataGenerator {
     @PersistenceContext
     private EntityManager em;
 
-    @PostConstruct public void load() {
+    @PostConstruct public void init() {
         log.warn("loading test data");
         List<Person> persons = em.createQuery("from Person", Person.class).getResultList();
         if (persons.isEmpty()) {
             log.debug("no test data, yet");
-            generate("Joe", "Doe");
-            generate("Tim", "Tom");
-            generate("Jon", "Jog");
+            generateTestData();
         } else {
             log.debug("already have data: {}", persons);
         }
     }
 
-    private void generate(String first, String last) {
+    private void generateTestData() {
+        generatePersons();
+        generateGroups();
+    }
+
+    private void generatePersons() {
+        generatePerson("Joe", "Doe");
+        generatePerson("Tim", "Tom");
+        generatePerson("Jon", "Jog");
+    }
+
+    private void generatePerson(String first, String last) {
         Person person = new Person(first, last);
-        log.debug("persist {}", person);
+        log.debug("persist person: {}", person);
         em.persist(person);
+    }
+
+    private void generateGroups() {
+        generateGroup("Teachers");
+        generateGroup("Students");
+        generateGroup("Parents");
+    }
+
+    private void generateGroup(String name) {
+        Group group = new Group();
+        group.setName(name);
+        log.debug("persist group: {}", group);
+        em.persist(group);
     }
 }

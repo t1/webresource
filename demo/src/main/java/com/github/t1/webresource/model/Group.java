@@ -1,6 +1,7 @@
 package com.github.t1.webresource.model;
 
 import com.github.t1.webresource.WebResource;
+import com.github.t1.webresource.codec.HtmlTitle;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,7 +14,7 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @Getter
 @Setter
-@ToString
+@HtmlTitle
 public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -27,6 +28,7 @@ public class Group implements Serializable {
     @Version
     int version;
 
+    @HtmlTitle
     private @Column
     String name;
 

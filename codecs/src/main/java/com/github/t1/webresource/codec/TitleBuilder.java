@@ -1,52 +1,94 @@
 package com.github.t1.webresource.codec;
 
+import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.util.StringTool;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.*;
+import java.util.function.Function;
 
 import static com.github.t1.webresource.util.StringTool.*;
 import static com.github.t1.webresource.util.Types.*;
 
 class TitleBuilder {
-    private final String title;
+    private final Type type;
+    private final Object pojo;
+    private final boolean isGenericCollection;
 
-    public TitleBuilder(Type type) {
-        this.title = buildTitle(type);
+    private StringTool tool = StringTool.empty();
+
+    TitleBuilder(Type type, Object pojo) {
+        this.isGenericCollection = isGenericCollection(type);
+        this.type = (isGenericCollection) ? elementType((ParameterizedType) type) : type;
+        this.pojo = pojo;
     }
 
-    private String buildTitle(Type type) {
-        StringTool tool = empty();
-        if (isGenericCollection(type)) {
-            type = elementType((ParameterizedType) type);
-            if (hasHtmlTitle(type) && !getHtmlTitle(type).plural().isEmpty())
-                return getHtmlTitle(type).plural();
+    public String build() {
+        String result = doBuild();
+        return tool.apply(result);
+    }
+
+    public boolean hasHtmlTile() {
+        return getHtmlTitle() != null;
+    }
+
+    public boolean hasTitleField() {
+        return findHtmlTitleField() != null;
+    }
+
+    private String doBuild() {
+        if (isGenericCollection) {
+            if (getHtmlTitle(HtmlTitle::plural) != null)
+                return getHtmlTitle(HtmlTitle::plural);
             tool = tool.and(StringTool::pluralize);
         }
+        Field htmlTitleField = findHtmlTitleField();
+        if (htmlTitleField != null)
+            return getString(htmlTitleField);
+        else if (getHtmlTitle(HtmlTitle::value) != null)
+            return getHtmlTitle(HtmlTitle::value);
+        tool = tool.and(camelToWords());
+        return getTypeName();
+    }
+
+    private String getHtmlTitle(Function<HtmlTitle, String> function) {
+        HtmlTitle htmlTitle = getHtmlTitle();
+        if (htmlTitle == null)
+            return null;
+        String value = function.apply(htmlTitle);
+        return (value.isEmpty()) ? null : value;
+    }
+
+    private HtmlTitle getHtmlTitle() {
+        if (!(type instanceof Class))
+            return null;
+        HtmlTitle htmlTitle = Annotations.on((Class<?>) type).getAnnotation(HtmlTitle.class);
+        if (htmlTitle == null)
+            return null;
+        return htmlTitle;
+    }
+
+    private Field findHtmlTitleField() {
+        if (!isGenericCollection)
+            for (Field field : ((Class<?>) type).getDeclaredFields())
+                if (field.isAnnotationPresent(HtmlTitle.class))
+                    return field;
+        return null;
+    }
+
+    @SneakyThrows(ReflectiveOperationException.class)
+    private String getString(Field field) {
+        field.setAccessible(true);
+        Object value = field.get(pojo);
+        return (value == null) ? "" : value.toString();
+    }
+
+    private String getTypeName() {
         String typeName;
-        if (type instanceof Class) {
-            Class<?> clazz = (Class<?>) type;
-            if (hasHtmlTitle(clazz)) {
-                typeName = getHtmlTitle(clazz).value();
-            } else {
-                tool = tool.and(camelToWords());
-                typeName = clazz.getSimpleName();
-            }
-        } else {
+        if (type instanceof Class)
+            typeName = ((Class<?>) type).getSimpleName();
+        else
             typeName = type.getTypeName();
-            tool = tool.and(camelToWords());
-        }
-        return tool.apply(typeName);
-    }
-
-    private boolean hasHtmlTitle(Type type) {
-        return (type instanceof Class)
-                && annotationsOn(type).isAnnotationPresent(HtmlTitle.class)
-                && !annotationsOn(type).getAnnotation(HtmlTitle.class).value().isEmpty();
-    }
-
-    private HtmlTitle getHtmlTitle(Type type) { return annotationsOn(type).getAnnotation(HtmlTitle.class); }
-
-    @Override public String toString() {
-        return title;
+        return typeName;
     }
 }
