@@ -15,7 +15,7 @@ import static java.util.Collections.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
 
-public class BaseTest {
+public class HtmlMessageBodyWriterTest {
     private final HtmlMessageBodyWriter writer = new HtmlMessageBodyWriter();
 
     @SneakyThrows(IOException.class)
@@ -476,8 +476,8 @@ public class BaseTest {
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">Foosball</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
                 + "        <ul>\n"
-                + "          <li>BaseTest.Player(name=a)</li>\n"
-                + "          <li>BaseTest.Player(name=b)</li>\n"
+                + "          <li>HtmlMessageBodyWriterTest.Player(name=a)</li>\n"
+                + "          <li>HtmlMessageBodyWriterTest.Player(name=b)</li>\n"
                 + "        </ul>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
