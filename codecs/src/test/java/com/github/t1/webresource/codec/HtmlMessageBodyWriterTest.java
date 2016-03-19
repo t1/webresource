@@ -2,11 +2,16 @@ package com.github.t1.webresource.codec;
 
 import lombok.*;
 import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.persistence.Id;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.nio.file.*;
 import java.util.List;
 
@@ -14,9 +19,12 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class HtmlMessageBodyWriterTest {
-    private final HtmlMessageBodyWriter writer = new HtmlMessageBodyWriter();
+    @InjectMocks HtmlMessageBodyWriter writer;
+    @Mock UriInfo uriInfo;
 
     @SneakyThrows(IOException.class)
     private String write(Object object) {
@@ -481,6 +489,40 @@ public class HtmlMessageBodyWriterTest {
                 + "        </ul>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
+    }
+
+    @Test
+    public void shouldWriteListOfPojosWithIdLinkWithHtml() {
+        when(writer.uriInfo.getRequestUri()).thenReturn(URI.create("http://example.org/app/things.html"));
+        @Value class PojoWithId {
+            @Id int id;
+            String value;
+        }
+
+        assertThat(write(new GenericEntity<List<PojoWithId>>(asList(
+                new PojoWithId(0, "a"), new PojoWithId(1, "b"))) {}))
+                .isEqualTo(html("Pojo With Ids", ""
+                                                 + "    <ul>\n"
+                                                 + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
+                                                 + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
+                                                 + "    </ul>\n"));
+    }
+
+    @Test
+    public void shouldWriteListOfPojosWithIdLinkWithoutHtml() {
+        when(writer.uriInfo.getRequestUri()).thenReturn(URI.create("http://example.org/app/things"));
+        @Value class PojoWithId {
+            @Id int id;
+            String value;
+        }
+
+        assertThat(write(new GenericEntity<List<PojoWithId>>(asList(
+                new PojoWithId(0, "a"), new PojoWithId(1, "b"))) {}))
+                .isEqualTo(html("Pojo With Ids", ""
+                                                 + "    <ul>\n"
+                                                 + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
+                                                 + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
+                                                 + "    </ul>\n"));
     }
 
     @Test

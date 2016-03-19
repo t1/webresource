@@ -23,6 +23,9 @@ import static javax.ws.rs.core.MediaType.*;
 public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
     private static final String BOOTSTRAP_BASE = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6";
 
+    @Context
+    UriInfo uriInfo;
+
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return TEXT_HTML_TYPE.isCompatible(mediaType);
@@ -48,7 +51,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         private final Object pojo;
         private final HtmlWriter html;
 
-        public Builder(Type genericType, Object pojo, OutputStream entityStream) {
+        Builder(Type genericType, Object pojo, OutputStream entityStream) {
             this.genericType = genericType;
             this.pojo = pojo;
             this.html = new HtmlWriter(new OutputStreamWriter(entityStream));
@@ -70,7 +73,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             html.open("meta").a("charset", "utf-8").close("meta").nl();
             html.open("meta").a("http-equiv", "X-UA-Compatible").a("content", "IE=edge").close("meta").nl();
             html.open("meta").a("name", "viewport").a("content", "width=device-width, initial-scale=1")
-                    .close("meta").nl();
+                .close("meta").nl();
             html.nl();
 
             html.open("title").text(new TitleBuilder(genericType, pojo).build()).close("title").nl();
@@ -92,12 +95,11 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
         private void stylesheet(URI uri, String integrity) {
             html.open("link")
-                    .a("rel", "stylesheet")
-                    .a("href", uri);
+                .a("rel", "stylesheet")
+                .a("href", uri);
             if (integrity != null && !integrity.isEmpty())
-                html
-                        .a("integrity", integrity)
-                        .a("crossorigin", "anonymous");
+                html.a("integrity", integrity)
+                    .a("crossorigin", "anonymous");
             html.close("link").nl();
         }
 
@@ -111,7 +113,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         private void body(Object pojo) {
             html.open("body").a("class", "container-fluid").a("style", "padding-top: 15px").nl();
 
-            new Meta().visitTo(pojo).by(new HtmlBodyVisitor(genericType, html)).run();
+            new Meta().visitTo(pojo).by(new HtmlBodyVisitor(genericType, html, uriInfo)).run();
 
             jqueryJs();
             bootstrapJs();
@@ -128,42 +130,39 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
         private void script(URI uri, String integrity) {
             html.open("script")
-                    .a("src", uri)
-                    .a("integrity", integrity)
-                    .a("crossorigin", "anonymous")
-                    .text("")
-                    .close("script")
-                    .nl();
+                .a("src", uri)
+                .a("integrity", integrity)
+                .a("crossorigin", "anonymous")
+                .text("")
+                .close("script")
+                .nl();
         }
     }
 
 
-    public URI bootstrapCssUri() {
+    URI bootstrapCssUri() {
         return URI.create(BOOTSTRAP_BASE + "/css/bootstrap.min.css");
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
-    public String bootstrapCssIntegrity() {
+    @SuppressWarnings("SpellCheckingInspection") String bootstrapCssIntegrity() {
         return "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7";
     }
 
 
-    public URI bootstrapJsUri() {
+    URI bootstrapJsUri() {
         return URI.create(BOOTSTRAP_BASE + "/js/bootstrap.min.js");
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
-    public String bootstrapJsIntegrity() {
+    @SuppressWarnings("SpellCheckingInspection") String bootstrapJsIntegrity() {
         return "sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS";
     }
 
 
-    public URI jqueryUri() {
+    URI jqueryUri() {
         return URI.create("https://code.jquery.com/jquery-2.2.1.min.js");
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
-    public String jqueryIntegrity() {
+    @SuppressWarnings("SpellCheckingInspection") String jqueryIntegrity() {
         return "sha384-8C+3bW/ArbXinsJduAjm9O7WNnuOcO+Bok/VScRYikawtvz4ZPrpXtGfKIewM9dK";
     }
 }

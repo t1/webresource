@@ -5,16 +5,19 @@ import com.github.t1.webresource.util.HtmlWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.ws.rs.core.UriInfo;
+
 @Slf4j
 @RequiredArgsConstructor
 class MappingVisitor extends Visitor {
     private final HtmlWriter html;
+    private final UriInfo uriInfo;
 
     /** lazy write, so empty mapping writes nothing */
-    boolean dlWritten = false;
+    private boolean dlWritten = false;
 
     /** lazy write, so empty mapping writes nothing */
-    boolean ulWritten = false;
+    private boolean ulWritten = false;
 
     @Override public void enterProperty(String key) {
         log.trace("enterProperty: {}", key);

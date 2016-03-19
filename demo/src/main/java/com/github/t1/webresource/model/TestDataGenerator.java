@@ -51,6 +51,8 @@ public class TestDataGenerator {
     private void generateGroup(String name) {
         Group group = new Group();
         group.setName(name);
+        group.setKey(name.toLowerCase());
+        group.setDescription("These are the " + name.toLowerCase() + "s.");
         log.debug("persist group: {}", group);
         em.persist(group);
     }

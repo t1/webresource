@@ -28,6 +28,9 @@ public class Group implements Serializable {
     @Version
     int version;
 
+    private @Column
+    String key;
+
     @HtmlTitle
     private @Column
     String name;

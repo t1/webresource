@@ -2,26 +2,34 @@ package com.github.t1.webresource.codec;
 
 import com.github.t1.meta.visitor.*;
 import com.github.t1.webresource.util.HtmlWriter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.persistence.Id;
+import javax.ws.rs.core.UriInfo;
+import java.lang.reflect.Field;
+import java.net.URI;
 
 @Slf4j
 class SequenceVisitor extends VisitorDecorator {
     private final HtmlWriter html;
     private final int myDepth;
+    private final UriInfo uriInfo;
 
-    public SequenceVisitor(HtmlWriter html, int myDepth) {
+    SequenceVisitor(HtmlWriter html, int myDepth, UriInfo uriInfo) {
         super(new Visitor() {});
         this.html = html;
         this.myDepth = myDepth;
+        this.uriInfo = uriInfo;
     }
 
     /** lazy write, so empty sequence writes nothing */
-    boolean ulWritten = false;
+    private boolean ulWritten = false;
 
     @Override public void enterSequence() {
         log.trace("enterSequence depth {}: {}: {}", myDepth, destination().getClass(), destination());
         if (subSequence()) {
-            this.setDelegate(new SequenceVisitor(html, myDepth + 1));
+            this.setDelegate(new SequenceVisitor(html, myDepth + 1, uriInfo));
             log.trace("pushed nested sequence");
         }
         super.enterSequence();
@@ -40,7 +48,32 @@ class SequenceVisitor extends VisitorDecorator {
 
     @Override public void enterMapping() {
         log.trace("enterMapping: {}", destination());
+        Field idField = findIdField();
+        if (idField != null)
+            html.open("a").a("href", itemLink(idField));
         html.text(itemString());
+        if (idField != null)
+            html.close("a");
+    }
+
+    private Field findIdField() {
+        for (Field field : destination().getClass().getDeclaredFields())
+            if (field.isAnnotationPresent(Id.class))
+                return field;
+        return null;
+    }
+
+    @SneakyThrows(ReflectiveOperationException.class)
+    private URI itemLink(Field idField) {
+        idField.setAccessible(true);
+        Object id = idField.get(destination());
+        if (id == null)
+            return null;
+        String uri = uriInfo.getRequestUri().toString();
+        log.debug("build item link from request uri: {}", uri);
+        if (uri.endsWith(".html"))
+            uri = uri.substring(0, uri.length() - 5);
+        return URI.create(uri + "/" + id + ".html");
     }
 
     private String itemString() {

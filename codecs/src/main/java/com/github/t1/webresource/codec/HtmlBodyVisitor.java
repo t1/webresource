@@ -5,19 +5,22 @@ import com.github.t1.stereotypes.Annotations;
 import com.github.t1.webresource.util.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.ws.rs.core.UriInfo;
 import java.lang.reflect.*;
 
 @Slf4j
 class HtmlBodyVisitor extends VisitorDecorator {
     private final Type rootType;
     private final HtmlWriter html;
+    private final UriInfo uriInfo;
 
     private Boolean isHtmlPanel = null;
 
-    HtmlBodyVisitor(Type rootType, HtmlWriter html) {
-        super(new MappingVisitor(html));
+    HtmlBodyVisitor(Type rootType, HtmlWriter html, UriInfo uriInfo) {
+        super(new MappingVisitor(html, uriInfo));
         this.rootType = rootType;
         this.html = html;
+        this.uriInfo = uriInfo;
     }
 
     private String debugInfo() {
@@ -49,7 +52,7 @@ class HtmlBodyVisitor extends VisitorDecorator {
     @Override public void enterSequence() {
         log.trace("enterSequence {}", debugInfo());
         if (isRoot()) {
-            this.setDelegate(new SequenceVisitor(html, guide().depth() + 1));
+            this.setDelegate(new SequenceVisitor(html, guide().depth() + 1, uriInfo));
             log.trace("switched to sequence {}", debugInfo());
         }
         openApplicablePanel();
