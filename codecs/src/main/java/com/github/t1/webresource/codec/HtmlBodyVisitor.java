@@ -17,7 +17,7 @@ class HtmlBodyVisitor extends VisitorDecorator {
     private Boolean isHtmlPanel = null;
 
     HtmlBodyVisitor(Type rootType, HtmlWriter html, UriInfo uriInfo) {
-        super(new MappingVisitor(html, uriInfo));
+        super(new MappingVisitor(html));
         this.rootType = rootType;
         this.html = html;
         this.uriInfo = uriInfo;

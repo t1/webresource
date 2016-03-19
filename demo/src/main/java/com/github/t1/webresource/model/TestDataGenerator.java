@@ -52,7 +52,7 @@ public class TestDataGenerator {
         Group group = new Group();
         group.setName(name);
         group.setKey(name.toLowerCase());
-        group.setDescription("These are the " + name.toLowerCase() + "s.");
+        group.setDescription("These are the " + name.toLowerCase() + ".");
         log.debug("persist group: {}", group);
         em.persist(group);
     }

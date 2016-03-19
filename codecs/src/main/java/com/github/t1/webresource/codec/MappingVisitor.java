@@ -1,47 +1,70 @@
 package com.github.t1.webresource.codec;
 
+import com.github.t1.meta.Property;
 import com.github.t1.meta.visitor.Visitor;
+import com.github.t1.webresource.Lazy;
 import com.github.t1.webresource.util.HtmlWriter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.ws.rs.core.UriInfo;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 @Slf4j
-@RequiredArgsConstructor
 class MappingVisitor extends Visitor {
     private final HtmlWriter html;
-    private final UriInfo uriInfo;
 
-    /** lazy write, so empty mapping writes nothing */
-    private boolean dlWritten = false;
+    private final Lazy dl;
+    private final Lazy ul;
+    private final Lazy continueNl;
 
-    /** lazy write, so empty mapping writes nothing */
-    private boolean ulWritten = false;
+    private Property property;
 
-    @Override public void enterProperty(String key) {
-        log.trace("enterProperty: {}", key);
-        if (!dlWritten) {
-            html.open("dl").a("class", "dl-horizontal").nl();
-            dlWritten = true;
-        }
-        html.open("dt").text(key).close("dt").nl();
+    MappingVisitor(HtmlWriter html) {
+        this.html = html;
+        this.dl = new Lazy(() -> html.open("dl").a("class", "dl-horizontal").nl());
+        this.ul = new Lazy(() -> html.open("ul").nl());
+        this.continueNl = new Lazy(html::nl).setRan(true);
+    }
+
+    @Override public void enterProperty(Property property) {
+        log.trace("enterProperty: {}", property);
+        this.property = property;
+        if (skipProperty())
+            return;
+        continueNl.run();
+        dl.run();
+        html.open("dt").text(property.name()).close("dt").nl();
+    }
+
+    private boolean skipProperty() {
+        return property.isAnnotationPresent(XmlTransient.class)
+                || property.isAnnotationPresent(Id.class)
+                || property.isAnnotationPresent(Version.class);
     }
 
     @Override public void visitScalar(Object value) {
         log.trace("visitScalar: {}", value);
+        if (skipProperty())
+            return;
         html.open("dd").text(value).close("dd").nl();
+    }
+
+    @Override public void leaveProperty() {
+        log.trace("leaveProperty");
+        this.property = null;
     }
 
     @Override public void continueMapping() {
         log.trace("continueMapping {}");
-        html.nl();
+        if (dl.ran())
+            continueNl.reset();
     }
 
     @Override public void leaveMapping() {
         log.trace("leaveMapping {}");
-        if (dlWritten)
+        if (dl.ran())
             html.close("dl").nl();
+        dl.reset();
     }
 
 
@@ -51,11 +74,8 @@ class MappingVisitor extends Visitor {
     }
 
     @Override public void enterItem() {
-        log.trace("enterItem (ulWritten={})", ulWritten);
-        if (!ulWritten) {
-            html.open("ul").nl();
-            ulWritten = true;
-        }
+        log.trace("enterItem (ulWritten={})", ul.ran());
+        ul.run();
         html.open("li");
     }
 
@@ -66,7 +86,8 @@ class MappingVisitor extends Visitor {
 
     @Override public void leaveSequence() {
         log.trace("leaveSequence {}");
-        if (ulWritten)
+        if (ul.ran())
             html.close("ul").nl();
+        ul.reset();
     }
 }

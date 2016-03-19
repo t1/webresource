@@ -6,8 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.ws.rs.core.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -494,7 +495,8 @@ public class HtmlMessageBodyWriterTest {
     @Test
     public void shouldWriteListOfPojosWithIdLinkWithHtml() {
         when(writer.uriInfo.getRequestUri()).thenReturn(URI.create("http://example.org/app/things.html"));
-        @Value class PojoWithId {
+        @Value
+        class PojoWithId {
             @Id int id;
             String value;
         }
@@ -502,16 +504,17 @@ public class HtmlMessageBodyWriterTest {
         assertThat(write(new GenericEntity<List<PojoWithId>>(asList(
                 new PojoWithId(0, "a"), new PojoWithId(1, "b"))) {}))
                 .isEqualTo(html("Pojo With Ids", ""
-                                                 + "    <ul>\n"
-                                                 + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
-                                                 + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
-                                                 + "    </ul>\n"));
+                        + "    <ul>\n"
+                        + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
+                        + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
+                        + "    </ul>\n"));
     }
 
     @Test
     public void shouldWriteListOfPojosWithIdLinkWithoutHtml() {
         when(writer.uriInfo.getRequestUri()).thenReturn(URI.create("http://example.org/app/things"));
-        @Value class PojoWithId {
+        @Value
+        class PojoWithId {
             @Id int id;
             String value;
         }
@@ -519,10 +522,75 @@ public class HtmlMessageBodyWriterTest {
         assertThat(write(new GenericEntity<List<PojoWithId>>(asList(
                 new PojoWithId(0, "a"), new PojoWithId(1, "b"))) {}))
                 .isEqualTo(html("Pojo With Ids", ""
-                                                 + "    <ul>\n"
-                                                 + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
-                                                 + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
-                                                 + "    </ul>\n"));
+                        + "    <ul>\n"
+                        + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
+                        + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
+                        + "    </ul>\n"));
+    }
+
+    @Test
+    public void shouldNotWriteIdField() {
+        @Value
+        class PojoWithId {
+            @Id int id = 0;
+            String one = "a", two = "b";
+        }
+
+        // TODO no nl between dt and dd and continue
+        assertThat(write(new PojoWithId()))
+                .isEqualTo(html("Pojo With Id", ""
+                        + "    <dl class=\"dl-horizontal\">\n"
+                        + "      <dt>one</dt>\n"
+                        + "      <dd>a</dd>\n"
+                        + "\n"
+                        + "      <dt>two</dt>\n"
+                        + "      <dd>b</dd>\n"
+                        + "    </dl>\n"));
+    }
+
+    @Test
+    public void shouldNotWriteOnlyIdField() {
+        @Value
+        class PojoWithId {
+            @Id int id = 0;
+        }
+
+        assertThat(write(new PojoWithId())).isEqualTo(html("Pojo With Id", ""));
+    }
+
+    @Test
+    public void shouldNotWriteVersionField() {
+        @Value
+        class PojoWithId {
+            @Version int version = 0;
+            String one = "a", two = "b";
+        }
+
+        assertThat(write(new PojoWithId()))
+                .isEqualTo(html("Pojo With Id", ""
+                        + "    <dl class=\"dl-horizontal\">\n"
+                        + "      <dt>one</dt>\n"
+                        + "      <dd>a</dd>\n"
+                        + "\n"
+                        + "      <dt>two</dt>\n"
+                        + "      <dd>b</dd>\n"
+                        + "    </dl>\n"));
+    }
+
+    @Test
+    public void shouldNotWriteXmlTransientField_LastWithoutNewline() {
+        @Value
+        class PojoWithId {
+            String one = "a";
+            @XmlTransient String two = "b";
+        }
+
+        assertThat(write(new PojoWithId()))
+                .isEqualTo(html("Pojo With Id", ""
+                        + "    <dl class=\"dl-horizontal\">\n"
+                        + "      <dt>one</dt>\n"
+                        + "      <dd>a</dd>\n"
+                        + "    </dl>\n"));
     }
 
     @Test
