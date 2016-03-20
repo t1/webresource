@@ -90,9 +90,17 @@ public class StringTool implements Function<String, String> {
         }
     }
 
+    /** This works only for very common and very regular cases. */
     public static String pluralize(String string) {
-        if (string.endsWith("y"))
+        if (string.endsWith("y") && isConsonant(string.charAt(string.length() - 2)))
             return string.substring(0, string.length() - 1) + "ies";
+        if (string.endsWith("s"))
+            return string + "es";
         return string + "s";
+    }
+
+    private static boolean isConsonant(char c) {
+        //noinspection SpellCheckingInspection
+        return "bcdfghjklmnpqrstvwxyz".indexOf(Character.toLowerCase(c)) >= 0;
     }
 }
