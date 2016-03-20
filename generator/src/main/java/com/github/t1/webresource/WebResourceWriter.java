@@ -16,7 +16,7 @@ class WebResourceWriter {
     private JpaStoreWriter store;
     private ClassBuilder classBuilder;
 
-    public WebResourceWriter(Messager messager, TypeElement typeElement) {
+    WebResourceWriter(Messager messager, TypeElement typeElement) {
         this.type = new WebResourceType(typeElement);
         if (type.id == null)
             messager.printMessage(Kind.ERROR, "can't find @Id or @WebResourceKey field", typeElement);
@@ -24,7 +24,7 @@ class WebResourceWriter {
             throw new IllegalStateException("no id type found in " + type.qualified);
     }
 
-    synchronized public String run() {
+    synchronized String run() {
         this.store = new JpaStoreWriter(type);
         this.classBuilder = new ClassBuilder(type.pkg, type.simple + "WebResource");
         buildClass();
@@ -44,7 +44,7 @@ class WebResourceWriter {
         POST();
         PUT();
         DELETE();
-        subresources();
+        subResources();
     }
 
     private void logger() {
@@ -144,16 +144,16 @@ class WebResourceWriter {
     }
 
     private void idParameter(MethodBuilder method) {
-        idParameterWithKey(method, "/{id}");
+        idParameterWithKey(method, "/{" + type.key.name + "}");
     }
 
     private void idParameter(MethodBuilder method, String subresource) {
-        idParameterWithKey(method, "/{id}/" + subresource);
+        idParameterWithKey(method, "/{" + type.key.name + "}/" + subresource);
     }
 
     private void idParameterWithKey(MethodBuilder method, String key) {
         method.annotate(Path.class).value(key);
-        method.parameter(type.key.type, type.key.name).annotate(PathParam.class).value("id");
+        method.parameter(type.key.type, type.key.name).annotate(PathParam.class).value(type.key.name);
     }
 
     private String toString(String name) {
@@ -242,7 +242,7 @@ class WebResourceWriter {
         }
     }
 
-    private void subresources() {
+    private void subResources() {
         for (WebResourceField subresource : type.subResourceFields) {
             subGET(subresource);
             if (subresource.type.isCollection) {

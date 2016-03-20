@@ -41,4 +41,8 @@ public class Tag implements Serializable {
         this.key = key;
         this.description = description;
     }
+
+    @Override public String toString() {
+        return "[" + key + ":" + description + "]";
+    }
 }

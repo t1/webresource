@@ -49,8 +49,8 @@ public class TestEntityWebResource {
     }
 
     @GET
-    @Path("/{id}")
-    public Response getTestEntity(@PathParam("id") String key, @Context Request request) {
+    @Path("/{key}")
+    public Response getTestEntity(@PathParam("key") String key, @Context Request request) {
         log.debug("get testentity {}", key);
 
         TestEntity result = findByKey(key);
@@ -93,8 +93,8 @@ public class TestEntityWebResource {
     }
 
     @PUT
-    @Path("/{id}")
-    public Response putTestEntity(@PathParam("id") String key, TestEntity testentity, @Context Request request) {
+    @Path("/{key}")
+    public Response putTestEntity(@PathParam("key") String key, TestEntity testentity, @Context Request request) {
         log.debug("put testentity key {}: {}", key, testentity);
 
         if (testentity.getKey() == null) {
@@ -131,8 +131,8 @@ public class TestEntityWebResource {
     }
 
     @DELETE
-    @Path("/{id}")
-    public Response deleteTestEntity(@PathParam("id") String key, @Context Request request) {
+    @Path("/{key}")
+    public Response deleteTestEntity(@PathParam("key") String key, @Context Request request) {
         log.debug("delete testentity {}", key);
 
         TestEntity result = findByKey(key);

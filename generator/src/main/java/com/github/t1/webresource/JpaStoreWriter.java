@@ -6,14 +6,14 @@ import javax.persistence.*;
 import java.io.PrintWriter;
 
 /** Writes the JPA specific parts of a WebResource class */
-public class JpaStoreWriter {
+class JpaStoreWriter {
     private final WebResourceType type;
 
-    public JpaStoreWriter(WebResourceType type) {
+    JpaStoreWriter(WebResourceType type) {
         this.type = type;
     }
 
-    public void declare(ClassBuilder typeWriter) {
+    void declare(ClassBuilder typeWriter) {
         FieldBuilder field = typeWriter.field(EntityManager.class, "em");
         AnnotationBuilder annotation = field.annotate(PersistenceContext.class);
         if (type.extended) {
@@ -39,7 +39,7 @@ public class JpaStoreWriter {
         body.println("List<" + type.simple + "> list = em.createQuery(query.select(from)).getResultList();");
     }
 
-    public void find(PrintWriter body, String variableName) {
+    void find(PrintWriter body, String variableName) {
         body.append(type.simple).append(" ").append(variableName).append(" = ");
         if (type.primary()) {
             body.append("em.find(").append(type.simple).append(".class, ").append(type.key.name).append(");");
@@ -49,8 +49,8 @@ public class JpaStoreWriter {
         body.println();
     }
 
-    public void findByKey(PrintWriter body) {
-        body.println("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.simple + " WHERE "
+    void findByKey(PrintWriter body) {
+        body.println("TypedQuery<" + type.simple + "> query = em.createQuery(\"FROM " + type.entityName + " WHERE "
                 + type.key.name + " = :" + type.key.name + "\", " + type.simple + ".class);");
         body.println("try {");
         body.println("    return query.setParameter(\"key\", " + type.key.name + ").getSingleResult();");

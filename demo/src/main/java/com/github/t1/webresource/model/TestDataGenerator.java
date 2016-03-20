@@ -28,6 +28,7 @@ public class TestDataGenerator {
     private void generateTestData() {
         generatePersons();
         generateGroups();
+        generateTags();
     }
 
     private void generatePersons() {
@@ -55,5 +56,16 @@ public class TestDataGenerator {
         group.setDescription("These are the " + name.toLowerCase() + ".");
         log.debug("persist group: {}", group);
         em.persist(group);
+    }
+
+    private void generateTags() {
+        generateTag("project-1");
+        generateTag("project-2");
+    }
+
+    private void generateTag(String key) {
+        Tag tag = new Tag(key, "Tag for '" + key + "'");
+        log.debug("persist tag: {}", tag);
+        em.persist(tag);
     }
 }

@@ -5,14 +5,14 @@ import com.github.t1.webresource.tools.StringTool;
 import com.github.t1.webresource.typewriter.TypeString;
 
 import javax.lang.model.element.*;
-import java.util.List;
+import java.util.*;
 
 public class WebResourceType {
     private final TypeElement typeElement;
     final TypeString type;
     final String pkg;
     final String simple;
-    private final String entityName;
+    final String entityName;
     final String lower;
     final String plural;
     final String qualified;
@@ -60,12 +60,11 @@ public class WebResourceType {
 
     private String entity() {
         AnnotationMirror annotation = WebResourceField.getAnnotation(typeElement, "javax.persistence.Entity");
-        if (annotation != null) {
-            AnnotationValue name = annotation.getElementValues().get("name");
-            if (name != null) {
-                return name.toString();
-            }
-        }
+        if (annotation != null)
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
+                    annotation.getElementValues().entrySet())
+                if (entry.getKey().getSimpleName().contentEquals("name"))
+                    return entry.getValue().getValue().toString();
         return typeElement.getSimpleName().toString();
     }
 

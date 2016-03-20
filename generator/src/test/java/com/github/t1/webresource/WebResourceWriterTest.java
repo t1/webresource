@@ -21,6 +21,7 @@ import static java.util.Collections.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("SpellCheckingInspection")
 @RunWith(MockitoJUnitRunner.class)
 public class WebResourceWriterTest {
     @SuppressWarnings("all")
@@ -45,10 +46,10 @@ public class WebResourceWriterTest {
     @Mock
     Messager messager;
 
-    Element idField;
-    List<Element> fields = new ArrayList<>();
+    private Element idField;
+    private List<Element> fields = new ArrayList<>();
 
-    void mockAnnotationProcessor(boolean extended, String idType) {
+    private void mockAnnotationProcessor(boolean extended, String idType) {
         String packageName = "com.github.t1.webresource";
         String typeName = "TestEntity";
 
@@ -132,10 +133,12 @@ public class WebResourceWriterTest {
         DeclaredType declaredType = mock(DeclaredType.class);
         when(declaredType.toString()).thenReturn(Entity.class.getName());
         when(entity.getAnnotationType()).thenReturn(declaredType);
-        Map<String, AnnotationValue> map = new LinkedHashMap<>();
-        AnnotationValue name = mock(AnnotationValue.class);
-        when(name.toString()).thenReturn("TEST_ENTITY");
-        map.put("name", name);
+        Map<ExecutableElement, AnnotationValue> map = new LinkedHashMap<>();
+        AnnotationValue nameAnnotationValue = mock(AnnotationValue.class, RETURNS_DEEP_STUBS);
+        when(nameAnnotationValue.getValue().toString()).thenReturn("TEST_ENTITY");
+        ExecutableElement executableElement = mock(ExecutableElement.class);
+        when(executableElement.getSimpleName()).thenReturn(new NameMock("name"));
+        map.put(executableElement, nameAnnotationValue);
         doReturn(map).when(entity).getElementValues();
 
         String generated = new WebResourceWriter(messager, type).run();

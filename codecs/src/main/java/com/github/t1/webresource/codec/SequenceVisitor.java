@@ -1,6 +1,7 @@
 package com.github.t1.webresource.codec;
 
 import com.github.t1.meta.visitor.*;
+import com.github.t1.webresource.annotations.WebResourceKey;
 import com.github.t1.webresource.util.HtmlWriter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -48,15 +49,18 @@ class SequenceVisitor extends VisitorDecorator {
 
     @Override public void enterMapping() {
         log.trace("enterMapping: {}", destination());
-        Field idField = findIdField();
-        if (idField != null)
-            html.open("a").a("href", itemLink(idField));
+        Field refField = findRefField();
+        if (refField != null)
+            html.open("a").a("href", itemLink(refField));
         html.text(itemString());
-        if (idField != null)
+        if (refField != null)
             html.close("a");
     }
 
-    private Field findIdField() {
+    private Field findRefField() {
+        for (Field field : destination().getClass().getDeclaredFields())
+            if (field.isAnnotationPresent(WebResourceKey.class))
+                return field;
         for (Field field : destination().getClass().getDeclaredFields())
             if (field.isAnnotationPresent(Id.class))
                 return field;
@@ -64,16 +68,16 @@ class SequenceVisitor extends VisitorDecorator {
     }
 
     @SneakyThrows(ReflectiveOperationException.class)
-    private URI itemLink(Field idField) {
-        idField.setAccessible(true);
-        Object id = idField.get(destination());
-        if (id == null)
+    private URI itemLink(Field refField) {
+        refField.setAccessible(true);
+        Object ref = refField.get(destination());
+        if (ref == null)
             return null;
         String uri = uriInfo.getRequestUri().toString();
         log.debug("build item link from request uri: {}", uri);
         if (uri.endsWith(".html"))
             uri = uri.substring(0, uri.length() - 5);
-        return URI.create(uri + "/" + id + ".html");
+        return URI.create(uri + "/" + ref + ".html");
     }
 
     private String itemString() {

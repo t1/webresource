@@ -1,5 +1,6 @@
 package com.github.t1.webresource.codec;
 
+import com.github.t1.webresource.annotations.WebResourceKey;
 import lombok.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -512,6 +513,24 @@ public class HtmlMessageBodyWriterTest {
                         + "    <ul>\n"
                         + "      <li><a href=\"http://example.org/app/things/0.html\">PojoWithId(id=0, value=a)</a></li>\n"
                         + "      <li><a href=\"http://example.org/app/things/1.html\">PojoWithId(id=1, value=b)</a></li>\n"
+                        + "    </ul>\n"));
+    }
+
+    @Test
+    public void shouldWriteListOfPojosWithKeyLinkWithHtml() {
+        when(writer.uriInfo.getRequestUri()).thenReturn(URI.create("http://example.org/app/things.html"));
+        @Value
+        class PojoWithKey {
+            @WebResourceKey String key;
+            String value;
+        }
+
+        assertThat(write(new GenericEntity<List<PojoWithKey>>(asList(
+                new PojoWithKey("a", "one"), new PojoWithKey("b", "two"))) {}))
+                .isEqualTo(html("Pojo With Keys", ""
+                        + "    <ul>\n"
+                        + "      <li><a href=\"http://example.org/app/things/a.html\">PojoWithKey(key=a, value=one)</a></li>\n"
+                        + "      <li><a href=\"http://example.org/app/things/b.html\">PojoWithKey(key=b, value=two)</a></li>\n"
                         + "    </ul>\n"));
     }
 

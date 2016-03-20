@@ -1,6 +1,6 @@
 package com.github.t1.webresource.model;
 
-import com.github.t1.webresource.annotations.WebResource;
+import com.github.t1.webresource.annotations.*;
 import com.github.t1.webresource.codec.HtmlTitle;
 import lombok.*;
 
@@ -28,6 +28,7 @@ public class Group implements Serializable {
     @Version
     int version;
 
+    @WebResourceKey
     private @Column
     String key;
 
