@@ -1,6 +1,6 @@
 package com.github.t1.webresource.model;
 
-import com.github.t1.webresource.WebResource;
+import com.github.t1.webresource.annotations.WebResource;
 import lombok.*;
 
 import javax.persistence.*;

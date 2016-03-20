@@ -1,10 +1,10 @@
 package com.github.t1.webresource;
 
-import java.util.List;
+import com.github.t1.webresource.annotations.*;
+import com.github.t1.webresource.typewriter.TypeString;
 
 import javax.lang.model.element.*;
-
-import com.github.t1.webresource.typewriter.TypeString;
+import java.util.List;
 
 public class WebResourceType {
     private final TypeElement typeElement;

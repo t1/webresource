@@ -1,6 +1,6 @@
 package com.github.t1.webresource.model;
 
-import com.github.t1.webresource.WebResource;
+import com.github.t1.webresource.annotations.WebResource;
 import com.github.t1.webresource.codec.HtmlTitle;
 import lombok.*;
 
@@ -37,4 +37,8 @@ public class Group implements Serializable {
 
     private @Column
     String description;
+
+    @Override public String toString() {
+        return "Group[" + key + ":" + name + ":" + description + "]";
+    }
 }

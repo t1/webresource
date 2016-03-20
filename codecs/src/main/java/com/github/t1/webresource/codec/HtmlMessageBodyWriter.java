@@ -86,7 +86,7 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
             bootstrapCss();
             HtmlStyleSheet css = annotations().getAnnotation(HtmlStyleSheet.class); // TODO list on type + more
             if (css != null)
-                stylesheet(URI.create(css.value()), css.integrity());
+                stylesheet(uriInfo.getBaseUri().resolve(css.value()), css.integrity());
         }
 
         private void bootstrapCss() {

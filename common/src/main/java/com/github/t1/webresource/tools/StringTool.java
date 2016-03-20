@@ -1,4 +1,4 @@
-package com.github.t1.webresource.util;
+package com.github.t1.webresource.tools;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,16 +12,11 @@ import java.util.stream.IntStream;
  * get {@link IntStream#flatMap(IntFunction) flat mapped}.
  *
  * Functions without state can be just method references (e.g. {@link #uppercase(int)}; functions that need state have to
- * be instantiated for each run. E.g. {@link CamelToWords} needs to remember if it's the first character, so no leading space
+ * be instantiated for each run. E.g. {@link CamelToDelimiter} needs to remember if it's the first character, so no leading space
  * is produced.
  */
 @RequiredArgsConstructor
 public class StringTool implements Function<String, String> {
-    // ----------------- static convenience
-    public static String camelToWords(String in) {
-        return of(camelToWords()).apply(in);
-    }
-
     // ----------------- core
 
     public static StringTool empty() {
@@ -57,22 +52,37 @@ public class StringTool implements Function<String, String> {
         return finisher.apply(out.toString());
     }
 
-    // ----------------- functions
+    // ----------------- helpers
 
-    public static IntStream uppercase(int codePoint) {
-        return IntStream.of(Character.toUpperCase(codePoint));
+    private static IntFunction<? extends IntStream> IntFunction_andThen(
+            IntFunction<? extends IntStream> before,
+            IntFunction<? extends IntStream> after) {
+        return codePoint -> before.apply(codePoint).flatMap(after);
     }
 
-    public static CamelToWords<IntStream> camelToWords() { return new CamelToWords<>(); }
+    private static IntFunction<? extends IntStream> IntFunction_identityStream() { return IntStream::of; }
 
-    public static class CamelToWords<T> implements IntFunction<IntStream> {
+    // ----------------- functions
+
+    public static IntStream uppercase(int codePoint) { return IntStream.of(Character.toUpperCase(codePoint)); }
+
+    public static IntStream lowercase(int codePoint) { return IntStream.of(Character.toLowerCase(codePoint)); }
+
+    public static CamelToDelimiter camelToKebabCase() { return new CamelToDelimiter('-'); }
+
+    public static CamelToDelimiter camelToWords() { return new CamelToDelimiter(' '); }
+
+    @RequiredArgsConstructor
+    public static class CamelToDelimiter implements IntFunction<IntStream> {
+        private final char delimiter;
+
         private boolean first = true;
 
         @Override public IntStream apply(int codePoint) {
             try {
-                if (!first && Character.isUpperCase(codePoint))
-                    return IntStream.of(' ', codePoint);
-                else
+                if (!first && Character.isUpperCase(codePoint)) {
+                    return IntStream.of(delimiter, codePoint);
+                } else
                     return IntStream.of(codePoint);
             } finally {
                 first = false;
@@ -83,14 +93,4 @@ public class StringTool implements Function<String, String> {
     public static String pluralize(String string) {
         return string + "s"; // TODO get smarter than this ;)
     }
-
-    // ----------------- helpers
-
-    public static IntFunction<? extends IntStream> IntFunction_andThen(
-            IntFunction<? extends IntStream> before,
-            IntFunction<? extends IntStream> after) {
-        return codePoint -> before.apply(codePoint).flatMap(after);
-    }
-
-    public static IntFunction<? extends IntStream> IntFunction_identityStream() { return IntStream::of; }
 }

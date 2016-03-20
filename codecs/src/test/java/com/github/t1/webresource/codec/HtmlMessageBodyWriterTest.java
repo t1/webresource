@@ -27,6 +27,11 @@ public class HtmlMessageBodyWriterTest {
     @InjectMocks HtmlMessageBodyWriter writer;
     @Mock UriInfo uriInfo;
 
+    @Before
+    public void setUp() throws Exception {
+        when(writer.uriInfo.getBaseUri()).thenReturn(URI.create("http://example.org/app"));
+    }
+
     @SneakyThrows(IOException.class)
     private String write(Object object) {
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
@@ -112,15 +117,15 @@ public class HtmlMessageBodyWriterTest {
         String html = write(new SimplePojo());
 
         assertThat(html).isEqualTo(html("Simple Pojo", ""
-                + "    <dl class=\"dl-horizontal\">\n"
-                + "      <dt>one</dt>\n"
-                + "      <dd>a</dd>\n"
+                + "    <dl class=\"dl-horizontal simple-pojo\">\n"
+                + "      <dt class=\"simple-pojo\" id=\"one\">one</dt>\n"
+                + "      <dd class=\"simple-pojo\" id=\"one\">a</dd>\n"
                 + "\n"
-                + "      <dt>two</dt>\n"
-                + "      <dd>b</dd>\n"
+                + "      <dt class=\"simple-pojo\" id=\"two\">two</dt>\n"
+                + "      <dd class=\"simple-pojo\" id=\"two\">b</dd>\n"
                 + "\n"
-                + "      <dt>three</dt>\n"
-                + "      <dd>3</dd>\n"
+                + "      <dt class=\"simple-pojo\" id=\"three\">three</dt>\n"
+                + "      <dd class=\"simple-pojo\" id=\"three\">3</dd>\n"
                 + "    </dl>\n"));
     }
 
@@ -135,11 +140,11 @@ public class HtmlMessageBodyWriterTest {
         String html = write(new StyledPojo());
 
         assertThat(html).isEqualTo(head("Styled Pojo", ""
-                + "    <link rel=\"stylesheet\" href=\"/foo.css\"/>\n")
+                + "    <link rel=\"stylesheet\" href=\"http://example.org/foo.css\"/>\n")
                 + body(""
-                + "    <dl class=\"dl-horizontal\">\n"
-                + "      <dt>one</dt>\n"
-                + "      <dd>a</dd>\n"
+                + "    <dl class=\"dl-horizontal styled-pojo\">\n"
+                + "      <dt class=\"styled-pojo\" id=\"one\">one</dt>\n"
+                + "      <dd class=\"styled-pojo\" id=\"one\">a</dd>\n"
                 + "    </dl>\n"));
     }
 
@@ -152,7 +157,7 @@ public class HtmlMessageBodyWriterTest {
         String html = write(new EmptyPojo());
 
         assertThat(html).isEqualTo(head("Empty Pojo", ""
-                + "    <link rel=\"stylesheet\" href=\"/foo.css\" "
+                + "    <link rel=\"stylesheet\" href=\"http://example.org/foo.css\" "
                 + /*   */ "integrity=\"abc\" "
                 + /*   */ "crossorigin=\"anonymous\"/>\n")
                 + body(""));
@@ -255,9 +260,9 @@ public class HtmlMessageBodyWriterTest {
         assertThat(html).isEqualTo(html("Panel Pojo", ""
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "          <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -278,9 +283,9 @@ public class HtmlMessageBodyWriterTest {
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">Panel Title Pojo</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-title-pojo\">\n"
+                + "          <dt class=\"panel-title-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-title-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -301,9 +306,9 @@ public class HtmlMessageBodyWriterTest {
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">Foo</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "          <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -324,9 +329,9 @@ public class HtmlMessageBodyWriterTest {
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">Panel Pojo</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "          <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -347,9 +352,9 @@ public class HtmlMessageBodyWriterTest {
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">Foo</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "          <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -366,9 +371,9 @@ public class HtmlMessageBodyWriterTest {
         String html = write(new PanelPojo());
 
         assertThat(html).isEqualTo(html("a", ""
-                + "    <dl class=\"dl-horizontal\">\n"
-                + "      <dt>one</dt>\n"
-                + "      <dd>a</dd>\n"
+                + "    <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "      <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "      <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "    </dl>\n"));
     }
 
@@ -388,9 +393,9 @@ public class HtmlMessageBodyWriterTest {
                 + "    <div class=\"panel panel-default\">\n"
                 + "      <div class=\"panel-heading\"><h1 class=\"panel-title\">a</h1></div>\n"
                 + "      <div class=\"panel-body\">\n"
-                + "        <dl class=\"dl-horizontal\">\n"
-                + "          <dt>one</dt>\n"
-                + "          <dd>a</dd>\n"
+                + "        <dl class=\"dl-horizontal panel-pojo\">\n"
+                + "          <dt class=\"panel-pojo\" id=\"one\">one</dt>\n"
+                + "          <dd class=\"panel-pojo\" id=\"one\">a</dd>\n"
                 + "        </dl>\n"
                 + "      </div>\n"
                 + "    </div>\n"));
@@ -539,12 +544,12 @@ public class HtmlMessageBodyWriterTest {
         // TODO no nl between dt and dd and continue
         assertThat(write(new PojoWithId()))
                 .isEqualTo(html("Pojo With Id", ""
-                        + "    <dl class=\"dl-horizontal\">\n"
-                        + "      <dt>one</dt>\n"
-                        + "      <dd>a</dd>\n"
+                        + "    <dl class=\"dl-horizontal pojo-with-id\">\n"
+                        + "      <dt class=\"pojo-with-id\" id=\"one\">one</dt>\n"
+                        + "      <dd class=\"pojo-with-id\" id=\"one\">a</dd>\n"
                         + "\n"
-                        + "      <dt>two</dt>\n"
-                        + "      <dd>b</dd>\n"
+                        + "      <dt class=\"pojo-with-id\" id=\"two\">two</dt>\n"
+                        + "      <dd class=\"pojo-with-id\" id=\"two\">b</dd>\n"
                         + "    </dl>\n"));
     }
 
@@ -568,12 +573,12 @@ public class HtmlMessageBodyWriterTest {
 
         assertThat(write(new PojoWithId()))
                 .isEqualTo(html("Pojo With Id", ""
-                        + "    <dl class=\"dl-horizontal\">\n"
-                        + "      <dt>one</dt>\n"
-                        + "      <dd>a</dd>\n"
+                        + "    <dl class=\"dl-horizontal pojo-with-id\">\n"
+                        + "      <dt class=\"pojo-with-id\" id=\"one\">one</dt>\n"
+                        + "      <dd class=\"pojo-with-id\" id=\"one\">a</dd>\n"
                         + "\n"
-                        + "      <dt>two</dt>\n"
-                        + "      <dd>b</dd>\n"
+                        + "      <dt class=\"pojo-with-id\" id=\"two\">two</dt>\n"
+                        + "      <dd class=\"pojo-with-id\" id=\"two\">b</dd>\n"
                         + "    </dl>\n"));
     }
 
@@ -587,9 +592,9 @@ public class HtmlMessageBodyWriterTest {
 
         assertThat(write(new PojoWithId()))
                 .isEqualTo(html("Pojo With Id", ""
-                        + "    <dl class=\"dl-horizontal\">\n"
-                        + "      <dt>one</dt>\n"
-                        + "      <dd>a</dd>\n"
+                        + "    <dl class=\"dl-horizontal pojo-with-id\">\n"
+                        + "      <dt class=\"pojo-with-id\" id=\"one\">one</dt>\n"
+                        + "      <dd class=\"pojo-with-id\" id=\"one\">a</dd>\n"
                         + "    </dl>\n"));
     }
 

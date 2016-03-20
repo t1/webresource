@@ -1,5 +1,6 @@
 package com.github.t1.webresource;
 
+import com.github.t1.webresource.annotations.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

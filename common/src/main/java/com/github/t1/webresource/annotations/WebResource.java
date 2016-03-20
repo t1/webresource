@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.annotations;
 
 import java.lang.annotation.Target;
 

@@ -1,5 +1,7 @@
 package com.github.t1.webresource;
 
+import com.github.t1.webresource.annotations.WebResource;
+
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;

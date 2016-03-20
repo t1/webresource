@@ -1,13 +1,13 @@
 package com.github.t1.webresource.codec;
 
 import com.github.t1.stereotypes.Annotations;
-import com.github.t1.webresource.util.StringTool;
+import com.github.t1.webresource.tools.StringTool;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.*;
 import java.util.function.Function;
 
-import static com.github.t1.webresource.util.StringTool.*;
+import static com.github.t1.webresource.tools.StringTool.*;
 import static com.github.t1.webresource.util.Types.*;
 
 class TitleBuilder {
@@ -28,11 +28,11 @@ class TitleBuilder {
         return tool.apply(result);
     }
 
-    public boolean hasHtmlTile() {
+    boolean hasHtmlTile() {
         return getHtmlTitle() != null;
     }
 
-    public boolean hasTitleField() {
+    boolean hasTitleField() {
         return findHtmlTitleField() != null;
     }
 

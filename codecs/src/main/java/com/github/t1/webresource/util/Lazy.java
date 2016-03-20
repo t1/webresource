@@ -1,4 +1,4 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.util;
 
 /** runs a {@link Runnable} exactly once */
 public class Lazy {

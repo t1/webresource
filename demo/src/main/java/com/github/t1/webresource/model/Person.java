@@ -1,6 +1,6 @@
 package com.github.t1.webresource.model;
 
-import com.github.t1.webresource.*;
+import com.github.t1.webresource.annotations.*;
 import com.github.t1.webresource.codec.HtmlTitle;
 import lombok.*;
 
@@ -89,7 +89,7 @@ public class Person implements Serializable {
         return false;
     }
 
-    public String toString() {
+    @Override public String toString() {
         return first + " " + last;
     }
 }

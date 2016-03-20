@@ -1,12 +1,11 @@
 package com.github.t1.webresource;
 
-import java.io.Serializable;
+import com.github.t1.webresource.annotations.WebResource;
+import lombok.Data;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import lombok.Data;
+import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
 @Data
 @Entity

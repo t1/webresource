@@ -1,12 +1,10 @@
-package com.github.t1.webresource;
+package com.github.t1.webresource.annotations;
+
+import javax.persistence.Id;
+import java.lang.annotation.*;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import javax.persistence.Id;
 
 /**
  * By default the {@link Id primary key} will be used for the REST boundary, but sometimes a different, business key
@@ -14,6 +12,4 @@ import javax.persistence.Id;
  */
 @Target({ FIELD })
 @Retention(RUNTIME)
-public @interface WebResourceKey {
-    //
-}
+public @interface WebResourceKey {}
