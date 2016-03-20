@@ -131,6 +131,22 @@ public class HtmlMessageBodyWriterTest {
     }
 
     @Test
+    public void shouldHtmlEscapeValueString() throws IOException {
+        @Data
+        class StyledPojo {
+            String one = "\"'&<>";
+        }
+
+        String html = write(new StyledPojo());
+
+        assertThat(html).isEqualTo(html("Styled Pojo", ""
+                + "    <dl class=\"dl-horizontal styled-pojo\">\n"
+                + "      <dt class=\"styled-pojo\" id=\"one\">one</dt>\n"
+                + "      <dd class=\"styled-pojo\" id=\"one\">&quot;&apos;&amp;&lt;&gt;</dd>\n"
+                + "    </dl>\n"));
+    }
+
+    @Test
     public void shouldWriteSimplePojoWithStyleSheet() throws IOException {
         @Data
         @HtmlStyleSheet("/foo.css")

@@ -17,6 +17,7 @@ public class HtmlWriter {
 
     public HtmlWriter(Writer out) {
         this.out = (log.isDebugEnabled()) ? new DebugWriter(out) : out;
+        printRaw("<!DOCTYPE html>\n");
     }
 
     @Override public String toString() {
@@ -24,7 +25,7 @@ public class HtmlWriter {
     }
 
     @SneakyThrows(IOException.class)
-    private void print(String text) {
+    private void printRaw(String text) {
         if (isNewLine)
             for (int i = 0; i < indent * 2; i++)
                 out.append(' ');
@@ -32,41 +33,73 @@ public class HtmlWriter {
         out.append(text);
     }
 
+    @SneakyThrows(IOException.class)
+    private void printEscaped(char c) {
+        switch (c) {
+        case '\"':
+            out.append("&quot;");
+            break;
+        case '\'':
+            out.append("&apos;");
+            break;
+        case '&':
+            out.append("&amp;");
+            break;
+        case '<':
+            out.append("&lt;");
+            break;
+        case '>':
+            out.append("&gt;");
+            break;
+        default:
+            out.append(c);
+        }
+    }
+
     public void nl() {
         log.trace("nl");
         isNewLine = false; // empty lines (i.e. two consecutive nl()s) don't need indent
         finishOpenTag();
-        print("\n");
+        printRaw("\n");
         isNewLine = true;
     }
 
     public HtmlWriter open(String tagName) {
         log.trace("open {} <- {}", tagName, tags);
         finishOpenTag();
-        print("<" + tagName);
+        printRaw("<" + tagName);
         tags.push(tagName);
         doneOpenTag = false;
+        return this;
+    }
+
+    public HtmlWriter a(String attributeName) {
+        log.trace("a {}", attributeName);
+        assert !doneOpenTag : "tried to append attribute " + attributeName + " to done open tag";
+        printRaw(" " + attributeName);
         return this;
     }
 
     public HtmlWriter a(String attributeName, Object value) {
         log.trace("a {}={}", attributeName, value);
         assert !doneOpenTag : "tried to append attribute " + attributeName + " to done open tag";
-        print(" " + attributeName + "=\"" + value + "\"");
+        printRaw(" " + attributeName + "=\"" + value + "\"");
         return this;
     }
 
     public HtmlWriter text(@NonNull Object text) {
         log.trace("text: {}", text);
         finishOpenTag();
-        print(text.toString()); // TODO escape markup
+        String string = text.toString();
+        for (int i = 0; i < string.length(); i++)
+            printEscaped(string.charAt(i));
         return this;
     }
 
     private void finishOpenTag() {
         if (!doneOpenTag) {
             indent++;
-            print(">");
+            printRaw(">");
             doneOpenTag = true;
         }
     }
@@ -77,10 +110,10 @@ public class HtmlWriter {
         assert expectedTag.equals(tagName) : "expected to close " + expectedTag + " but found " + tagName;
         if (doneOpenTag) {
             indent--;
-            print("</" + tagName + ">");
+            printRaw("</" + tagName + ">");
         } else {
             doneOpenTag = true;
-            print("/>");
+            printRaw("/>");
         }
         return this;
     }

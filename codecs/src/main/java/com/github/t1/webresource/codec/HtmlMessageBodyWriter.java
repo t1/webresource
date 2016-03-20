@@ -51,14 +51,13 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
         private final Object pojo;
         private final HtmlWriter html;
 
-        Builder(Type genericType, Object pojo, OutputStream entityStream) {
+        private Builder(Type genericType, Object pojo, OutputStream entityStream) {
             this.genericType = genericType;
             this.pojo = pojo;
             this.html = new HtmlWriter(new OutputStreamWriter(entityStream));
         }
 
         public void build() {
-            html.text("<!DOCTYPE html>").nl();
             html.open("html").nl();
 
             head();
@@ -105,8 +104,8 @@ public class HtmlMessageBodyWriter implements MessageBodyWriter<Object> {
 
         private AnnotatedElement annotations() {
             Class<?> type = (Class<?>) (isGenericCollection(genericType)
-                    ? elementType((ParameterizedType) genericType)
-                    : genericType);
+                                                ? elementType((ParameterizedType) genericType)
+                                                : genericType);
             return Annotations.on(type);
         }
 
