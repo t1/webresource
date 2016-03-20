@@ -91,6 +91,8 @@ public class StringTool implements Function<String, String> {
     }
 
     public static String pluralize(String string) {
-        return string + "s"; // TODO get smarter than this ;)
+        if (string.endsWith("y"))
+            return string.substring(0, string.length() - 1) + "ies";
+        return string + "s";
     }
 }

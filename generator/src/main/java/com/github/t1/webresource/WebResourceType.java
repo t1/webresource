@@ -1,6 +1,7 @@
 package com.github.t1.webresource;
 
 import com.github.t1.webresource.annotations.*;
+import com.github.t1.webresource.tools.StringTool;
 import com.github.t1.webresource.typewriter.TypeString;
 
 import javax.lang.model.element.*;
@@ -11,7 +12,7 @@ public class WebResourceType {
     final TypeString type;
     final String pkg;
     final String simple;
-    final String entityName;
+    private final String entityName;
     final String lower;
     final String plural;
     final String qualified;
@@ -21,14 +22,14 @@ public class WebResourceType {
     public final WebResourceField version;
     final List<WebResourceField> subResourceFields;
 
-    public WebResourceType(TypeElement typeElement) {
+    WebResourceType(TypeElement typeElement) {
         this.typeElement = typeElement;
         this.pkg = pkg();
         this.type = new TypeString(typeElement.getQualifiedName().toString());
         this.simple = typeElement.getSimpleName().toString();
         this.entityName = entity();
         this.lower = simple.toLowerCase();
-        this.plural = new WebResourceTypeInfo(simple).plural;
+        this.plural = StringTool.of(StringTool::lowercase).and(StringTool::pluralize).apply(simple);
         this.qualified = qualified();
         this.extended = isExtended();
         this.id = id();
@@ -40,7 +41,7 @@ public class WebResourceType {
     private String pkg() {
         for (Element element = typeElement; element != null; element = element.getEnclosingElement()) {
             if (ElementKind.PACKAGE == element.getKind()) {
-                return ((PackageElement) element).getQualifiedName().toString();
+                return ((QualifiedNameable) element).getQualifiedName().toString();
             }
         }
         throw new IllegalStateException("no package for " + typeElement);
@@ -87,7 +88,7 @@ public class WebResourceType {
         return WebResourceField.findFields(typeElement, WebSubResource.class.getName());
     }
 
-    public boolean primary() {
+    boolean primary() {
         return id.equals(key);
     }
 }
