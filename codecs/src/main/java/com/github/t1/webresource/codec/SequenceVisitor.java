@@ -38,7 +38,7 @@ class SequenceVisitor extends VisitorDecorator {
 
     private boolean subSequence() {return guide().depth() > myDepth;}
 
-    @Override public void enterItem() {
+    @Override public void enterItem(Object item) {
         log.trace("enterItem: {}", destination());
         if (!ulWritten) {
             ulWritten = true;

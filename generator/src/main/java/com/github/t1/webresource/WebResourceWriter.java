@@ -32,7 +32,7 @@ class WebResourceWriter {
     }
 
     private void buildClass() {
-        classBuilder.annotate(Path.class).value("/" + type.plural);
+        classBuilder.annotate(Path.class).value(type.path);
         classBuilder.annotate(Stateless.class);
         logger();
         store.declare(classBuilder);

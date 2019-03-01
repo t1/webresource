@@ -1,11 +1,20 @@
 package com.github.t1.webresource;
 
-import com.github.t1.webresource.annotations.*;
+import com.github.t1.webresource.annotations.WebResource;
+import com.github.t1.webresource.annotations.WebResourceKey;
+import com.github.t1.webresource.annotations.WebSubResource;
 import com.github.t1.webresource.tools.StringTool;
 import com.github.t1.webresource.typewriter.TypeString;
 
-import javax.lang.model.element.*;
-import java.util.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.QualifiedNameable;
+import javax.lang.model.element.TypeElement;
+import java.util.List;
+import java.util.Map;
 
 public class WebResourceType {
     private final TypeElement typeElement;
@@ -15,6 +24,7 @@ public class WebResourceType {
     final String entityName;
     final String lower;
     final String plural;
+    final String path;
     final String qualified;
     final boolean extended;
     public final WebResourceField id;
@@ -29,7 +39,8 @@ public class WebResourceType {
         this.simple = typeElement.getSimpleName().toString();
         this.entityName = entity();
         this.lower = simple.toLowerCase();
-        this.plural = StringTool.of(StringTool::lowercase).and(StringTool::pluralize).apply(simple);
+        this.plural = plural();
+        this.path = path();
         this.qualified = qualified();
         this.extended = isExtended();
         this.id = id();
@@ -54,6 +65,15 @@ public class WebResourceType {
         return annotation.extended();
     }
 
+    private String path() {
+        WebResource annotation = typeElement.getAnnotation(WebResource.class);
+        return (annotation == null || annotation.path().isEmpty()) ? "/" + plural : annotation.path();
+    }
+
+    private String plural() {
+        return StringTool.of(StringTool::lowercase).and(StringTool::pluralize).apply(simple);
+    }
+
     private String qualified() {
         return typeElement.getQualifiedName().toString();
     }
@@ -62,7 +82,7 @@ public class WebResourceType {
         AnnotationMirror annotation = WebResourceField.getAnnotation(typeElement, "javax.persistence.Entity");
         if (annotation != null)
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry :
-                    annotation.getElementValues().entrySet())
+                annotation.getElementValues().entrySet())
                 if (entry.getKey().getSimpleName().contentEquals("name"))
                     return entry.getValue().getValue().toString();
         return typeElement.getSimpleName().toString();

@@ -16,4 +16,10 @@ public @interface WebResource {
      * JSON, etc. But it may impact performance and scalability to use extended entity managers.
      */
     boolean extended() default false;
+
+    /**
+     * The path where this resource should be served from.
+     * Defaults to the plural of the entity name.
+     */
+    String path() default "";
 }

@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * The annotation processor that generates the REST bindings
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationClasses(WebResource.class)
 public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
 
@@ -50,7 +50,7 @@ public class WebResourceAnnotationProcessor extends AbstractProcessor2 {
         return false;
     }
 
-    public synchronized void process(Element element) {
+    private synchronized void process(Element element) {
         note("process " + path(element));
         this.type = (TypeElement) element;
         String targetTypeName = type.getQualifiedName() + "WebResource";

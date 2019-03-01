@@ -69,13 +69,13 @@ class MappingVisitor extends Visitor {
     }
 
     @Override public void continueMapping() {
-        log.trace("continueMapping {}");
+        log.trace("continueMapping");
         if (dl.ran())
             continueNl.reset();
     }
 
     @Override public void leaveMapping() {
-        log.trace("leaveMapping {}");
+        log.trace("leaveMapping");
         this.cssClass = null;
         if (dl.ran())
             html.close("dl").nl();
@@ -88,7 +88,7 @@ class MappingVisitor extends Visitor {
         super.enterSequence();
     }
 
-    @Override public void enterItem() {
+    @Override public void enterItem(Object item) {
         log.trace("enterItem (ulWritten={})", ul.ran());
         ul.run();
         html.open("li");
@@ -100,7 +100,7 @@ class MappingVisitor extends Visitor {
     }
 
     @Override public void leaveSequence() {
-        log.trace("leaveSequence {}");
+        log.trace("leaveSequence");
         if (ul.ran())
             html.close("ul").nl();
         ul.reset();
